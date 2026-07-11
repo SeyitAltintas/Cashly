@@ -882,7 +882,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               children: [
                 // Sesli dikte aktifken editor+title+kategori dokunmaya kapat
                 IgnorePointer(
-                  ignoring: _isListening,
+                  ignoring: _isDictationBoxOpen,
                   child: Column(
                     children: [
                       _buildTitleField(colorScheme),
@@ -932,7 +932,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           child: child,
                         ),
                       ),
-                      child: _isEditing && !_isListening
+                      child: _isEditing && !_isDictationBoxOpen
                           ? _buildFloatingToolbar(colorScheme, controller)
                           : const SizedBox.shrink(),
                     ),
