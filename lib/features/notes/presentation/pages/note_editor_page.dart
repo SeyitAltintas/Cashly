@@ -1300,72 +1300,101 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       right: 0,
       bottom: 0,
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
           child: Container(
             padding: EdgeInsets.only(
+              top: 24,
+              bottom: MediaQuery.paddingOf(context).bottom > 0 ? MediaQuery.paddingOf(context).bottom + 16 : 32,
               left: 24,
-              right: 16,
-              top: 16,
-              bottom: MediaQuery.paddingOf(context).bottom > 0 ? MediaQuery.paddingOf(context).bottom + 8 : 24,
+              right: 24,
             ),
             decoration: BoxDecoration(
-              color: colorScheme.surface.withAlpha(220),
-              
+              color: colorScheme.surface.withAlpha(240),
+              border: Border(
+                top: BorderSide(
+                  color: colorScheme.outlineVariant.withAlpha(50),
+                  width: 1,
+                ),
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(15),
+                  color: Colors.black.withAlpha(20),
                   blurRadius: 32,
-                  offset: const Offset(0, -4),
+                  offset: const Offset(0, -8),
                 ),
               ],
             ),
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      _WaveformIndicator(
-                        colorScheme: colorScheme,
-                        isListening: _isListening,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          _isListening
-                              ? 'Sizi Dinliyorum...'
-                              : 'Mikrofon Duraklatıldı',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.3,
-                            color: colorScheme.onSurface,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+                // Drag handle (visual only)
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: colorScheme.outlineVariant.withAlpha(100),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                const SizedBox(height: 32),
+                
+                // Title
+                Text(
+                  _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 48),
+                
+                // Center Mic Area
+                Stack(
+                  alignment: Alignment.center,
                   children: [
-                    _buildSwitchToKeyboardButton(colorScheme),
-                    const SizedBox(width: 8),
+                    // Ripples
+                    if (_isListening)
+                      _RippleAnimation(colorScheme: colorScheme),
+                    
+                    // Main Mic Button
                     GestureDetector(
                       onTap: _toggleListening,
-                      child: Transform.scale(
-                        scale: 0.8,
-                        child: _PulsingMicButton(
-                          colorScheme: colorScheme,
-                          isListening: _isListening,
+                      child: Container(
+                        width: 88,
+                        height: 88,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: colorScheme.primary,
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.primary.withAlpha(100),
+                              blurRadius: 24,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.mic_rounded,
+                          color: Colors.white,
+                          size: 40,
                         ),
                       ),
                     ),
+                  ],
+                ),
+                
+                const SizedBox(height: 48),
+                
+                // Bottom row with keyboard button on the right
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    _buildSwitchToKeyboardButton(colorScheme),
                   ],
                 ),
               ],
@@ -1384,15 +1413,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         onTap: () async {
           await _closeDictationBox();
           if (!mounted) return;
-          // Editoru odakla — klavye ve toolbar otomatik açılır
-          _editorFocusNode.requestFocus();
+          // Klavye açılırken oluşabilen ANR hatasını önlemek için kısa bir gecikme
+          Future.delayed(const Duration(milliseconds: 150), () {
+            if (mounted) _editorFocusNode.requestFocus();
+          });
         },
         child: Container(
-          width: 52,
-          height: 52,
+          width: 56,
+          height: 56,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.transparent, // Arkaplanı kaldır
+            color: colorScheme.surfaceContainerHigh,
             border: Border.all(
               color: colorScheme.outlineVariant.withAlpha(80),
               width: 1,
@@ -1400,8 +1431,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           ),
           child: Icon(
             Icons.keyboard_rounded,
-            size: 20,
-            color: colorScheme.onSurfaceVariant, // Daha hafif bir renk
+            size: 24,
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -2583,139 +2614,15 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
 }
 
 /// Dinleme sırasında alt ortada gösterilen animasyonlu mikrofon butonu.
-class _PulsingMicButton extends StatefulWidget {
+class _RippleAnimation extends StatefulWidget {
   final ColorScheme colorScheme;
-  final bool isListening;
-
-  const _PulsingMicButton({
-    required this.colorScheme,
-    required this.isListening,
-  });
+  const _RippleAnimation({required this.colorScheme});
 
   @override
-  State<_PulsingMicButton> createState() => _PulsingMicButtonState();
+  State<_RippleAnimation> createState() => _RippleAnimationState();
 }
 
-class _PulsingMicButtonState extends State<_PulsingMicButton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scaleAnim;
-  late final Animation<double> _opacityAnim;
-
-  @override
-  void didUpdateWidget(covariant _PulsingMicButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.isListening && !oldWidget.isListening) {
-      _controller.repeat(reverse: true);
-    } else if (!widget.isListening && oldWidget.isListening) {
-      _controller.stop();
-      _controller.reset();
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    );
-    if (widget.isListening) {
-      _controller.repeat(reverse: true);
-    }
-
-    _scaleAnim = Tween<double>(
-      begin: 1.0,
-      end: 1.18,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-    _opacityAnim = Tween<double>(
-      begin: 0.4,
-      end: 0.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final primary = widget.colorScheme.primary;
-    return SizedBox(
-      width: 80,
-      height: 80,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Pulsing ring
-          if (widget.isListening)
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) => Transform.scale(
-                scale: _scaleAnim.value,
-                child: Opacity(
-                  opacity: _opacityAnim.value,
-                  child: Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: primary.withValues(alpha: 0.35),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          // Mic button outer ring
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: primary.withValues(alpha: 0.3),
-                width: 1.5,
-              ),
-            ),
-            alignment: Alignment.center,
-            child: Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: primary,
-                boxShadow: [
-                  BoxShadow(
-                    color: primary.withValues(alpha: 0.4),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.mic_rounded, color: Colors.white, size: 28),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _WaveformIndicator extends StatefulWidget {
-  final ColorScheme colorScheme;
-  final bool isListening;
-  const _WaveformIndicator({
-    required this.colorScheme,
-    required this.isListening,
-  });
-
-  @override
-  State<_WaveformIndicator> createState() => _WaveformIndicatorState();
-}
-
-class _WaveformIndicatorState extends State<_WaveformIndicator>
+class _RippleAnimationState extends State<_RippleAnimation>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
@@ -2724,7 +2631,7 @@ class _WaveformIndicatorState extends State<_WaveformIndicator>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1500),
     )..repeat();
   }
 
@@ -2736,61 +2643,32 @@ class _WaveformIndicatorState extends State<_WaveformIndicator>
 
   @override
   Widget build(BuildContext context) {
-    final activeGradient = LinearGradient(
-      colors: [
-        widget.colorScheme.primary,
-        const Color(0xFF9C27B0), // Mor / Pembe tonu
-      ],
-      begin: Alignment.bottomCenter,
-      end: Alignment.topCenter,
-    );
-
-    final disabledColor = widget.colorScheme.onSurfaceVariant.withValues(
-      alpha: 0.5,
-    );
-    final inactiveGradient = LinearGradient(
-      colors: [disabledColor, disabledColor],
-      begin: Alignment.bottomCenter,
-      end: Alignment.topCenter,
-    );
-
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 0.0, end: widget.isListening ? 1.0 : 0.0),
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-      builder: (context, amplitude, child) {
-        final currentGradient = LinearGradient.lerp(
-          inactiveGradient,
-          activeGradient,
-          amplitude,
-        );
-
-        return AnimatedBuilder(
-          animation: _controller,
-          builder: (context, _) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: List.generate(4, (index) {
-                // Her bar için faz kayması (pi/2 = 90 derece)
-                final phase = index * (pi / 2);
-                // sinüs dalgası 0 ile 1 arası değer alır
-                final wave =
-                    (sin((_controller.value * 2 * pi) + phase) + 1) / 2;
-                final height = 6.0 + (wave * 20.0 * amplitude);
-
-                return Container(
-                  margin: EdgeInsets.only(right: index < 3 ? 4 : 0),
-                  width: 4,
-                  height: height,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(2),
-                    gradient: currentGradient,
-                  ),
-                );
-              }),
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: List.generate(3, (index) {
+            final delay = index * 0.33;
+            var progress = _controller.value - delay;
+            if (progress < 0) progress += 1.0;
+            
+            final size = 88.0 + (progress * 120.0);
+            final opacity = (1.0 - progress).clamp(0.0, 1.0);
+            
+            return Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: widget.colorScheme.primary.withAlpha((opacity * 100).toInt()),
+                  width: 2,
+                ),
+                color: widget.colorScheme.primary.withAlpha((opacity * 20).toInt()),
+              ),
             );
-          },
+          }),
         );
       },
     );
