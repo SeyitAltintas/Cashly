@@ -2735,12 +2735,15 @@ class _GuitarStringsWidgetState extends State<_GuitarStringsWidget>
       builder: (context, soundLevel, _) {
         double normalized = 0.0;
         if (widget.isListening) {
-          if (soundLevel < 0) {
+          if (soundLevel < -1.0) {
             // Usually iOS: -50 to 0 dB
-            normalized = ((soundLevel + 50) / 50).clamp(0.0, 1.0);
+            normalized = ((soundLevel + 50) / 50).clamp(0.15, 1.0);
+          } else if (soundLevel > 0.0) {
+            // Usually Android: 0 to 10. Divide by 5.0 to be more sensitive to speech
+            normalized = (soundLevel / 5.0).clamp(0.15, 1.0);
           } else {
-            // Usually Android: 0 to 10 or similar positive scale
-            normalized = (soundLevel / 10.0).clamp(0.0, 1.0);
+            // Default baseline vibration when silent
+            normalized = 0.15;
           }
         }
 
