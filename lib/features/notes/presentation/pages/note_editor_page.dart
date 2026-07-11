@@ -1303,7 +1303,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
           child: Container(
-            padding: const EdgeInsets.only(left: 20, right: 8, top: 12, bottom: 12),
+            padding: const EdgeInsets.only(left: 20, right: 8, top: 8, bottom: 8),
             decoration: BoxDecoration(
               color: colorScheme.surface.withAlpha(190),
               borderRadius: BorderRadius.circular(32),
@@ -1324,35 +1324,20 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 Expanded(
                   child: Row(
                     children: [
-                      _RecordingIndicator(colorScheme: colorScheme, isListening: _isListening),
-                      const SizedBox(width: 12),
+                      _WaveformIndicator(colorScheme: colorScheme, isListening: _isListening),
+                      const SizedBox(width: 16),
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: colorScheme.onSurface,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              _isListening ? 'Duraksadığınızda kaldığı yerden devam eder.' : 'Mikrofon simgesine dokunarak devam edebilirsiniz.',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 11,
-                                color: colorScheme.onSurfaceVariant,
-                                height: 1.2,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                        child: Text(
+                          _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.3,
+                            color: colorScheme.onSurface,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -1400,19 +1385,16 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           height: 44,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: colorScheme.surfaceContainerHigh,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.12),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            color: Colors.transparent, // Arkaplanı kaldır
+            border: Border.all(
+              color: colorScheme.outlineVariant.withAlpha(80),
+              width: 1,
+            ),
           ),
           child: Icon(
             Icons.keyboard_rounded,
-            size: 22,
-            color: colorScheme.onSurface,
+            size: 20,
+            color: colorScheme.onSurfaceVariant, // Daha hafif bir renk
           ),
         ),
       ),
@@ -2701,42 +2683,28 @@ class _PulsingMicButtonState extends State<_PulsingMicButton>
   }
 }
 
-class _RecordingIndicator extends StatefulWidget {
+
+
+class _WaveformIndicator extends StatefulWidget {
   final ColorScheme colorScheme;
   final bool isListening;
-  const _RecordingIndicator({required this.colorScheme, required this.isListening});
+  const _WaveformIndicator({required this.colorScheme, required this.isListening});
 
   @override
-  State<_RecordingIndicator> createState() => _RecordingIndicatorState();
+  State<_WaveformIndicator> createState() => _WaveformIndicatorState();
 }
 
-class _RecordingIndicatorState extends State<_RecordingIndicator>
+class _WaveformIndicatorState extends State<_WaveformIndicator>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-
-  @override
-  void didUpdateWidget(covariant _RecordingIndicator oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.isListening && !oldWidget.isListening) {
-      _controller.repeat(reverse: true);
-    } else if (!widget.isListening && oldWidget.isListening) {
-      _controller.stop();
-      _controller.value = 1.0;
-    }
-  }
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    if (widget.isListening) {
-      _controller.repeat(reverse: true);
-    } else {
-      _controller.value = 1.0;
-    }
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
   }
 
   @override
@@ -2747,22 +2715,56 @@ class _RecordingIndicatorState extends State<_RecordingIndicator>
 
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _controller,
-      child: Container(
-        width: 10,
-        height: 10,
-        decoration: BoxDecoration(
-          color: widget.isListening ? widget.colorScheme.error : widget.colorScheme.onSurfaceVariant,
-          shape: BoxShape.circle,
-          boxShadow: [
-            if (widget.isListening) BoxShadow(
-              color: widget.colorScheme.error.withValues(alpha: 0.5),
-              blurRadius: 6,
-            ),
-          ],
-        ),
-      ),
+    final activeGradient = LinearGradient(
+      colors: [
+        widget.colorScheme.primary,
+        const Color(0xFF9C27B0), // Mor / Pembe tonu
+      ],
+      begin: Alignment.bottomCenter,
+      end: Alignment.topCenter,
+    );
+    
+    final disabledColor = widget.colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
+    final inactiveGradient = LinearGradient(
+      colors: [disabledColor, disabledColor],
+      begin: Alignment.bottomCenter,
+      end: Alignment.topCenter,
+    );
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0.0, end: widget.isListening ? 1.0 : 0.0),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+      builder: (context, amplitude, child) {
+        final currentGradient = LinearGradient.lerp(inactiveGradient, activeGradient, amplitude);
+        
+        return AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: List.generate(4, (index) {
+                // Her bar için faz kayması (pi/2 = 90 derece)
+                final phase = index * (pi / 2);
+                // sinüs dalgası 0 ile 1 arası değer alır
+                final wave = (sin((_controller.value * 2 * pi) + phase) + 1) / 2;
+                final height = 4.0 + (wave * 20.0 * amplitude);
+
+                return Container(
+                  margin: EdgeInsets.only(right: index < 3 ? 4 : 0),
+                  width: 4,
+                  height: height,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(2),
+                    gradient: currentGradient,
+                  ),
+                );
+              }),
+            );
+          },
+        );
+      },
     );
   }
 }
