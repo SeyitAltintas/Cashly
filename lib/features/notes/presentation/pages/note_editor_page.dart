@@ -73,6 +73,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   // Speech-to-text
   final SpeechService _speechService = SpeechService();
+  bool _isDictationBoxOpen = false;
   bool _isListening = false;
   bool _isRestarting = false; // Eş zamanlı yeniden başlamayı engeller
   String _interimText = ''; // Son partial metin
@@ -936,7 +937,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   ),
                 ),
                 // Sesli dikte aktifken gösterilen floating overlay
-                if (_isListening) _buildListeningOverlay(colorScheme),
+                if (_isDictationBoxOpen) _buildListeningOverlay(colorScheme),
               ],
             ),
           ),
@@ -1321,7 +1322,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 Expanded(
                   child: Row(
                     children: [
-                      _RecordingIndicator(colorScheme: colorScheme),
+                      _RecordingIndicator(colorScheme: colorScheme, isListening: _isListening),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -1329,7 +1330,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Sizi Dinliyorum...',
+                              _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
                               style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 14,
@@ -1339,7 +1340,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Duraksadığınızda kaldığı yerden devam eder.',
+                              _isListening ? 'Duraksadığınızda kaldığı yerden devam eder.' : 'Mikrofon simgesine dokunarak devam edebilirsiniz.',
                               style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 11,
@@ -1362,10 +1363,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     _buildSwitchToKeyboardButton(colorScheme),
                     const SizedBox(width: 8),
                     GestureDetector(
-                      onTap: _stopVoiceDictation,
+                      onTap: _toggleListening,
                       child: Transform.scale(
                         scale: 0.8,
-                        child: _PulsingMicButton(colorScheme: colorScheme),
+                        child: _PulsingMicButton(
+                          colorScheme: colorScheme,
+                          isListening: _isListening,
+                        ),
                       ),
                     ),
                   ],
@@ -1384,7 +1388,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       message: 'Klavyeye Dön',
       child: GestureDetector(
         onTap: () async {
-          await _stopVoiceDictation();
+          await _closeDictationBox();
           if (!mounted) return;
           // Editoru odakla — klavye ve toolbar otomatik açılır
           _editorFocusNode.requestFocus();
@@ -1418,6 +1422,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
     // Toolbar ve klavyeyi kapat (await öncesinde - context async gap önler)
     setState(() {
+      _isDictationBoxOpen = true;
       _isListening = true; // Anında aktif et ki double-tap engellensin
       _isFormatMode = false;
       _isMediaMode = false;
@@ -1562,6 +1567,20 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _voicePauseTimer?.cancel();
     _interimText = '';
     _interimOffset = -1;
+  }
+
+  Future<void> _closeDictationBox() async {
+    setState(() => _isDictationBoxOpen = false);
+    await _stopVoiceDictation();
+  }
+
+  Future<void> _toggleListening() async {
+    if (_isListening) {
+      await _stopVoiceDictation();
+    } else {
+      setState(() => _isListening = true);
+      await _resumeListeningSession();
+    }
   }
 
   Future<void> _stopVoiceDictation() async {
@@ -2556,8 +2575,9 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
 /// Dinleme sırasında alt ortada gösterilen animasyonlu mikrofon butonu.
 class _PulsingMicButton extends StatefulWidget {
   final ColorScheme colorScheme;
+  final bool isListening;
 
-  const _PulsingMicButton({required this.colorScheme});
+  const _PulsingMicButton({required this.colorScheme, required this.isListening});
 
   @override
   State<_PulsingMicButton> createState() => _PulsingMicButtonState();
@@ -2570,12 +2590,26 @@ class _PulsingMicButtonState extends State<_PulsingMicButton>
   late final Animation<double> _opacityAnim;
 
   @override
+  void didUpdateWidget(covariant _PulsingMicButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isListening && !oldWidget.isListening) {
+      _controller.repeat(reverse: true);
+    } else if (!widget.isListening && oldWidget.isListening) {
+      _controller.stop();
+      _controller.reset();
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
+    );
+    if (widget.isListening) {
+      _controller.repeat(reverse: true);
+    }
 
     _scaleAnim = Tween<double>(
       begin: 1.0,
@@ -2603,13 +2637,14 @@ class _PulsingMicButtonState extends State<_PulsingMicButton>
         alignment: Alignment.center,
         children: [
           // Pulsing ring
-          AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) => Transform.scale(
-              scale: _scaleAnim.value,
-              child: Opacity(
-                opacity: _opacityAnim.value,
-                child: Container(
+          if (widget.isListening)
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) => Transform.scale(
+                scale: _scaleAnim.value,
+                child: Opacity(
+                  opacity: _opacityAnim.value,
+                  child: Container(
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
@@ -2645,7 +2680,8 @@ class _PulsingMicButtonState extends State<_PulsingMicButton>
 
 class _RecordingIndicator extends StatefulWidget {
   final ColorScheme colorScheme;
-  const _RecordingIndicator({required this.colorScheme});
+  final bool isListening;
+  const _RecordingIndicator({required this.colorScheme, required this.isListening});
 
   @override
   State<_RecordingIndicator> createState() => _RecordingIndicatorState();
@@ -2656,12 +2692,28 @@ class _RecordingIndicatorState extends State<_RecordingIndicator>
   late final AnimationController _controller;
 
   @override
+  void didUpdateWidget(covariant _RecordingIndicator oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isListening && !oldWidget.isListening) {
+      _controller.repeat(reverse: true);
+    } else if (!widget.isListening && oldWidget.isListening) {
+      _controller.stop();
+      _controller.value = 1.0;
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
-    )..repeat(reverse: true);
+    );
+    if (widget.isListening) {
+      _controller.repeat(reverse: true);
+    } else {
+      _controller.value = 1.0;
+    }
   }
 
   @override
@@ -2678,10 +2730,10 @@ class _RecordingIndicatorState extends State<_RecordingIndicator>
         width: 10,
         height: 10,
         decoration: BoxDecoration(
-          color: widget.colorScheme.error,
+          color: widget.isListening ? widget.colorScheme.error : widget.colorScheme.onSurfaceVariant,
           shape: BoxShape.circle,
           boxShadow: [
-            BoxShadow(
+            if (widget.isListening) BoxShadow(
               color: widget.colorScheme.error.withValues(alpha: 0.5),
               blurRadius: 6,
             ),
