@@ -1374,16 +1374,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   behavior: HitTestBehavior.opaque,
                   child: Container(
                     width: double.infinity,
-                    height: 120, // Increased height to give the wave more room to breathe
+                    height: 80,
                     alignment: Alignment.center,
                     child: Lottie.asset(
                       'assets/lottie/wave.json',
                       width: double.infinity,
-                      fit: BoxFit.cover, // Will crop empty top/bottom space and scale up the wave
+                      fit: BoxFit.contain,
                       animate: _isListening,
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
 
               ],
             ),
