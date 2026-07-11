@@ -1356,12 +1356,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   onTap: _toggleListening,
                   child: Container(
                     width: double.infinity,
-                    height: 100, // Reduced height to keep it clean
+                    height: 120, // Increased height to give the wave more room to breathe
                     alignment: Alignment.center,
                     child: Lottie.asset(
                       'assets/lottie/wave.json',
                       width: double.infinity,
-                      fit: BoxFit.contain, // Will fill width nicely without clipping
+                      fit: BoxFit.cover, // Will crop empty top/bottom space and scale up the wave
                       animate: _isListening,
                     ),
                   ),
