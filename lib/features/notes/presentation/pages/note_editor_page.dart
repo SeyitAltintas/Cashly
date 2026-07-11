@@ -1,12 +1,14 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
+import 'dart:math' as math;
+import 'dart:ui' show ImageFilter;
 
 import 'package:path_provider/path_provider.dart';
-
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
+
+import 'guitar_strings_painter.dart';
+
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,17 +21,17 @@ import 'package:cashly/features/notes/data/repositories/note_repository.dart';
 import 'package:cashly/features/notes/data/repositories/note_category_repository.dart';
 import 'package:cashly/core/services/speech/speech_service.dart';
 
-// ─── Sabitler ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Sabitler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const int _kImageMaxWidth = 1280;
 const int _kImageQuality = 78;
 
-// ─── Widget ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-/// Zengin metin not editörü sayfası.
+/// Zengin metin not editÃ¶rÃ¼ sayfasÄ±.
 ///
-/// [noteId] verilirse mevcut notu yükler ve günceller.
-/// Verilmezse yeni bir not oluşturur.
+/// [noteId] verilirse mevcut notu yÃ¼kler ve gÃ¼nceller.
+/// Verilmezse yeni bir not oluÅŸturur.
 class NoteEditorPage extends StatefulWidget {
   final String? noteId;
   final String? title;
@@ -48,15 +50,15 @@ class NoteEditorPage extends StatefulWidget {
 
 class _NoteEditorPageState extends State<NoteEditorPage>
     with WidgetsBindingObserver {
-  // Nullable: async _loadNote bitmeden dispose gelirse LateInitializationError önlenir.
+  // Nullable: async _loadNote bitmeden dispose gelirse LateInitializationError Ã¶nlenir.
   QuillController? _controller;
   NoteModel? _note;
   int? _selectedColor;
 
   Timer? _autoSaveTimer;
-  Timer? _voicePauseTimer; // Konuşma duraksamalarını algılamak için
+  Timer? _voicePauseTimer; // KonuÅŸma duraksamalarÄ±nÄ± algÄ±lamak iÃ§in
   Timer?
-  _voiceSilenceTimer; // 3 saniyelik sessizlik durumunda mikrofonu kapatmak için
+  _voiceSilenceTimer; // 3 saniyelik sessizlik durumunda mikrofonu kapatmak iÃ§in
   final TextEditingController _titleController = TextEditingController();
   final ValueNotifier<double> _soundLevelNotifier = ValueNotifier(0.0);
 
@@ -78,19 +80,19 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   final SpeechService _speechService = SpeechService();
   bool _isDictationBoxOpen = false;
   bool _isListening = false;
-  bool _isRestarting = false; // Eş zamanlı yeniden başlamayı engeller
+  bool _isRestarting = false; // EÅŸ zamanlÄ± yeniden baÅŸlamayÄ± engeller
   String _interimText = ''; // Son partial metin
-  int _interimOffset = -1; // Interim metnin başladığı Quill offset'i
+  int _interimOffset = -1; // Interim metnin baÅŸladÄ±ÄŸÄ± Quill offset'i
 
   bool _isSaving = false;
   bool _saveQueued = false;
   bool _isLoading = true;
 
-  /// Kullanıcı yükleme sonrası değişiklik yaptı mı?
-  /// PopScope buna bakarak otomatik kayıt ve çıkış sürecini tetikler.
+  /// KullanÄ±cÄ± yÃ¼kleme sonrasÄ± deÄŸiÅŸiklik yaptÄ± mÄ±?
+  /// PopScope buna bakarak otomatik kayÄ±t ve Ã§Ä±kÄ±ÅŸ sÃ¼recini tetikler.
   bool _hasUnsavedChanges = false;
 
-  // ─── Lifecycle ──────────────────────────────────────────────────────────
+  // â”€â”€â”€ Lifecycle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   @override
   void initState() {
@@ -112,7 +114,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   }
 
   void _onFocusChange() {
-    // Sesli dikte aktifken focus değişikliklerini yok say
+    // Sesli dikte aktifken focus deÄŸiÅŸikliklerini yok say
     if (_isListening) return;
     final hasFocus = _editorFocusNode.hasFocus || _titleFocusNode.hasFocus;
     if (_isEditing != hasFocus && mounted) {
@@ -141,8 +143,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // EC-22: Uygulama arka plana atıldığında (veya inaktif olduğunda) otomatik kaydet.
-    // Bu, işletim sisteminin bellek açmak için uygulamayı öldürdüğü durumlarda veri kaybını önler.
+    // EC-22: Uygulama arka plana atÄ±ldÄ±ÄŸÄ±nda (veya inaktif olduÄŸunda) otomatik kaydet.
+    // Bu, iÅŸletim sisteminin bellek aÃ§mak iÃ§in uygulamayÄ± Ã¶ldÃ¼rdÃ¼ÄŸÃ¼ durumlarda veri kaybÄ±nÄ± Ã¶nler.
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
       if (_isListening) {
@@ -154,13 +156,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
   }
 
-  // ─── Veri Yönetimi ──────────────────────────────────────────────────────
+  // â”€â”€â”€ Veri YÃ¶netimi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Future<void> _loadNote() async {
     await _repository.init();
 
-    // Edge case: noteId verildi ama Hive'da kayıt yok (silinmiş olabilir).
-    // NoteModel.empty() yerine noteId'yi sabit tutan model oluşturulur.
+    // Edge case: noteId verildi ama Hive'da kayÄ±t yok (silinmiÅŸ olabilir).
+    // NoteModel.empty() yerine noteId'yi sabit tutan model oluÅŸturulur.
     final NoteModel note;
     if (widget.noteId != null) {
       note =
@@ -182,7 +184,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _scheduleAutoSave();
     });
 
-    // mounted kontrolü: dispose erken çağrılmışsa state güncelleme yapma.
+    // mounted kontrolÃ¼: dispose erken Ã§aÄŸrÄ±lmÄ±ÅŸsa state gÃ¼ncelleme yapma.
     if (!mounted) {
       controller.dispose();
       return;
@@ -196,7 +198,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _titleController.text = note.title;
     });
 
-    // 6. Akıllı Klavye ve Odak: Yeni not oluşturuluyorsa klavyeyi otomatik aç
+    // 6. AkÄ±llÄ± Klavye ve Odak: Yeni not oluÅŸturuluyorsa klavyeyi otomatik aÃ§
     if (widget.noteId == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -245,11 +247,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       return;
     }
 
-    // EC-19: Sadece \n içeren ve medya barındırmayan belgeyi kaydetme
+    // EC-19: Sadece \n iÃ§eren ve medya barÄ±ndÄ±rmayan belgeyi kaydetme
     final plainText = controller.document.toPlainText().trim();
     final title = _titleController.text.trim();
 
-    // Medya içerip içermediğini kontrol et
+    // Medya iÃ§erip iÃ§ermediÄŸini kontrol et
     final delta = controller.document.toDelta();
     final hasEmbed = delta.toList().any((op) => op.isInsert && op.data is Map);
 
@@ -257,7 +259,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       if (mounted) {
         setState(() => _hasUnsavedChanges = false);
       }
-      // Rebuild'i beklemek için bir frame atla, böylece PopScope canPop: true olur
+      // Rebuild'i beklemek iÃ§in bir frame atla, bÃ¶ylece PopScope canPop: true olur
       await Future.delayed(Duration.zero);
       return;
     }
@@ -283,11 +285,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       );
       if (mounted) {
         setState(() => _hasUnsavedChanges = false);
-        // Sessiz otomatik kayıt (seamless save)
+        // Sessiz otomatik kayÄ±t (seamless save)
       }
     } catch (_) {
-      // EC-SAVE-ERR: Kayıt başarısız. Hata gösterilir ve canPop=true yapılır
-      // böylece kullanıcı editorde sıkışmaz.
+      // EC-SAVE-ERR: KayÄ±t baÅŸarÄ±sÄ±z. Hata gÃ¶sterilir ve canPop=true yapÄ±lÄ±r
+      // bÃ¶ylece kullanÄ±cÄ± editorde sÄ±kÄ±ÅŸmaz.
       if (mounted) {
         AppSnackBar.error(context, context.l10n.saveFailed);
         setState(() => _hasUnsavedChanges = false);
@@ -305,13 +307,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
   }
 
-  // ─── Renk Seçimi ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Renk SeÃ§imi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   static const List<Color> _lightNoteColors = [
     Color(0xFFFDFBF7), // Pamuk
     Color(0xFFF0F7F4), // Nane
     Color(0xFFF0F4F8), // Buz
-    Color(0xFFFFF0F0), // Gül
+    Color(0xFFFFF0F0), // GÃ¼l
     Color(0xFFF4F0F7), // Lavanta
   ];
 
@@ -319,7 +321,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     Color(0xFF242424), // Koyu Gri
     Color(0xFF142C23), // Koyu Nane
     Color(0xFF122236), // Koyu Mavi
-    Color(0xFF33161A), // Koyu Gül
+    Color(0xFF33161A), // Koyu GÃ¼l
     Color(0xFF261933), // Koyu Lavanta
   ];
 
@@ -343,7 +345,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           'Koyu Pamuk',
           'Koyu Nane',
           'Koyu Mavi',
-          'Koyu Gül',
+          'Koyu GÃ¼l',
           'Koyu Lavanta',
         ];
 
@@ -391,7 +393,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             ),
                           ),
                           const SizedBox(width: 8),
-                          // "Varsayılan" küçük chip butonu
+                          // "VarsayÄ±lan" kÃ¼Ã§Ã¼k chip butonu
                           GestureDetector(
                             onTap: () {
                               setState(() => _selectedColor = null);
@@ -417,7 +419,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                                 ),
                               ),
                               child: Text(
-                                'Varsayılan',
+                                'VarsayÄ±lan',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: _selectedColor == null
@@ -484,11 +486,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     'Pamuk',
     'Nane',
     'Buz',
-    'Gül',
+    'GÃ¼l',
     'Lavanta',
   ];
 
-  // ─── Resim İşlemi ───────────────────────────────────────────────────────
+  // â”€â”€â”€ Resim Ä°ÅŸlemi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Future<String?> _pickAndReturnVideoPath(BuildContext context) async {
     try {
@@ -503,7 +505,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       final parts = picked.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'mp4';
       final fileName =
-          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
+          '${DateTime.now().microsecondsSinceEpoch}_${math.Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesVidDir.path}/$fileName');
       await File(picked.path).copy(dest.path);
       return dest.path;
@@ -513,8 +515,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
   }
 
-  /// EC-5: Galeriden seçilen resmi Documents dizinine kopyalar.
-  /// Cache silinse veya uygulama güncellense bile resim kaybolmaz.
+  /// EC-5: Galeriden seÃ§ilen resmi Documents dizinine kopyalar.
+  /// Cache silinse veya uygulama gÃ¼ncellense bile resim kaybolmaz.
   Future<String?> _pickAndReturnImagePath(BuildContext context) async {
     try {
       final XFile? picked = await _imagePicker.pickImage(
@@ -529,16 +531,16 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         quality: _kImageQuality,
       );
 
-      // Kalıcı dizine kopyala — cache dosyası silinirse resim hala erişilebilir.
+      // KalÄ±cÄ± dizine kopyala â€” cache dosyasÄ± silinirse resim hala eriÅŸilebilir.
       final docsDir = await getApplicationDocumentsDirectory();
       final notesImgDir = Directory('${docsDir.path}/note_images');
       if (!notesImgDir.existsSync()) notesImgDir.createSync(recursive: true);
 
-      // EC-14: Uzantsız dosyalarda split('.').last tamamı alır → 'jpg' fallback.
+      // EC-14: UzantsÄ±z dosyalarda split('.').last tamamÄ± alÄ±r â†’ 'jpg' fallback.
       final parts = compressed.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'jpg';
       final fileName =
-          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
+          '${DateTime.now().microsecondsSinceEpoch}_${math.Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesImgDir.path}/$fileName');
       await compressed.copy(dest.path);
 
@@ -600,7 +602,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ? const Color(0xFF1E1E1E)
               : Colors.white,
           title: const Text(
-            'Bağlantı Ekle',
+            'BaÄŸlantÄ± Ekle',
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 18,
@@ -615,7 +617,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 TextField(
                   controller: textController,
                   decoration: InputDecoration(
-                    labelText: 'Görünecek Metin (İsteğe Bağlı)',
+                    labelText: 'GÃ¶rÃ¼necek Metin (Ä°steÄŸe BaÄŸlÄ±)',
                     labelStyle: const TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 14,
@@ -633,7 +635,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 TextField(
                   controller: linkController,
                   decoration: InputDecoration(
-                    labelText: 'Web Bağlantısı (URL)',
+                    labelText: 'Web BaÄŸlantÄ±sÄ± (URL)',
                     hintText: 'https://...',
                     labelStyle: const TextStyle(
                       fontFamily: 'Inter',
@@ -655,7 +657,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                'İptal',
+                'Ä°ptal',
                 style: TextStyle(
                   color: cs.onSurface.withValues(alpha: 0.6),
                   fontFamily: 'Inter',
@@ -745,7 +747,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       final parts = compressed.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'jpg';
       final fileName =
-          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
+          '${DateTime.now().microsecondsSinceEpoch}_${math.Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesImgDir.path}/$fileName');
       await compressed.copy(dest.path);
 
@@ -774,14 +776,14 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       final parts = picked.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'mp4';
       final fileName =
-          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
+          '${DateTime.now().microsecondsSinceEpoch}_${math.Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesVidDir.path}/$fileName');
       await File(picked.path).copy(dest.path);
 
       return dest.path;
     } catch (_) {
       if (context.mounted) {
-        AppSnackBar.error(context, 'Video yüklenirken hata oluştu');
+        AppSnackBar.error(context, 'Video yÃ¼klenirken hata oluÅŸtu');
       }
       return null;
     }
@@ -799,7 +801,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ListTile(
                 leading: Icon(Icons.camera_alt_outlined, color: cs.primary),
                 title: const Text(
-                  'Fotoğraf Çek',
+                  'FotoÄŸraf Ã‡ek',
                   style: TextStyle(fontFamily: 'Inter'),
                 ),
                 onTap: () async {
@@ -811,7 +813,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ListTile(
                 leading: Icon(Icons.videocam_outlined, color: cs.primary),
                 title: const Text(
-                  'Video Çek',
+                  'Video Ã‡ek',
                   style: TextStyle(fontFamily: 'Inter'),
                 ),
                 onTap: () async {
@@ -827,7 +829,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  // ─── Build ──────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Build â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   @override
   Widget build(BuildContext context) {
@@ -838,7 +840,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     final bgColor =
         _getAdaptiveColor(context, _selectedColor) ?? colorScheme.surface;
 
-    // Cursor rengi: arka plana göre uyarlanır
+    // Cursor rengi: arka plana gÃ¶re uyarlanÄ±r
     final Color cursorColor;
     if (_selectedColor != null) {
       final bg = _getAdaptiveColor(context, _selectedColor)!;
@@ -853,8 +855,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         if (didPop) return;
 
         if (_hasUnsavedChanges) {
-          // Klavyeyi kapat — pop animasyonu sırasında klavyenin bir sonraki sayfaya
-          // yapışmasını önler (geri tuşu ile çıkışta klavye ekranda asilı kalabilir)
+          // Klavyeyi kapat â€” pop animasyonu sÄ±rasÄ±nda klavyenin bir sonraki sayfaya
+          // yapÄ±ÅŸmasÄ±nÄ± Ã¶nler (geri tuÅŸu ile Ã§Ä±kÄ±ÅŸta klavye ekranda asilÄ± kalabilir)
           FocusScope.of(context).unfocus();
           await _saveNote();
           if (mounted && !_hasUnsavedChanges) {
@@ -866,7 +868,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           }
         }
       },
-      // Hero kaldırıldı: Scaffold içinde SnackBar'ın kendi Hero'su ile çakışıyordu.
+      // Hero kaldÄ±rÄ±ldÄ±: Scaffold iÃ§inde SnackBar'Ä±n kendi Hero'su ile Ã§akÄ±ÅŸÄ±yordu.
       // ("A Hero widget cannot be the descendant of another Hero widget" assertion)
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 400),
@@ -878,7 +880,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           appBar: _buildAppBar(colorScheme),
           body: GestureDetector(
             onTap: () {
-              // Sesli dikte aktifken dokunma ile klavye açılmasını engelle
+              // Sesli dikte aktifken dokunma ile klavye aÃ§Ä±lmasÄ±nÄ± engelle
               if (!_isListening) FocusScope.of(context).unfocus();
             },
             child: Stack(
@@ -941,7 +943,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     ),
                   ),
                 ),
-                // Sesli dikte aktifken gösterilen floating overlay
+                // Sesli dikte aktifken gÃ¶sterilen floating overlay
                 if (_isDictationBoxOpen) _buildListeningOverlay(colorScheme),
               ],
             ),
@@ -995,7 +997,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   Widget _buildDateInfo(ColorScheme colorScheme) {
     final fgColor = _getTextColor(colorScheme);
-    // EC-TIMEZONE: toLocal() ile UTC → yerel saat dönüşümü garantilenir.
+    // EC-TIMEZONE: toLocal() ile UTC â†’ yerel saat dÃ¶nÃ¼ÅŸÃ¼mÃ¼ garantilenir.
     final date = (_note?.updatedAt ?? DateTime.now()).toLocal();
     final timeString =
         '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
@@ -1005,7 +1007,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          'Son düzenleme: $timeString',
+          'Son dÃ¼zenleme: $timeString',
           style: TextStyle(
             fontSize: 13,
             color: fgColor.withValues(alpha: 0.5),
@@ -1285,7 +1287,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  // ─── Sesli Dikte ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Sesli Dikte â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildMicButton() {
     return IconButton(
@@ -1295,7 +1297,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  /// Dinleme aktifken ekranın altında gösterilen overlay.
+  /// Dinleme aktifken ekranÄ±n altÄ±nda gÃ¶sterilen overlay.
   Widget _buildListeningOverlay(ColorScheme colorScheme) {
     return Positioned(
       left: 0,
@@ -1336,7 +1338,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
                     // Title
                     Text(
-                      _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
+                      _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon DuraklatÄ±ldÄ±',
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 20,
@@ -1409,15 +1411,15 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  /// Dikte modundan çıkıp klavyeyi ve alt menüyü açan buton.
+  /// Dikte modundan Ã§Ä±kÄ±p klavyeyi ve alt menÃ¼yÃ¼ aÃ§an buton.
   Widget _buildSwitchToKeyboardButton(ColorScheme colorScheme) {
     return Tooltip(
-      message: 'Klavyeye Dön',
+      message: 'Klavyeye DÃ¶n',
       child: GestureDetector(
         onTap: () async {
           await _closeDictationBox();
           if (!mounted) return;
-          // Klavye açılırken oluşabilen ANR hatasını önlemek için kısa bir gecikme
+          // Klavye aÃ§Ä±lÄ±rken oluÅŸabilen ANR hatasÄ±nÄ± Ã¶nlemek iÃ§in kÄ±sa bir gecikme
           Future.delayed(const Duration(milliseconds: 150), () {
             if (mounted) _editorFocusNode.requestFocus();
           });
@@ -1446,10 +1448,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   Future<void> _startVoiceDictation() async {
     if (_controller == null || _isListening) return;
 
-    // Toolbar ve klavyeyi kapat (await öncesinde - context async gap önler)
+    // Toolbar ve klavyeyi kapat (await Ã¶ncesinde - context async gap Ã¶nler)
     setState(() {
       _isDictationBoxOpen = true;
-      _isListening = true; // Anında aktif et ki double-tap engellensin
+      _isListening = true; // AnÄ±nda aktif et ki double-tap engellensin
       _isFormatMode = false;
       _isMediaMode = false;
     });
@@ -1461,7 +1463,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     if (!success) {
       if (mounted) {
         setState(() => _isListening = false);
-        AppSnackBar.error(context, 'Mikrofon erişimi sağlanamadı.');
+        AppSnackBar.error(context, 'Mikrofon eriÅŸimi saÄŸlanamadÄ±.');
       }
       _editorFocusNode.canRequestFocus = true;
       _titleFocusNode.canRequestFocus = true;
@@ -1478,8 +1480,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     await _resumeListeningSession();
   }
 
-  /// Bir dinleme oturumu başlatır. Her cümle bittiğinde otomatik yeniden
-  /// başlar — kullanıcı elle durdurana kadar kapanmaz.
+  /// Bir dinleme oturumu baÅŸlatÄ±r. Her cÃ¼mle bittiÄŸinde otomatik yeniden
+  /// baÅŸlar â€” kullanÄ±cÄ± elle durdurana kadar kapanmaz.
   Future<void> _resumeListeningSession() async {
     if (!_isListening || !mounted || _isRestarting) return;
 
@@ -1523,15 +1525,15 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  /// Partial / final tanıma sonucunu Quill dokümanına yansıt.
+  /// Partial / final tanÄ±ma sonucunu Quill dokÃ¼manÄ±na yansÄ±t.
   void _applyInterimText(String newText) {
-    // Boş sonucu yok say: motor duraksama sırasında boş partial gönderebilir.
+    // BoÅŸ sonucu yok say: motor duraksama sÄ±rasÄ±nda boÅŸ partial gÃ¶nderebilir.
     if (newText.isEmpty) return;
 
     final controller = _controller;
     if (controller == null) return;
 
-    // Önceki interim bloğunu kesin offsetinden sil
+    // Ã–nceki interim bloÄŸunu kesin offsetinden sil
     if (_interimText.isNotEmpty && _interimOffset >= 0) {
       controller.replaceText(
         _interimOffset,
@@ -1544,7 +1546,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _interimText = newText;
     final doc = controller.document;
 
-    // Eğer yeni bir cümleye başlıyorsak, imlecin o anki konumunu baz al
+    // EÄŸer yeni bir cÃ¼mleye baÅŸlÄ±yorsak, imlecin o anki konumunu baz al
     if (_interimOffset < 0) {
       final selection = controller.selection;
       if (selection.isValid && selection.isCollapsed) {
@@ -1562,8 +1564,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
 
     // Duraksama (Pause) tespiti:
-    // Android SpeechToText bazen isFinal fırlatmadan yeni bir cümleye başlayabilir.
-    // Bu durumda eski cümlenin silinmesini önlemek için 1.2 saniyelik bir timer kuruyoruz.
+    // Android SpeechToText bazen isFinal fÄ±rlatmadan yeni bir cÃ¼mleye baÅŸlayabilir.
+    // Bu durumda eski cÃ¼mlenin silinmesini Ã¶nlemek iÃ§in 1.2 saniyelik bir timer kuruyoruz.
     _voicePauseTimer?.cancel();
     _voicePauseTimer = Timer(const Duration(milliseconds: 1200), () {
       if (mounted && _isListening && _interimText.isNotEmpty) {
@@ -1574,7 +1576,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     });
   }
 
-  /// Interim metni kalıcı yap ve iki cümle arasına boşluk ekle.
+  /// Interim metni kalÄ±cÄ± yap ve iki cÃ¼mle arasÄ±na boÅŸluk ekle.
   void _resetVoiceSilenceTimer() {
     _voiceSilenceTimer?.cancel();
     if (!_isListening) return;
@@ -1588,7 +1590,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   void _commitInterimText({bool addSeparator = true}) {
     if (addSeparator && _interimText.isNotEmpty && _interimOffset >= 0) {
-      // Noktalı virgul / cümle arası boşluk
+      // NoktalÄ± virgul / cÃ¼mle arasÄ± boÅŸluk
       final controller = _controller;
       if (controller != null) {
         final spaceOffset = _interimOffset + _interimText.length;
@@ -1615,7 +1617,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     setState(() => _isDictationBoxOpen = false);
     await _stopVoiceDictation();
 
-    // Focus node'ları kutu kapanırken tekrar aktifleştir
+    // Focus node'larÄ± kutu kapanÄ±rken tekrar aktifleÅŸtir
     _editorFocusNode.canRequestFocus = true;
     _titleFocusNode.canRequestFocus = true;
   }
@@ -1631,17 +1633,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   Future<void> _stopVoiceDictation() async {
     if (!_isListening) return;
-    // Flag önce false — restart döngüsünü kır
+    // Flag Ã¶nce false â€” restart dÃ¶ngÃ¼sÃ¼nÃ¼ kÄ±r
     setState(() => _isListening = false);
     _isRestarting = false;
 
-    // Bekleyen interim metni sil (cancel— yazilmamis partial)
-    // veya kullanıcı konuyu yarıda bırakmışsa commit et (sessiz kalma)
+    // Bekleyen interim metni sil (cancelâ€” yazilmamis partial)
+    // veya kullanÄ±cÄ± konuyu yarÄ±da bÄ±rakmÄ±ÅŸsa commit et (sessiz kalma)
     _voicePauseTimer?.cancel();
     _voiceSilenceTimer?.cancel();
     _commitInterimText(addSeparator: false);
 
-    // Focus node'ları kutu kapandığında aktifleştirilecek (_closeDictationBox içinde)
+    // Focus node'larÄ± kutu kapandÄ±ÄŸÄ±nda aktifleÅŸtirilecek (_closeDictationBox iÃ§inde)
 
     await _speechService.stopListening();
 
@@ -1715,7 +1717,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     onPressed: _controller!.hasRedo
                         ? () => _controller!.redo()
                         : null,
-                    tooltip: 'İleri Al',
+                    tooltip: 'Ä°leri Al',
                   ),
                 ],
               );
@@ -1738,8 +1740,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             ),
           )
         else
-          // EC-CHECK-BTN: check butonu kaydetmeden çıkmayı önler;
-          // _saveNote() çalıştırılır ve sonra sayfa kapatılır.
+          // EC-CHECK-BTN: check butonu kaydetmeden Ã§Ä±kmayÄ± Ã¶nler;
+          // _saveNote() Ã§alÄ±ÅŸtÄ±rÄ±lÄ±r ve sonra sayfa kapatÄ±lÄ±r.
           IconButton(
             icon: Icon(Icons.check_rounded, color: fgColor),
             onPressed: () async {
@@ -1827,7 +1829,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             color: colorScheme.onSurface,
                           ),
                         ),
-                        tooltip: 'Yazı Boyutunu Küçült',
+                        tooltip: 'YazÄ± Boyutunu KÃ¼Ã§Ã¼lt',
                         onPressed: _decreaseFontSize,
                       ),
                       QuillToolbarCustomButtonOptions(
@@ -1839,7 +1841,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             color: colorScheme.onSurface,
                           ),
                         ),
-                        tooltip: 'Yazı Boyutunu Büyüt',
+                        tooltip: 'YazÄ± Boyutunu BÃ¼yÃ¼t',
                         onPressed: _increaseFontSize,
                       ),
                     ],
@@ -1927,7 +1929,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             padding: const EdgeInsets.only(right: 4),
             child: IconButton(
               icon: const Icon(Icons.link_rounded, size: 20),
-              tooltip: 'Bağlantı Ekle',
+              tooltip: 'BaÄŸlantÄ± Ekle',
               onPressed: _showCustomTextLinkDialog,
             ),
           ),
@@ -2159,7 +2161,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ListTile(
                         leading: const Icon(Icons.open_in_new_rounded),
                         title: const Text(
-                          'Bağlantıyı aç',
+                          'BaÄŸlantÄ±yÄ± aÃ§',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w500,
@@ -2171,7 +2173,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ListTile(
                         leading: const Icon(Icons.copy_rounded),
                         title: const Text(
-                          'Bağlantıyı kopyala',
+                          'BaÄŸlantÄ±yÄ± kopyala',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w500,
@@ -2186,7 +2188,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           color: Colors.redAccent,
                         ),
                         title: const Text(
-                          'Bağlantıyı kaldır',
+                          'BaÄŸlantÄ±yÄ± kaldÄ±r',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w500,
@@ -2213,8 +2215,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 }
                 return NetworkImage(imageUrl);
               },
-              // EC-15: Eksik/bozuk dosyada Flutter'in kirık ikon yerine
-              // kullanıcı dostu ikon gösterilir.
+              // EC-15: Eksik/bozuk dosyada Flutter'in kirÄ±k ikon yerine
+              // kullanÄ±cÄ± dostu ikon gÃ¶sterilir.
               imageErrorWidgetBuilder: (context, imageUrl, error) {
                 return Container(
                   width: 120,
@@ -2379,7 +2381,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   }
 }
 
-// ─── Yardımcı Widget ────────────────────────────────────────────────────────
+// â”€â”€â”€ YardÄ±mcÄ± Widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _LoadingScaffold extends StatelessWidget {
   const _LoadingScaffold();
@@ -2587,8 +2589,8 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
                     final newCat = NoteCategoryModel.create(name: name);
                     await widget.onCategoryCreated(newCat);
                     if (!mounted) return;
-                    // context'i await öncesinde yerel değişkene al
-                    // (use_build_context_synchronously uyarısını önler)
+                    // context'i await Ã¶ncesinde yerel deÄŸiÅŸkene al
+                    // (use_build_context_synchronously uyarÄ±sÄ±nÄ± Ã¶nler)
                     Navigator.pop(this.context);
                   }
                 },
@@ -2617,7 +2619,7 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
   }
 }
 
-/// Dinleme sırasında alt ortada gösterilen animasyonlu mikrofon butonu.
+/// Dinleme sÄ±rasÄ±nda alt ortada gÃ¶sterilen animasyonlu mikrofon butonu.
 class _GuitarStrings extends StatefulWidget {
   final ColorScheme colorScheme;
   final ValueNotifier<double> soundLevelNotifier;
@@ -2636,7 +2638,7 @@ class _GuitarStrings extends StatefulWidget {
 class _GuitarStringsState extends State<_GuitarStrings>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  // Her telin titreşim fazını takip etmek için
+  // Her telin titreÅŸim fazÄ±nÄ± takip etmek iÃ§in
   final List<double> _phases = [0.0, 0.3, 0.6, 0.9, 1.2];
 
   @override
@@ -2668,7 +2670,7 @@ class _GuitarStringsState extends State<_GuitarStrings>
           animation: _controller,
           builder: (context, _) {
             return CustomPaint(
-              painter: _GuitarStringsPainter(
+              painter: GuitarStringsPainter(
                 color: widget.colorScheme.primary,
                 progress: _controller.value,
                 amplitude: normalized,
@@ -2684,95 +2686,4 @@ class _GuitarStringsState extends State<_GuitarStrings>
   }
 }
 
-class _GuitarStringsPainter extends CustomPainter {
-  final Color color;
-  final double progress;
-  final double amplitude;
-  final List<double> phases;
-  final bool isListening;
 
-  _GuitarStringsPainter({
-    required this.color,
-    required this.progress,
-    required this.amplitude,
-    required this.phases,
-    required this.isListening,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Merkez yarıçapı (mikrofon butonu için boşluk bırak)
-    const double micRadius = 44.0;
-    final double cx = size.width / 2;
-    final double cy = size.height / 2;
-
-    // Tellerin dikey konumları (eşit aralıklı, merkeze doğru yayılmış)
-    const int stringCount = 5;
-    final double spacing = size.height / (stringCount + 1);
-
-    for (int i = 0; i < stringCount; i++) {
-      final double y = spacing * (i + 1);
-      final double phase = phases[i];
-
-      // Her telin titreşim frekansı biraz farklı (miktar olarak tel kalınlığını simüle eder)
-      final double freqMultiplier = 1.0 + (i * 0.15);
-      final double t = progress * math.pi * 2 * freqMultiplier + phase;
-
-      // Telin opaklığı: ortadakiler daha belirgin
-      final double opacityBase = 0.3 + (0.4 * (1.0 - ((i - stringCount / 2).abs() / (stringCount / 2))));
-      final double opacity = isListening ? opacityBase + (amplitude * 0.3) : opacityBase;
-
-      final paint = Paint()
-        ..color = color.withValues(alpha: opacity)
-        ..strokeWidth = 1.5 + (amplitude * 1.0)
-        ..strokeCap = StrokeCap.round
-        ..style = PaintingStyle.stroke;
-
-      final path = Path();
-      const int segments = 80;
-      bool started = false;
-
-      for (int s = 0; s <= segments; s++) {
-        final double x = (s / segments) * size.width;
-
-        // Mikrofon bölgesini atla
-        final dx = x - cx;
-        final dy = y - cy;
-        final dist = math.sqrt(dx * dx + dy * dy);
-        if (dist < micRadius) {
-          if (started) {
-            canvas.drawPath(path, paint);
-            path.reset();
-            started = false;
-          }
-          continue;
-        }
-
-        // Telin titreşim amplitüdü ortadan uçlara doğru artar (gerçek tel gibi)
-        // Orta noktadan uzaklık normalize edilmiş
-        final double midDistNorm = (x - cx).abs() / cx;
-        // Titreşim: sinüs dalgası (t zamanına ve konuma bağlı)
-        final double stringAmplitude = amplitude * 22.0 * math.sin(math.pi * (1.0 - midDistNorm));
-        final double vibration = stringAmplitude * math.sin(t + (x / size.width) * math.pi * 3);
-
-        final double finalY = y + vibration;
-
-        if (!started) {
-          path.moveTo(x, finalY);
-          started = true;
-        } else {
-          path.lineTo(x, finalY);
-        }
-      }
-
-      if (started) canvas.drawPath(path, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _GuitarStringsPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.amplitude != amplitude ||
-        oldDelegate.isListening != isListening;
-  }
-}
