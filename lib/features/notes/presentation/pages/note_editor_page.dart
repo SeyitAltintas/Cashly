@@ -1312,8 +1312,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               bottom: MediaQuery.paddingOf(context).bottom > 0
                   ? MediaQuery.paddingOf(context).bottom + 12
                   : 20,
-              left: 20,
-              right: 20,
+              // Removed left/right padding so wave can span edge to edge
             ),
             decoration: BoxDecoration(
               color: colorScheme.surface.withAlpha(240),
@@ -1340,14 +1339,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 const SizedBox(height: 16),
 
                 // Title
-                Text(
-                  _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.5,
-                    color: colorScheme.onSurface,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.5,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8), // Azaltıldı
@@ -1368,9 +1370,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 ),
 
                 // Bottom row with keyboard button on the right
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [_buildSwitchToKeyboardButton(colorScheme)],
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [_buildSwitchToKeyboardButton(colorScheme)],
+                  ),
                 ),
               ],
             ),
