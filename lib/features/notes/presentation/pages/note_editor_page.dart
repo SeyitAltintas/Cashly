@@ -889,33 +889,29 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             },
             child: Stack(
               children: [
-                // Sesli dikte aktifken editor+title+kategori dokunmaya kapat
-                IgnorePointer(
-                  ignoring: _isDictationBoxOpen,
-                  child: Column(
-                    children: [
-                      _buildTitleField(colorScheme),
-                      _buildDateInfo(colorScheme),
-                      _buildCategoryTags(
-                        colorScheme,
-                        _getTextColor(colorScheme),
-                      ),
-                      Expanded(
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            textSelectionTheme: TextSelectionThemeData(
-                              cursorColor: cursorColor,
-                              selectionColor: cursorColor.withValues(
-                                alpha: 0.3,
-                              ),
-                              selectionHandleColor: cursorColor,
+                Column(
+                  children: [
+                    _buildTitleField(colorScheme),
+                    _buildDateInfo(colorScheme),
+                    _buildCategoryTags(
+                      colorScheme,
+                      _getTextColor(colorScheme),
+                    ),
+                    Expanded(
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          textSelectionTheme: TextSelectionThemeData(
+                            cursorColor: cursorColor,
+                            selectionColor: cursorColor.withValues(
+                              alpha: 0.3,
                             ),
+                            selectionHandleColor: cursorColor,
                           ),
-                          child: _buildEditor(colorScheme, controller),
                         ),
+                        child: _buildEditor(colorScheme, controller),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 // Toolbar: dinleme aktifken gizle
                 Positioned(
@@ -1389,14 +1385,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   ),
                 ),
 
-                // Bottom row with keyboard button on the right
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [_buildSwitchToKeyboardButton(colorScheme)],
-                  ),
-                ),
               ],
             ),
           ),
@@ -1405,39 +1393,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  /// Dikte modundan çıkıp klavyeyi ve alt menüyü açan buton.
-  Widget _buildSwitchToKeyboardButton(ColorScheme colorScheme) {
-    return Tooltip(
-      message: 'Klavyeye Dön',
-      child: GestureDetector(
-        onTap: () async {
-          await _closeDictationBox();
-          if (!mounted) return;
-          // Klavye açılırken oluşabilen ANR hatasını önlemek için kısa bir gecikme
-          Future.delayed(const Duration(milliseconds: 150), () {
-            if (mounted) _editorFocusNode.requestFocus();
-          });
-        },
-        child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: colorScheme.surfaceContainerHigh,
-            border: Border.all(
-              color: colorScheme.outlineVariant.withAlpha(80),
-              width: 1,
-            ),
-          ),
-          child: Icon(
-            Icons.keyboard_rounded,
-            size: 24,
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ),
-    );
-  }
 
   Future<void> _startVoiceDictation() async {
     if (_controller == null || _isListening) return;
@@ -1449,8 +1404,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _isFormatMode = false;
       _isMediaMode = false;
     });
-    _editorFocusNode.canRequestFocus = false;
-    _titleFocusNode.canRequestFocus = false;
     FocusScope.of(context).unfocus();
 
     final success = await _speechService.initialize();
@@ -1459,8 +1412,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         setState(() => _isListening = false);
         AppSnackBar.error(context, 'Mikrofon erişimi sağlanamadı.');
       }
-      _editorFocusNode.canRequestFocus = true;
-      _titleFocusNode.canRequestFocus = true;
       return;
     }
 
@@ -1619,14 +1570,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _interimOffset = -1;
   }
 
-  Future<void> _closeDictationBox() async {
-    setState(() => _isDictationBoxOpen = false);
-    await _stopVoiceDictation();
 
-    // Focus node'ları kutu kapanırken tekrar aktifleştir
-    _editorFocusNode.canRequestFocus = true;
-    _titleFocusNode.canRequestFocus = true;
-  }
 
   Future<void> _toggleListening() async {
     if (_isListening) {
