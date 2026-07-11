@@ -1370,6 +1370,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 // Center Lottie Animation (replaces mic icon and waveforms)
                 GestureDetector(
                   onTap: _toggleListening,
+                  behavior: HitTestBehavior.opaque,
                   child: Container(
                     width: double.infinity,
                     height: 120, // Increased height to give the wave more room to breathe
