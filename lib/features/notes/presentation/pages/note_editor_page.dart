@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
+import 'dart:math';
 import 'dart:ui' show ImageFilter;
 
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter/material.dart';
 
-import 'guitar_strings_painter.dart';
+import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:image_picker/image_picker.dart';
@@ -504,7 +504,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       final parts = picked.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'mp4';
       final fileName =
-          '${DateTime.now().microsecondsSinceEpoch}_${math.Random().nextInt(9000) + 1000}.$ext';
+          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesVidDir.path}/$fileName');
       await File(picked.path).copy(dest.path);
       return dest.path;
@@ -539,7 +539,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       final parts = compressed.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'jpg';
       final fileName =
-          '${DateTime.now().microsecondsSinceEpoch}_${math.Random().nextInt(9000) + 1000}.$ext';
+          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesImgDir.path}/$fileName');
       await compressed.copy(dest.path);
 
@@ -746,7 +746,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       final parts = compressed.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'jpg';
       final fileName =
-          '${DateTime.now().microsecondsSinceEpoch}_${math.Random().nextInt(9000) + 1000}.$ext';
+          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesImgDir.path}/$fileName');
       await compressed.copy(dest.path);
 
@@ -775,7 +775,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       final parts = picked.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'mp4';
       final fileName =
-          '${DateTime.now().microsecondsSinceEpoch}_${math.Random().nextInt(9000) + 1000}.$ext';
+          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesVidDir.path}/$fileName');
       await File(picked.path).copy(dest.path);
 
@@ -1296,7 +1296,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  /// Dinleme aktifken ekranın altında gösterilen overlay.
+  /// Dinleme aktifken ekranın altında gösterilen yuvarlak overlay.
   Widget _buildListeningOverlay(ColorScheme colorScheme) {
     return Positioned(
       left: 0,
@@ -1307,6 +1307,14 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
           child: Container(
+            padding: EdgeInsets.only(
+              top: 16,
+              bottom: MediaQuery.paddingOf(context).bottom > 0
+                  ? MediaQuery.paddingOf(context).bottom + 12
+                  : 20,
+              left: 20,
+              right: 20,
+            ),
             decoration: BoxDecoration(
               color: colorScheme.surface.withAlpha(240),
               boxShadow: [
@@ -1317,85 +1325,72 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 ),
               ],
             ),
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Drag handle (visual only)
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: colorScheme.outlineVariant.withAlpha(100),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Title
+                Text(
+                  _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 8), // Azaltıldı
+                // Center Mic Area with Waveforms
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Drag handle
-                    Container(
-                      width: 36,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: colorScheme.outlineVariant.withAlpha(100),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
+                    // Sol Dalgalar
+                    if (_isListening)
+                      _SideWaveform(colorScheme: colorScheme, reverse: false, soundLevelNotifier: _soundLevelNotifier),
 
-                    // Title
-                    Text(
-                      _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.5,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Guitar strings full width with mic button overlaid
+                    // Merkez Mikrofon
                     SizedBox(
-                      height: 120,
-                      width: double.infinity,
+                      width: 140, // Sabit boyut ile titremeyi engelle
+                      height: 140,
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          // Guitar strings spanning full width
-                          Positioned.fill(
-                            child: _GuitarStringsWidget(
-                              colorScheme: colorScheme,
-                              soundLevelNotifier: _soundLevelNotifier,
-                              isListening: _isListening,
-                            ),
-                          ),
-                          // Mic button centered on top of strings
+                          // Ripples
+                          if (_isListening)
+                            _RippleAnimation(colorScheme: colorScheme),
+
+                          // Main Mic Button
                           GestureDetector(
                             onTap: _toggleListening,
                             child: Container(
-                              width: 84,
-                              height: 84,
+                              width: 72, // Biraz küçültüldü
+                              height: 72,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: colorScheme.primary.withAlpha(60),
-                                  width: 2,
-                                ),
+                                color: colorScheme.primary,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: colorScheme.primary.withAlpha(100),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
                               ),
-                              alignment: Alignment.center,
-                              child: Container(
-                                width: 68,
-                                height: 68,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: colorScheme.primary,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: colorScheme.primary.withAlpha(90),
-                                      blurRadius: 16,
-                                      offset: const Offset(0, 6),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.mic_rounded,
-                                  color: Colors.white,
-                                  size: 32,
-                                ),
+                              child: const Icon(
+                                Icons.mic_rounded,
+                                color: Colors.white,
+                                size: 36,
                               ),
                             ),
                           ),
@@ -1403,19 +1398,18 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ),
                     ),
 
-                    const SizedBox(height: 8),
-
-                    // Keyboard button at bottom right
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [_buildSwitchToKeyboardButton(colorScheme)],
-                      ),
-                    ),
+                    // Sağ Dalgalar
+                    if (_isListening)
+                      _SideWaveform(colorScheme: colorScheme, reverse: true, soundLevelNotifier: _soundLevelNotifier),
                   ],
                 ),
-              ),
+
+                // Bottom row with keyboard button on the right
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [_buildSwitchToKeyboardButton(colorScheme)],
+                ),
+              ],
             ),
           ),
         ),
@@ -1431,7 +1425,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         onTap: () async {
           await _closeDictationBox();
           if (!mounted) return;
-          // ANR hatasını önlemek için kısa gecikme
+          // Klavye açılırken oluşabilen ANR hatasını önlemek için kısa bir gecikme
           Future.delayed(const Duration(milliseconds: 150), () {
             if (mounted) _editorFocusNode.requestFocus();
           });
@@ -2670,20 +2664,24 @@ class _RippleAnimationState extends State<_RippleAnimation>
             final delay = index * 0.33;
             var progress = _controller.value - delay;
             if (progress < 0) progress += 1.0;
-            
-            final size = 88.0 + (progress * 120.0);
+
+            final size = 72.0 + (progress * 68.0);
             final opacity = (1.0 - progress).clamp(0.0, 1.0);
-            
+
             return Container(
               width: size,
               height: size,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: widget.colorScheme.primary.withAlpha((opacity * 100).toInt()),
+                  color: widget.colorScheme.primary.withAlpha(
+                    (opacity * 100).toInt(),
+                  ),
                   width: 2,
                 ),
-                color: widget.colorScheme.primary.withAlpha((opacity * 20).toInt()),
+                color: widget.colorScheme.primary.withAlpha(
+                  (opacity * 20).toInt(),
+                ),
               ),
             );
           }),
@@ -2693,33 +2691,32 @@ class _RippleAnimationState extends State<_RippleAnimation>
   }
 }
 
-class _GuitarStringsWidget extends StatefulWidget {
+class _SideWaveform extends StatefulWidget {
   final ColorScheme colorScheme;
+  final bool reverse;
   final ValueNotifier<double> soundLevelNotifier;
-  final bool isListening;
-
-  const _GuitarStringsWidget({
-    required this.colorScheme,
+  
+  const _SideWaveform({
+    required this.colorScheme, 
     required this.soundLevelNotifier,
-    required this.isListening,
+    this.reverse = false,
   });
 
   @override
-  State<_GuitarStringsWidget> createState() => _GuitarStringsWidgetState();
+  State<_SideWaveform> createState() => _SideWaveformState();
 }
 
-class _GuitarStringsWidgetState extends State<_GuitarStringsWidget>
+class _SideWaveformState extends State<_SideWaveform>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  final List<double> _phases = [0.0, 0.3, 0.6, 0.9, 1.2];
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
-    )..repeat();
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
   }
 
   @override
@@ -2730,35 +2727,53 @@ class _GuitarStringsWidgetState extends State<_GuitarStringsWidget>
 
   @override
   Widget build(BuildContext context) {
+    // Toplam bar sayısını artırdık (örneğin 6)
+    const int barCount = 6;
+    
     return ValueListenableBuilder<double>(
       valueListenable: widget.soundLevelNotifier,
-      builder: (context, soundLevel, _) {
-        double normalized = 0.0;
-        if (widget.isListening) {
-          if (soundLevel < -1.0) {
-            // iOS: -50 to 0 dB. Be more sensitive by mapping from -35
-            normalized = ((soundLevel + 35) / 35).clamp(0.15, 1.0);
-          } else if (soundLevel > 0.01) {
-            // Android: usually 0 to 10. Use raw value directly to be super sensitive
-            normalized = soundLevel.clamp(0.15, 1.0);
-          } else {
-            // Default baseline vibration when silent
-            normalized = 0.15;
-          }
-        }
-
+      builder: (context, soundLevel, child) {
+        // Ses seviyesi genelde -50 ile 50 (veya -50 ile 10) arasındadır.
+        // Bunu 0.0 - 1.0 arasına normalize edelim.
+        // Konuşma olmadığında -50 civarı, olduğunda -10 ile 10 arası olabilir.
+        final normalizedSound = ((soundLevel + 50) / 60).clamp(0.0, 1.0);
+        
         return AnimatedBuilder(
           animation: _controller,
           builder: (context, _) {
-            return CustomPaint(
-              painter: GuitarStringsPainter(
-                color: widget.colorScheme.primary,
-                progress: _controller.value,
-                amplitude: normalized,
-                phases: _phases,
-                isListening: widget.isListening,
-              ),
-              child: const SizedBox.expand(),
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: List.generate(barCount, (index) {
+                // Simetri ayarı
+                final displayIndex = widget.reverse ? (barCount - 1 - index) : index;
+                // Matematiksel animasyon dalgası
+                final phase = (displayIndex * 0.5);
+                final mathWave = (math.sin((_controller.value * math.pi * 2) + phase) + 1) / 2;
+                
+                // Merkezdeki (mikrofona yakın olan) barlar daha uzun
+                final proximityMultiplier = 1.0 - (displayIndex / barCount);
+                
+                // Temel animasyon yüksekliği (sessizken bile hafifçe oynar)
+                final idleHeight = 8.0 + (mathWave * 12.0 * proximityMultiplier);
+                
+                // Sese tepki veren ekstra yükseklik
+                // Ses seviyesi ile dalga matematiğini birleştir
+                final soundHeight = 40.0 * normalizedSound * proximityMultiplier * (mathWave + 0.5);
+                
+                // Toplam boy
+                final height = idleHeight + soundHeight;
+
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 2.0),
+                  width: 4,
+                  height: height,
+                  decoration: BoxDecoration(
+                    color: widget.colorScheme.primary.withAlpha((120 + (normalizedSound * 135)).toInt()),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                );
+              }),
             );
           },
         );
