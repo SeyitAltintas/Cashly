@@ -1592,6 +1592,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   Future<void> _closeDictationBox() async {
     setState(() => _isDictationBoxOpen = false);
     await _stopVoiceDictation();
+    
+    // Focus node'ları kutu kapanırken tekrar aktifleştir
+    _editorFocusNode.canRequestFocus = true;
+    _titleFocusNode.canRequestFocus = true;
   }
 
   Future<void> _toggleListening() async {
@@ -1615,9 +1619,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _voiceSilenceTimer?.cancel();
     _commitInterimText(addSeparator: false);
 
-    // Focus node'ları tekrar aktifleştir
-    _editorFocusNode.canRequestFocus = true;
-    _titleFocusNode.canRequestFocus = true;
+    // Focus node'ları kutu kapandığında aktifleştirilecek (_closeDictationBox içinde)
 
     await _speechService.stopListening();
 
