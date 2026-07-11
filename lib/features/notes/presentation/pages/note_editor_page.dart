@@ -1416,8 +1416,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   Future<void> _startVoiceDictation() async {
     if (_controller == null || _isListening) return;
 
-    // Toolbar ve klavyeyi kapat (await öncesinde — context async gap önler)
+    // Toolbar ve klavyeyi kapat (await öncesinde - context async gap önler)
     setState(() {
+      _isListening = true; // Anında aktif et ki double-tap engellensin
       _isFormatMode = false;
       _isMediaMode = false;
     });
@@ -1437,8 +1438,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
 
     if (!mounted) return;
-    setState(() {
-    });
+    _interimText = '';
+    _interimOffset = -1;
+    _isRestarting = false;
+    _voicePauseTimer?.cancel();
+    
     await _resumeListeningSession();
   }
 
