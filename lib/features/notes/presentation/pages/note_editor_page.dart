@@ -1355,14 +1355,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 GestureDetector(
                   onTap: _toggleListening,
                   child: Container(
+                    width: double.infinity,
                     height: 140,
                     alignment: Alignment.center,
-                    child: Lottie.asset(
-                      'assets/lottie/wave.json',
-                      width: 140,
-                      height: 140,
-                      fit: BoxFit.contain,
-                      animate: _isListening,
+                    child: Transform.scale(
+                      scale: 2.0, // Scale up by 2x to remove inner margins of the lottie
+                      child: Lottie.asset(
+                        'assets/lottie/wave.json',
+                        width: double.infinity,
+                        fit: BoxFit.fitWidth,
+                        animate: _isListening,
+                      ),
                     ),
                   ),
                 ),
