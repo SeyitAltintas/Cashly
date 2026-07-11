@@ -1341,15 +1341,29 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 // Title
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.5,
-                      color: colorScheme.onSurface,
-                    ),
+                  child: Column(
+                    children: [
+                      Text(
+                        _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.5,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _isListening ? 'Duraklatmak için dalgaya dokunun' : 'Devam etmek için dokunun',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: colorScheme.onSurfaceVariant.withAlpha(150),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 8), // Azaltıldı
