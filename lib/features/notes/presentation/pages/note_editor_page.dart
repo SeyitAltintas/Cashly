@@ -2733,9 +2733,16 @@ class _GuitarStringsWidgetState extends State<_GuitarStringsWidget>
     return ValueListenableBuilder<double>(
       valueListenable: widget.soundLevelNotifier,
       builder: (context, soundLevel, _) {
-        final normalized = widget.isListening
-            ? ((soundLevel + 50) / 50).clamp(0.0, 1.0)
-            : 0.0;
+        double normalized = 0.0;
+        if (widget.isListening) {
+          if (soundLevel < 0) {
+            // Usually iOS: -50 to 0 dB
+            normalized = ((soundLevel + 50) / 50).clamp(0.0, 1.0);
+          } else {
+            // Usually Android: 0 to 10 or similar positive scale
+            normalized = (soundLevel / 10.0).clamp(0.0, 1.0);
+          }
+        }
 
         return AnimatedBuilder(
           animation: _controller,

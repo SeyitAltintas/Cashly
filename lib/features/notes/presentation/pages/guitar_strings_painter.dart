@@ -29,7 +29,8 @@ class GuitarStringsPainter extends CustomPainter {
     for (int i = 0; i < stringCount; i++) {
       final double y = spacing * (i + 1);
       final double phase = phases[i];
-      final double freqMultiplier = 1.0 + (i * 0.15);
+      // FreqMultiplier MUST be an integer to loop perfectly when progress wraps from 1.0 back to 0.0
+      final double freqMultiplier = (i % 2 == 0) ? 1.0 : 2.0;
       final double t = progress * math.pi * 2 * freqMultiplier + phase;
       final double opacityBase = 0.3 + (0.4 * (1.0 - ((i - stringCount / 2).abs() / (stringCount / 2))));
       final double opacity = isListening ? opacityBase + (amplitude * 0.3) : opacityBase;
