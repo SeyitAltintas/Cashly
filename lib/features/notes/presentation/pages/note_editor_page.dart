@@ -7,6 +7,7 @@ import 'dart:ui';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:image_picker/image_picker.dart';
@@ -1300,27 +1301,21 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       right: 0,
       bottom: 0,
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
           child: Container(
             padding: EdgeInsets.only(
-              top: 24,
-              bottom: MediaQuery.paddingOf(context).bottom > 0 ? MediaQuery.paddingOf(context).bottom + 16 : 32,
-              left: 24,
-              right: 24,
+              top: 16,
+              bottom: MediaQuery.paddingOf(context).bottom > 0 ? MediaQuery.paddingOf(context).bottom + 12 : 20,
+              left: 20,
+              right: 20,
             ),
             decoration: BoxDecoration(
               color: colorScheme.surface.withAlpha(240),
-              border: Border(
-                top: BorderSide(
-                  color: colorScheme.outlineVariant.withAlpha(50),
-                  width: 1,
-                ),
-              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(20),
+                  color: Colors.black.withAlpha(15),
                   blurRadius: 32,
                   offset: const Offset(0, -8),
                 ),
@@ -1331,64 +1326,80 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               children: [
                 // Drag handle (visual only)
                 Container(
-                  width: 40,
+                  width: 36,
                   height: 4,
                   decoration: BoxDecoration(
                     color: colorScheme.outlineVariant.withAlpha(100),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
                 
                 // Title
                 Text(
                   _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
                   style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.5,
                     color: colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 8), // Azaltıldı
                 
-                // Center Mic Area
-                Stack(
-                  alignment: Alignment.center,
+                // Center Mic Area with Waveforms
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Ripples
+                    // Sol Dalgalar
                     if (_isListening)
-                      _RippleAnimation(colorScheme: colorScheme),
-                    
-                    // Main Mic Button
-                    GestureDetector(
-                      onTap: _toggleListening,
-                      child: Container(
-                        width: 88,
-                        height: 88,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: colorScheme.primary,
-                          boxShadow: [
-                            BoxShadow(
-                              color: colorScheme.primary.withAlpha(100),
-                              blurRadius: 24,
-                              offset: const Offset(0, 8),
+                      _SideWaveform(colorScheme: colorScheme, reverse: false),
+                      
+                    // Merkez Mikrofon
+                    SizedBox(
+                      width: 140, // Sabit boyut ile titremeyi engelle
+                      height: 140,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Ripples
+                          if (_isListening)
+                            _RippleAnimation(colorScheme: colorScheme),
+                          
+                          // Main Mic Button
+                          GestureDetector(
+                            onTap: _toggleListening,
+                            child: Container(
+                              width: 72, // Biraz küçültüldü
+                              height: 72,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: colorScheme.primary,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: colorScheme.primary.withAlpha(100),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.mic_rounded,
+                                color: Colors.white,
+                                size: 36,
+                              ),
                             ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.mic_rounded,
-                          color: Colors.white,
-                          size: 40,
-                        ),
+                          ),
+                        ],
                       ),
                     ),
+                    
+                    // Sağ Dalgalar
+                    if (_isListening)
+                      _SideWaveform(colorScheme: colorScheme, reverse: true),
                   ],
                 ),
-                
-                const SizedBox(height: 48),
                 
                 // Bottom row with keyboard button on the right
                 Row(
@@ -2653,7 +2664,7 @@ class _RippleAnimationState extends State<_RippleAnimation>
             var progress = _controller.value - delay;
             if (progress < 0) progress += 1.0;
             
-            final size = 88.0 + (progress * 120.0);
+            final size = 72.0 + (progress * 68.0);
             final opacity = (1.0 - progress).clamp(0.0, 1.0);
             
             return Container(
@@ -2666,6 +2677,69 @@ class _RippleAnimationState extends State<_RippleAnimation>
                   width: 2,
                 ),
                 color: widget.colorScheme.primary.withAlpha((opacity * 20).toInt()),
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
+}
+
+class _SideWaveform extends StatefulWidget {
+  final ColorScheme colorScheme;
+  final bool reverse;
+  const _SideWaveform({required this.colorScheme, this.reverse = false});
+
+  @override
+  State<_SideWaveform> createState() => _SideWaveformState();
+}
+
+class _SideWaveformState extends State<_SideWaveform>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: List.generate(4, (index) {
+            // Sağ/sol simetrisi için index ayarlaması
+            final displayIndex = widget.reverse ? (3 - index) : index;
+            // Farklı barların farklı hızda hareket etmesi için
+            final phase = (displayIndex * 0.4);
+            final wave = (math.sin((_controller.value * math.pi * 2) + phase) + 1) / 2;
+            
+            // Dışa doğru (mikrofondan uzaklaştıkça) boyları küçülsün
+            final baseHeight = 24.0 - (displayIndex * 4.0); 
+            final height = 8.0 + (wave * baseHeight);
+
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 2.5),
+              width: 4,
+              height: height,
+              decoration: BoxDecoration(
+                color: widget.colorScheme.primary.withAlpha(180),
+                borderRadius: BorderRadius.circular(2),
               ),
             );
           }),
