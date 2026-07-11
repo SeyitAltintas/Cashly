@@ -1570,7 +1570,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _voiceSilenceTimer?.cancel();
     if (!_isListening) return;
 
-    _voiceSilenceTimer = Timer(const Duration(seconds: 3), () {
+    _voiceSilenceTimer = Timer(const Duration(seconds: 10), () {
       if (mounted && _isListening) {
         _stopVoiceDictation();
       }
