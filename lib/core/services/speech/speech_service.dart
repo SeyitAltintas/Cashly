@@ -51,7 +51,10 @@ class SpeechService {
     if (_isInitialized) return true;
 
     _isInitialized = await _speech.initialize(
-      onError: (error) => debugPrint('Speech error: ${error.errorMsg}'),
+      onError: (error) {
+        debugPrint('Speech error: ${error.errorMsg}');
+        _onStatusCallback?.call('error');
+      },
       onStatus: (status) {
         debugPrint('Speech status: $status');
         _onStatusCallback?.call(status);
@@ -69,7 +72,6 @@ class SpeechService {
   Future<void> startListening({
     required Function(String text, {required bool isFinal}) onResult,
     Function(String status)? onStatus,
-    Function(double level)? onSoundLevelChange,
     Duration listenFor = const Duration(seconds: 30),
   }) async {
     _onStatusCallback = onStatus;
@@ -80,7 +82,6 @@ class SpeechService {
     }
 
     await _speech.listen(
-      onSoundLevelChange: onSoundLevelChange,
       onResult: (SpeechRecognitionResult result) {
         onResult(
           result.recognizedWords,

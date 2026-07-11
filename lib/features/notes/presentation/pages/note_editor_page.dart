@@ -59,7 +59,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   Timer?
   _voiceSilenceTimer; // 3 saniyelik sessizlik durumunda mikrofonu kapatmak için
   final TextEditingController _titleController = TextEditingController();
-  final ValueNotifier<double> _soundLevelNotifier = ValueNotifier(0.0);
 
   StreamSubscription? _docSubscription;
 
@@ -113,9 +112,16 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   }
 
   void _onFocusChange() {
-    // Sesli dikte aktifken focus değişikliklerini yok say
-    if (_isListening) return;
     final hasFocus = _editorFocusNode.hasFocus || _titleFocusNode.hasFocus;
+    
+    // Eğer mikrofon açıkken klavyeye geçiş yapılırsa mikrofonu kapat (Conflict prevention)
+    if (_isListening && hasFocus) {
+      _stopVoiceDictation();
+      return;
+    }
+    
+    if (_isListening) return;
+    
     if (_isEditing != hasFocus && mounted) {
       setState(() => _isEditing = hasFocus);
     }
@@ -128,7 +134,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _voicePauseTimer?.cancel();
     _voiceSilenceTimer?.cancel();
     _docSubscription?.cancel();
-    _soundLevelNotifier.dispose();
     _titleController.dispose();
     _controller?.dispose();
     _editorFocusNode.removeListener(_onFocusChange);
@@ -1496,6 +1501,18 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       onStatus: (status) {
         if (!mounted || !_isListening) return;
 
+        if (status == 'error') {
+          // Kalıcı bir hata oluşursa (ör: mikrofon izni reddedildi, internet koptu vs.)
+          // sonsuz döngüye girmemek için mikrofonu tamamen kapat.
+          _stopVoiceDictation();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Ses algılama hatası oluştu.')),
+            );
+          }
+          return;
+        }
+
         if (status == 'done' || status == 'notListening') {
           // Motor herhangi bir sebeple durursa (sessizlik, hata, final vs)
           _commitInterimText();
@@ -1570,7 +1587,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _voiceSilenceTimer?.cancel();
     if (!_isListening) return;
 
-    _voiceSilenceTimer = Timer(const Duration(seconds: 10), () {
+    _voiceSilenceTimer = Timer(const Duration(seconds: 6), () {
       if (mounted && _isListening) {
         _stopVoiceDictation();
       }
