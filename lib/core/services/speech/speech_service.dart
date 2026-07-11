@@ -69,6 +69,7 @@ class SpeechService {
   Future<void> startListening({
     required Function(String text, {required bool isFinal}) onResult,
     Function(String status)? onStatus,
+    Function(double level)? onSoundLevelChange,
     Duration listenFor = const Duration(seconds: 30),
   }) async {
     _onStatusCallback = onStatus;
@@ -79,6 +80,7 @@ class SpeechService {
     }
 
     await _speech.listen(
+      onSoundLevelChange: onSoundLevelChange,
       onResult: (SpeechRecognitionResult result) {
         onResult(
           result.recognizedWords,

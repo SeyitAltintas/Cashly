@@ -59,6 +59,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   Timer?
   _voiceSilenceTimer; // 3 saniyelik sessizlik durumunda mikrofonu kapatmak için
   final TextEditingController _titleController = TextEditingController();
+  final ValueNotifier<double> _soundLevelNotifier = ValueNotifier(0.0);
 
   StreamSubscription? _docSubscription;
 
@@ -127,6 +128,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _voicePauseTimer?.cancel();
     _voiceSilenceTimer?.cancel();
     _docSubscription?.cancel();
+    _soundLevelNotifier.dispose();
     _titleController.dispose();
     _controller?.dispose();
     _editorFocusNode.removeListener(_onFocusChange);
@@ -1307,7 +1309,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           child: Container(
             padding: EdgeInsets.only(
               top: 16,
-              bottom: MediaQuery.paddingOf(context).bottom > 0 ? MediaQuery.paddingOf(context).bottom + 12 : 20,
+              bottom: MediaQuery.paddingOf(context).bottom > 0
+                  ? MediaQuery.paddingOf(context).bottom + 12
+                  : 20,
               left: 20,
               right: 20,
             ),
@@ -1334,7 +1338,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Title
                 Text(
                   _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
@@ -1347,15 +1351,14 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   ),
                 ),
                 const SizedBox(height: 8), // Azaltıldı
-                
                 // Center Mic Area with Waveforms
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Sol Dalgalar
                     if (_isListening)
-                      _SideWaveform(colorScheme: colorScheme, reverse: false),
-                      
+                      _SideWaveform(colorScheme: colorScheme, reverse: false, soundLevelNotifier: _soundLevelNotifier),
+
                     // Merkez Mikrofon
                     SizedBox(
                       width: 140, // Sabit boyut ile titremeyi engelle
@@ -1366,7 +1369,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           // Ripples
                           if (_isListening)
                             _RippleAnimation(colorScheme: colorScheme),
-                          
+
                           // Main Mic Button
                           GestureDetector(
                             onTap: _toggleListening,
@@ -1394,19 +1397,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                         ],
                       ),
                     ),
-                    
+
                     // Sağ Dalgalar
                     if (_isListening)
-                      _SideWaveform(colorScheme: colorScheme, reverse: true),
+                      _SideWaveform(colorScheme: colorScheme, reverse: true, soundLevelNotifier: _soundLevelNotifier),
                   ],
                 ),
-                
+
                 // Bottom row with keyboard button on the right
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    _buildSwitchToKeyboardButton(colorScheme),
-                  ],
+                  children: [_buildSwitchToKeyboardButton(colorScheme)],
                 ),
               ],
             ),
@@ -2663,20 +2664,24 @@ class _RippleAnimationState extends State<_RippleAnimation>
             final delay = index * 0.33;
             var progress = _controller.value - delay;
             if (progress < 0) progress += 1.0;
-            
+
             final size = 72.0 + (progress * 68.0);
             final opacity = (1.0 - progress).clamp(0.0, 1.0);
-            
+
             return Container(
               width: size,
               height: size,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: widget.colorScheme.primary.withAlpha((opacity * 100).toInt()),
+                  color: widget.colorScheme.primary.withAlpha(
+                    (opacity * 100).toInt(),
+                  ),
                   width: 2,
                 ),
-                color: widget.colorScheme.primary.withAlpha((opacity * 20).toInt()),
+                color: widget.colorScheme.primary.withAlpha(
+                  (opacity * 20).toInt(),
+                ),
               ),
             );
           }),
@@ -2689,7 +2694,13 @@ class _RippleAnimationState extends State<_RippleAnimation>
 class _SideWaveform extends StatefulWidget {
   final ColorScheme colorScheme;
   final bool reverse;
-  const _SideWaveform({required this.colorScheme, this.reverse = false});
+  final ValueNotifier<double> soundLevelNotifier;
+  
+  const _SideWaveform({
+    required this.colorScheme, 
+    required this.soundLevelNotifier,
+    this.reverse = false,
+  });
 
   @override
   State<_SideWaveform> createState() => _SideWaveformState();
@@ -2704,7 +2715,7 @@ class _SideWaveformState extends State<_SideWaveform>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
   }
 
@@ -2716,33 +2727,55 @@ class _SideWaveformState extends State<_SideWaveform>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, _) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: List.generate(4, (index) {
-            // Sağ/sol simetrisi için index ayarlaması
-            final displayIndex = widget.reverse ? (3 - index) : index;
-            // Farklı barların farklı hızda hareket etmesi için
-            final phase = (displayIndex * 0.4);
-            final wave = (math.sin((_controller.value * math.pi * 2) + phase) + 1) / 2;
-            
-            // Dışa doğru (mikrofondan uzaklaştıkça) boyları küçülsün
-            final baseHeight = 24.0 - (displayIndex * 4.0); 
-            final height = 8.0 + (wave * baseHeight);
+    // Toplam bar sayısını artırdık (örneğin 6)
+    const int barCount = 6;
+    
+    return ValueListenableBuilder<double>(
+      valueListenable: widget.soundLevelNotifier,
+      builder: (context, soundLevel, child) {
+        // Ses seviyesi genelde -50 ile 50 (veya -50 ile 10) arasındadır.
+        // Bunu 0.0 - 1.0 arasına normalize edelim.
+        // Konuşma olmadığında -50 civarı, olduğunda -10 ile 10 arası olabilir.
+        final normalizedSound = ((soundLevel + 50) / 60).clamp(0.0, 1.0);
+        
+        return AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: List.generate(barCount, (index) {
+                // Simetri ayarı
+                final displayIndex = widget.reverse ? (barCount - 1 - index) : index;
+                // Matematiksel animasyon dalgası
+                final phase = (displayIndex * 0.5);
+                final mathWave = (math.sin((_controller.value * math.pi * 2) + phase) + 1) / 2;
+                
+                // Merkezdeki (mikrofona yakın olan) barlar daha uzun
+                final proximityMultiplier = 1.0 - (displayIndex / barCount);
+                
+                // Temel animasyon yüksekliği (sessizken bile hafifçe oynar)
+                final idleHeight = 8.0 + (mathWave * 12.0 * proximityMultiplier);
+                
+                // Sese tepki veren ekstra yükseklik
+                // Ses seviyesi ile dalga matematiğini birleştir
+                final soundHeight = 40.0 * normalizedSound * proximityMultiplier * (mathWave + 0.5);
+                
+                // Toplam boy
+                final height = idleHeight + soundHeight;
 
-            return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 2.5),
-              width: 4,
-              height: height,
-              decoration: BoxDecoration(
-                color: widget.colorScheme.primary.withAlpha(180),
-                borderRadius: BorderRadius.circular(2),
-              ),
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 2.0),
+                  width: 4,
+                  height: height,
+                  decoration: BoxDecoration(
+                    color: widget.colorScheme.primary.withAlpha((120 + (normalizedSound * 135)).toInt()),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                );
+              }),
             );
-          }),
+          },
         );
       },
     );
