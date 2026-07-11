@@ -55,7 +55,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   Timer? _autoSaveTimer;
   Timer? _voicePauseTimer; // Konuşma duraksamalarını algılamak için
-  Timer? _voiceSilenceTimer; // 3 saniyelik sessizlik durumunda mikrofonu kapatmak için
+  Timer?
+  _voiceSilenceTimer; // 3 saniyelik sessizlik durumunda mikrofonu kapatmak için
   final TextEditingController _titleController = TextEditingController();
 
   StreamSubscription? _docSubscription;
@@ -1303,7 +1304,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
           child: Container(
-            padding: const EdgeInsets.only(left: 20, right: 8, top: 8, bottom: 8),
+            padding: const EdgeInsets.only(
+              left: 20,
+              right: 8,
+              top: 8,
+              bottom: 8,
+            ),
             decoration: BoxDecoration(
               color: colorScheme.surface.withAlpha(190),
               borderRadius: BorderRadius.circular(32),
@@ -1324,11 +1330,16 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 Expanded(
                   child: Row(
                     children: [
-                      _WaveformIndicator(colorScheme: colorScheme, isListening: _isListening),
+                      _WaveformIndicator(
+                        colorScheme: colorScheme,
+                        isListening: _isListening,
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Text(
-                          _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
+                          _isListening
+                              ? 'Sizi Dinliyorum...'
+                              : 'Mikrofon Duraklatıldı',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 16,
@@ -1431,7 +1442,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _interimOffset = -1;
     _isRestarting = false;
     _voicePauseTimer?.cancel();
-    
+
     _resetVoiceSilenceTimer();
     await _resumeListeningSession();
   }
@@ -1440,13 +1451,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   /// başlar — kullanıcı elle durdurana kadar kapanmaz.
   Future<void> _resumeListeningSession() async {
     if (!_isListening || !mounted || _isRestarting) return;
-    
+
     _resetVoiceSilenceTimer();
 
     await _speechService.startListening(
       onResult: (text, {required bool isFinal}) {
         if (!mounted || !_isListening) return;
-        
+
         if (text.trim().isNotEmpty) {
           _resetVoiceSilenceTimer();
         }
@@ -1468,8 +1479,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           _commitInterimText();
           _markUnsaved();
           _scheduleAutoSave();
-
-
 
           if (!_isRestarting) {
             _isRestarting = true;
@@ -1574,7 +1583,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   Future<void> _closeDictationBox() async {
     setState(() => _isDictationBoxOpen = false);
     await _stopVoiceDictation();
-    
+
     // Focus node'ları kutu kapanırken tekrar aktifleştir
     _editorFocusNode.canRequestFocus = true;
     _titleFocusNode.canRequestFocus = true;
@@ -2582,7 +2591,10 @@ class _PulsingMicButton extends StatefulWidget {
   final ColorScheme colorScheme;
   final bool isListening;
 
-  const _PulsingMicButton({required this.colorScheme, required this.isListening});
+  const _PulsingMicButton({
+    required this.colorScheme,
+    required this.isListening,
+  });
 
   @override
   State<_PulsingMicButton> createState() => _PulsingMicButtonState();
@@ -2650,16 +2662,16 @@ class _PulsingMicButtonState extends State<_PulsingMicButton>
                 child: Opacity(
                   opacity: _opacityAnim.value,
                   child: Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: primary.withValues(alpha: 0.35),
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: primary.withValues(alpha: 0.35),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
           // Mic button
           Container(
             width: 64,
@@ -2667,6 +2679,10 @@ class _PulsingMicButtonState extends State<_PulsingMicButton>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: primary,
+              border: Border.all(
+                color: widget.colorScheme.outlineVariant.withAlpha(80),
+                width: 1,
+              ),
               boxShadow: [
                 BoxShadow(
                   color: primary.withValues(alpha: 0.4),
@@ -2683,12 +2699,13 @@ class _PulsingMicButtonState extends State<_PulsingMicButton>
   }
 }
 
-
-
 class _WaveformIndicator extends StatefulWidget {
   final ColorScheme colorScheme;
   final bool isListening;
-  const _WaveformIndicator({required this.colorScheme, required this.isListening});
+  const _WaveformIndicator({
+    required this.colorScheme,
+    required this.isListening,
+  });
 
   @override
   State<_WaveformIndicator> createState() => _WaveformIndicatorState();
@@ -2723,8 +2740,10 @@ class _WaveformIndicatorState extends State<_WaveformIndicator>
       begin: Alignment.bottomCenter,
       end: Alignment.topCenter,
     );
-    
-    final disabledColor = widget.colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
+
+    final disabledColor = widget.colorScheme.onSurfaceVariant.withValues(
+      alpha: 0.5,
+    );
     final inactiveGradient = LinearGradient(
       colors: [disabledColor, disabledColor],
       begin: Alignment.bottomCenter,
@@ -2736,8 +2755,12 @@ class _WaveformIndicatorState extends State<_WaveformIndicator>
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
       builder: (context, amplitude, child) {
-        final currentGradient = LinearGradient.lerp(inactiveGradient, activeGradient, amplitude);
-        
+        final currentGradient = LinearGradient.lerp(
+          inactiveGradient,
+          activeGradient,
+          amplitude,
+        );
+
         return AnimatedBuilder(
           animation: _controller,
           builder: (context, _) {
@@ -2748,7 +2771,8 @@ class _WaveformIndicatorState extends State<_WaveformIndicator>
                 // Her bar için faz kayması (pi/2 = 90 derece)
                 final phase = index * (pi / 2);
                 // sinüs dalgası 0 ile 1 arası değer alır
-                final wave = (sin((_controller.value * 2 * pi) + phase) + 1) / 2;
+                final wave =
+                    (sin((_controller.value * 2 * pi) + phase) + 1) / 2;
                 final height = 4.0 + (wave * 20.0 * amplitude);
 
                 return Container(
