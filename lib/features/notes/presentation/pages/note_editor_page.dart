@@ -1351,6 +1351,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     // Guitar strings full width with mic button overlaid
                     SizedBox(
                       height: 120,
+                      width: double.infinity,
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
@@ -1366,23 +1367,35 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           GestureDetector(
                             onTap: _toggleListening,
                             child: Container(
-                              width: 72,
-                              height: 72,
+                              width: 84,
+                              height: 84,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: colorScheme.primary,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: colorScheme.primary.withAlpha(90),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                ],
+                                border: Border.all(
+                                  color: colorScheme.primary.withAlpha(60),
+                                  width: 2,
+                                ),
                               ),
-                              child: const Icon(
-                                Icons.mic_rounded,
-                                color: Colors.white,
-                                size: 36,
+                              alignment: Alignment.center,
+                              child: Container(
+                                width: 68,
+                                height: 68,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: colorScheme.primary,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: colorScheme.primary.withAlpha(90),
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 6),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.mic_rounded,
+                                  color: Colors.white,
+                                  size: 32,
+                                ),
                               ),
                             ),
                           ),
