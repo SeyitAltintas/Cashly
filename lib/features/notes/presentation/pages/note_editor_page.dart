@@ -1040,7 +1040,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       child: Align(
         alignment: Alignment.centerLeft,
         child: GestureDetector(
-          onTap: () => _showCategoryPicker(context, colorScheme, fgColor),
+          onTap: () {
+            FocusScope.of(context).unfocus();
+            _showCategoryPicker(context, colorScheme, fgColor);
+          },
           child: Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -1513,11 +1516,20 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             return;
           }
 
-          // Kalıcı bir hata oluşursa (ör: mikrofon izni reddedildi, internet koptu vs.)
+          // Kalici bir hata olusursa
           _stopVoiceDictation();
           if (mounted) {
+            String userMsg = 'Ses algılama hatası oluştu.';
+            if (errorMsg == 'error_network') {
+              userMsg = 'İnternet bağlantısı koptu veya çok zayıf.';
+            } else if (errorMsg == 'error_audio_error' || errorMsg == 'error_client') {
+              userMsg = 'Mikrofon kullanılamıyor.';
+            } else if (errorMsg == 'error_listen_failed') {
+              userMsg = 'Mikrofon başka bir uygulama tarafından kullanılıyor.';
+            }
+            
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Ses algılama hatası oluştu.')),
+              SnackBar(content: Text(userMsg)),
             );
           }
           return;
@@ -1745,7 +1757,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           ),
         IconButton(
           icon: Icon(Icons.color_lens_outlined, color: fgColor),
-          onPressed: _showColorPicker,
+          onPressed: () {
+            FocusScope.of(context).unfocus();
+            _showColorPicker();
+          },
         ),
         if (_isSaving)
           Padding(
