@@ -81,21 +81,28 @@ class SpeechService {
       if (!success) return;
     }
 
-    await _speech.listen(
-      onResult: (SpeechRecognitionResult result) {
-        onResult(
-          result.recognizedWords,
-          isFinal: result.finalResult,
-        );
-      },
-      listenOptions: SpeechListenOptions(
-        cancelOnError: false,
-        partialResults: true,
-        listenFor: const Duration(seconds: 60),
-        pauseFor: const Duration(seconds: 15),
-        localeId: 'tr_TR',
-      ),
-    );
+    try {
+      await _speech.listen(
+        onResult: (SpeechRecognitionResult result) {
+          onResult(
+            result.recognizedWords,
+            isFinal: result.finalResult,
+          );
+        },
+        listenOptions: SpeechListenOptions(
+          cancelOnError: false,
+          partialResults: true,
+          listenFor: const Duration(seconds: 60),
+          pauseFor: const Duration(seconds: 15),
+          localeId: 'tr_TR',
+        ),
+      );
+    } catch (e) {
+      // Platform hataları (örneğin mikrofon başka bir uygulama tarafından kullanılıyorsa)
+      if (onStatus != null) {
+        onStatus('error_listen_failed');
+      }
+    }
   }
 
   /// Dinlemeyi durdur

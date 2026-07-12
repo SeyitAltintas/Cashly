@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -1389,8 +1389,21 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                         scale: 2.5,
                         child: Lottie.asset(
                           'assets/lottie/wave.json',
-                          fit: BoxFit.contain,
+                          fit: BoxFit.cover,
                           animate: _isListening,
+                          errorBuilder: (context, error, stackTrace) {
+                            // Fallback for worst-case scenario: asset corruption or memory issues
+                            return const SizedBox(
+                              height: 160,
+                              child: Center(
+                                child: Icon(
+                                  Icons.mic_rounded,
+                                  size: 48,
+                                  color: Colors.white54,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -1426,7 +1439,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     final success = await _speechService.initialize();
     if (!success) {
       if (mounted) {
-        setState(() => _isListening = false);
+        setState(() {
+          _isListening = false;
+          _isDictationBoxOpen = false;
+          _controller?.readOnly = false;
+        });
         AppSnackBar.error(context, 'Mikrofon erişimi sağlanamadı.');
       }
       return;
@@ -1674,11 +1691,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   IconButton(
                     icon: Icon(
                       Icons.undo_rounded,
-                      color: _controller!.hasUndo
+                      color: (_controller!.hasUndo && !_isDictationBoxOpen)
                           ? fgColor
                           : fgColor.withValues(alpha: 0.3),
                     ),
-                    onPressed: _controller!.hasUndo
+                    onPressed: (_controller!.hasUndo && !_isDictationBoxOpen)
                         ? () => _controller!.undo()
                         : null,
                     tooltip: 'Geri Al',
@@ -1686,11 +1703,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   IconButton(
                     icon: Icon(
                       Icons.redo_rounded,
-                      color: _controller!.hasRedo
+                      color: (_controller!.hasRedo && !_isDictationBoxOpen)
                           ? fgColor
                           : fgColor.withValues(alpha: 0.3),
                     ),
-                    onPressed: _controller!.hasRedo
+                    onPressed: (_controller!.hasRedo && !_isDictationBoxOpen)
                         ? () => _controller!.redo()
                         : null,
                     tooltip: 'İleri Al',
