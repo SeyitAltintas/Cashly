@@ -606,7 +606,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ? const Color(0xFF1E1E1E)
               : Colors.white,
           title: Text(context.l10n.addLink,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Inter',
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -804,7 +804,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ListTile(
                 leading: Icon(Icons.camera_alt_outlined, color: cs.primary),
                 title: Text(context.l10n.takePhoto,
-                  style: TextStyle(fontFamily: 'Inter'),
+                  style: const TextStyle(fontFamily: 'Inter'),
                 ),
                 onTap: () async {
                   Navigator.pop(context);
@@ -815,7 +815,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ListTile(
                 leading: Icon(Icons.videocam_outlined, color: cs.primary),
                 title: Text(context.l10n.recordVideo,
-                  style: TextStyle(fontFamily: 'Inter'),
+                  style: const TextStyle(fontFamily: 'Inter'),
                 ),
                 onTap: () async {
                   Navigator.pop(context);
@@ -2209,7 +2209,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                         ListTile(
                           leading: const Icon(Icons.open_in_new_rounded),
                           title: Text(context.l10n.openLink,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w500,
                             ),
@@ -2220,7 +2220,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                         ListTile(
                           leading: const Icon(Icons.copy_rounded),
                           title: Text(context.l10n.copyLink,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w500,
                             ),
@@ -2234,7 +2234,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             color: Colors.redAccent,
                           ),
                           title: Text(context.l10n.removeLink,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w500,
                               color: Colors.redAccent,
