@@ -116,10 +116,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
     if (_isListening) {
       // Dikte sırasında metin eklendiğinde editör otomatik focus alıp klavyeyi açabilir.
-      // Klavyenin açılmasını engellemek için focus'u hemen geri alıyoruz.
-      if (hasFocus) {
-        FocusScope.of(context).unfocus();
-      }
+      // Ancak unfocus() çağırmak QuillEditor ile sonsuz bir focus savaşına girip ANR'a sebep oluyor!
+      // Bu yüzden sadece işlemi yoksayıyoruz.
       return;
     }
 
