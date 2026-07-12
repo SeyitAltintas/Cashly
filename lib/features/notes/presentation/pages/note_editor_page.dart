@@ -963,38 +963,42 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     return Listener(
       onPointerDown: (_) {
         if (_isDictationBoxOpen) {
-          setState(() => _isDictationBoxOpen = false);
+          setState(() {
+            _isDictationBoxOpen = false;
+            _controller?.readOnly = false;
+          });
           if (_isListening) _stopVoiceDictation();
         }
       },
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
         child: TextField(
-        controller: _titleController,
-        focusNode: _titleFocusNode,
-        style: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w700,
-          color: fgColor,
-          fontFamily: 'Inter',
-          letterSpacing: -0.5,
+          controller: _titleController,
+          focusNode: _titleFocusNode,
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: fgColor,
+            fontFamily: 'Inter',
+            letterSpacing: -0.5,
+          ),
+          decoration: InputDecoration(
+            hintText: context.l10n.noteUntitled,
+            hintStyle: TextStyle(color: fgColor.withValues(alpha: 0.3)),
+            border: InputBorder.none,
+            isDense: true,
+            contentPadding: EdgeInsets.zero,
+            filled: false,
+          ),
+          onChanged: (_) {
+            _markUnsaved();
+            _scheduleAutoSave();
+          },
+          maxLines: null,
+          textInputAction: TextInputAction.next,
         ),
-        decoration: InputDecoration(
-          hintText: context.l10n.noteUntitled,
-          hintStyle: TextStyle(color: fgColor.withValues(alpha: 0.3)),
-          border: InputBorder.none,
-          isDense: true,
-          contentPadding: EdgeInsets.zero,
-          filled: false,
-        ),
-        onChanged: (_) {
-          _markUnsaved();
-          _scheduleAutoSave();
-        },
-        maxLines: null,
-        textInputAction: TextInputAction.next,
       ),
-    ));
+    );
   }
 
   Widget _buildDateInfo(ColorScheme colorScheme) {
@@ -1412,6 +1416,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
     // Toolbar ve klavyeyi kapat (await öncesinde - context async gap önler)
     setState(() {
+      _controller?.readOnly = true;
       _isDictationBoxOpen = true;
       _isListening = true; // Anında aktif et ki double-tap engellensin
       _isFormatMode = false;
@@ -1465,9 +1470,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         if (!mounted || !_isListening) return;
 
         if (status.startsWith('error')) {
-          final errorMsg = status.split(':').length > 1 ? status.split(':')[1] : '';
-          
-          if (errorMsg == 'error_no_match' || errorMsg == 'error_speech_timeout' || errorMsg == 'error_busy') {
+          final errorMsg = status.split(':').length > 1
+              ? status.split(':')[1]
+              : '';
+
+          if (errorMsg == 'error_no_match' ||
+              errorMsg == 'error_speech_timeout' ||
+              errorMsg == 'error_busy') {
             // Sessizlikten kaynaklı hata ise sadece return yap.
             // Motor zaten done statüsüne geçip yeniden başlatılacak.
             return;
@@ -2088,151 +2097,161 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     return Listener(
       onPointerDown: (_) {
         if (_isDictationBoxOpen) {
-          setState(() => _isDictationBoxOpen = false);
+          setState(() {
+            _isDictationBoxOpen = false;
+            _controller?.readOnly = false;
+          });
           if (_isListening) _stopVoiceDictation();
+          // Rebuild sonrası editörün focus alabilmesi için post frame callback kullanıyoruz
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              _editorFocusNode.requestFocus();
+            }
+          });
         }
       },
       child: QuillEditor(
         focusNode: _editorFocusNode,
         scrollController: _editorScrollController,
-      controller: controller,
-      config: QuillEditorConfig(
-        scrollable: true,
-        expands: true,
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 80),
-        autoFocus: false,
-        placeholder: context.l10n.noteEditorHint,
-        linkActionPickerDelegate: (context, link, node) async {
-          final result = await showModalBottomSheet<LinkMenuAction>(
-            context: context,
-            backgroundColor: Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF1E1E1E)
-                : Colors.white,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            builder: (context) {
-              return SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Center(
-                          child: Container(
-                            width: 40,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(2),
+        controller: controller,
+        config: QuillEditorConfig(
+          scrollable: true,
+          expands: true,
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 80),
+          autoFocus: false,
+          placeholder: context.l10n.noteEditorHint,
+          linkActionPickerDelegate: (context, link, node) async {
+            final result = await showModalBottomSheet<LinkMenuAction>(
+              context: context,
+              backgroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E1E1E)
+                  : Colors.white,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+              ),
+              builder: (context) {
+                return SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Center(
+                            child: Container(
+                              width: 40,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withValues(alpha: 0.3),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.open_in_new_rounded),
-                        title: const Text(
-                          'Bağlantıyı aç',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w500,
+                        ListTile(
+                          leading: const Icon(Icons.open_in_new_rounded),
+                          title: const Text(
+                            'Bağlantıyı aç',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
+                          onTap: () =>
+                              Navigator.pop(context, LinkMenuAction.launch),
                         ),
-                        onTap: () =>
-                            Navigator.pop(context, LinkMenuAction.launch),
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.copy_rounded),
-                        title: const Text(
-                          'Bağlantıyı kopyala',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w500,
+                        ListTile(
+                          leading: const Icon(Icons.copy_rounded),
+                          title: const Text(
+                            'Bağlantıyı kopyala',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
+                          onTap: () =>
+                              Navigator.pop(context, LinkMenuAction.copy),
                         ),
-                        onTap: () =>
-                            Navigator.pop(context, LinkMenuAction.copy),
-                      ),
-                      ListTile(
-                        leading: const Icon(
-                          Icons.link_off_rounded,
-                          color: Colors.redAccent,
-                        ),
-                        title: const Text(
-                          'Bağlantıyı kaldır',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w500,
+                        ListTile(
+                          leading: const Icon(
+                            Icons.link_off_rounded,
                             color: Colors.redAccent,
                           ),
+                          title: const Text(
+                            'Bağlantıyı kaldır',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w500,
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                          onTap: () =>
+                              Navigator.pop(context, LinkMenuAction.remove),
                         ),
-                        onTap: () =>
-                            Navigator.pop(context, LinkMenuAction.remove),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-          return result ?? LinkMenuAction.none;
-        },
-        embedBuilders: [
-          ...FlutterQuillEmbeds.editorBuilders(
-            imageEmbedConfig: QuillEditorImageEmbedConfig(
-              imageProviderBuilder: (context, imageUrl) {
-                if (!imageUrl.startsWith('http')) {
-                  return FileImage(File(imageUrl));
-                }
-                return NetworkImage(imageUrl);
-              },
-              // EC-15: Eksik/bozuk dosyada Flutter'in kirık ikon yerine
-              // kullanıcı dostu ikon gösterilir.
-              imageErrorWidgetBuilder: (context, imageUrl, error) {
-                return Container(
-                  width: 120,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.broken_image_outlined,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.35),
-                        size: 28,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        context.l10n.imageLoadError,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.4),
-                          fontFamily: 'Inter',
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
+            );
+            return result ?? LinkMenuAction.none;
+          },
+          embedBuilders: [
+            ...FlutterQuillEmbeds.editorBuilders(
+              imageEmbedConfig: QuillEditorImageEmbedConfig(
+                imageProviderBuilder: (context, imageUrl) {
+                  if (!imageUrl.startsWith('http')) {
+                    return FileImage(File(imageUrl));
+                  }
+                  return NetworkImage(imageUrl);
+                },
+                // EC-15: Eksik/bozuk dosyada Flutter'in kirık ikon yerine
+                // kullanıcı dostu ikon gösterilir.
+                imageErrorWidgetBuilder: (context, imageUrl, error) {
+                  return Container(
+                    width: 120,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.broken_image_outlined,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.35),
+                          size: 28,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          context.l10n.imageLoadError,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.4),
+                            fontFamily: 'Inter',
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
+          ],
+          customStyles: _buildEditorStyles(
+            colorScheme,
+            isDark && _selectedColor == null,
           ),
-        ],
-        customStyles: _buildEditorStyles(
-          colorScheme,
-          isDark && _selectedColor == null,
         ),
       ),
-    ));
+    );
   }
 
   DefaultStyles _buildEditorStyles(ColorScheme cs, bool isDark) {
