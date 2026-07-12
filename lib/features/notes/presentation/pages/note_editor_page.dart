@@ -6,6 +6,7 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:path_provider/path_provider.dart';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -1403,6 +1404,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   Future<void> _startVoiceDictation() async {
     if (_controller == null || _isListening) return;
 
+    // Önce focus'u kaldır ve klavyeyi kesin olarak gizle.
+    // Bunu _isListening = true olmadan önce yapıyoruz ki _onFocusChange
+    // tetiklendiğinde return ile çıkış yapmasın ve _isEditing state'i false olabilsin.
+    FocusScope.of(context).unfocus();
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+
     // Toolbar ve klavyeyi kapat (await öncesinde - context async gap önler)
     setState(() {
       _isDictationBoxOpen = true;
@@ -1410,7 +1417,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _isFormatMode = false;
       _isMediaMode = false;
     });
-    FocusScope.of(context).unfocus();
 
     final success = await _speechService.initialize();
     if (!success) {
