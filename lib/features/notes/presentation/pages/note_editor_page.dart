@@ -1373,17 +1373,18 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 GestureDetector(
                   onTap: _toggleListening,
                   behavior: HitTestBehavior.opaque,
-                  child: Container(
-                    width: double.infinity,
-                    height: 120,
-                    alignment: Alignment.center,
-                    clipBehavior: Clip.hardEdge,
-                    child: Transform.scale(
-                      scale: 2.5,
-                      child: Lottie.asset(
-                        'assets/lottie/wave.json',
-                        fit: BoxFit.contain,
-                        animate: _isListening,
+                  child: ClipRect(
+                    child: Container(
+                      width: double.infinity,
+                      height: 120,
+                      alignment: Alignment.center,
+                      child: Transform.scale(
+                        scale: 2.5,
+                        child: Lottie.asset(
+                          'assets/lottie/wave.json',
+                          fit: BoxFit.contain,
+                          animate: _isListening,
+                        ),
                       ),
                     ),
                   ),
