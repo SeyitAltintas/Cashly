@@ -1062,6 +1062,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 )
               else if (_allCategories.any((c) => c.id == _note!.categoryId))
                 Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width - 60,
+                  ),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 4,
@@ -1074,6 +1077,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     _allCategories
                         .firstWhere((c) => c.id == _note!.categoryId)
                         .name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 13,
                       color: fgColor,
