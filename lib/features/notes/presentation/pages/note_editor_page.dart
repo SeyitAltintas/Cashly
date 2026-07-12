@@ -1307,9 +1307,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           child: Container(
             padding: EdgeInsets.only(
               top: 16,
-              bottom: MediaQuery.paddingOf(context).bottom > 0
-                  ? MediaQuery.paddingOf(context).bottom + 12
-                  : 20,
+              bottom: 0,
               // Removed left/right padding so wave can span edge to edge
             ),
             decoration: BoxDecoration(
