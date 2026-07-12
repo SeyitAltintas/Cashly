@@ -854,9 +854,18 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
 
     return PopScope(
-      canPop: !_hasUnsavedChanges,
+      canPop: !_hasUnsavedChanges && !_isDictationBoxOpen,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
+
+        if (_isDictationBoxOpen) {
+          setState(() {
+            _isDictationBoxOpen = false;
+            _controller?.readOnly = false;
+          });
+          if (_isListening) _stopVoiceDictation();
+          return;
+        }
 
         if (_hasUnsavedChanges) {
           // Klavyeyi kapat — pop animasyonu sırasında klavyenin bir sonraki sayfaya
@@ -1551,8 +1560,21 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     // Eğer yeni bir cümleye başlıyorsak, imlecin o anki konumunu baz al
     if (_interimOffset < 0) {
       final selection = controller.selection;
-      if (selection.isValid && selection.isCollapsed) {
-        _interimOffset = selection.baseOffset.clamp(0, doc.length - 1);
+      if (selection.isValid) {
+        if (!selection.isCollapsed) {
+          // Secili metin varsa, once onu sil
+          final start = selection.start;
+          final length = selection.end - selection.start;
+          controller.replaceText(
+            start,
+            length,
+            '',
+            TextSelection.collapsed(offset: start),
+          );
+          _interimOffset = start.clamp(0, controller.document.length - 1);
+        } else {
+          _interimOffset = selection.baseOffset.clamp(0, doc.length - 1);
+        }
       } else {
         _interimOffset = (doc.length - 1).clamp(0, doc.length - 1);
       }
