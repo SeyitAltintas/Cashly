@@ -113,15 +113,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   void _onFocusChange() {
     final hasFocus = _editorFocusNode.hasFocus || _titleFocusNode.hasFocus;
-    
-    // Eğer mikrofon açıkken klavyeye geçiş yapılırsa mikrofonu kapat (Conflict prevention)
-    if (_isListening && hasFocus) {
-      _stopVoiceDictation();
-      return;
+
+    // Eğer klavye açılırsa (metne dokunulursa) dikte menüsünü kapat
+    if (hasFocus && _isDictationBoxOpen) {
+      setState(() => _isDictationBoxOpen = false);
+      if (_isListening) {
+        _stopVoiceDictation();
+      }
     }
-    
+
     if (_isListening) return;
-    
+
     if (_isEditing != hasFocus && mounted) {
       setState(() => _isEditing = hasFocus);
     }
@@ -893,18 +895,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   children: [
                     _buildTitleField(colorScheme),
                     _buildDateInfo(colorScheme),
-                    _buildCategoryTags(
-                      colorScheme,
-                      _getTextColor(colorScheme),
-                    ),
+                    _buildCategoryTags(colorScheme, _getTextColor(colorScheme)),
                     Expanded(
                       child: Theme(
                         data: Theme.of(context).copyWith(
                           textSelectionTheme: TextSelectionThemeData(
                             cursorColor: cursorColor,
-                            selectionColor: cursorColor.withValues(
-                              alpha: 0.3,
-                            ),
+                            selectionColor: cursorColor.withValues(alpha: 0.3),
                             selectionHandleColor: cursorColor,
                           ),
                         ),
@@ -1345,7 +1342,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   child: Column(
                     children: [
                       Text(
-                        _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
+                        _isListening
+                            ? 'Sizi Dinliyorum...'
+                            : 'Mikrofon Duraklatıldı',
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 20,
@@ -1356,7 +1355,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _isListening ? 'Duraklatmak için dalgaya dokunun' : 'Devam etmek için dokunun',
+                        _isListening
+                            ? 'Duraklatmak için dalgaya dokunun'
+                            : 'Devam etmek için dokunun',
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 13,
@@ -1374,18 +1375,19 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   behavior: HitTestBehavior.opaque,
                   child: Container(
                     width: double.infinity,
-                    height: 80,
+                    height: 120,
                     alignment: Alignment.center,
-                    child: Lottie.asset(
-                      'assets/lottie/wave.json',
-                      width: double.infinity,
-                      fit: BoxFit.contain,
-                      animate: _isListening,
+                    child: Transform.scale(
+                      scale: 1.5,
+                      child: Lottie.asset(
+                        'assets/lottie/wave.json',
+                        fit: BoxFit.contain,
+                        animate: _isListening,
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
-
               ],
             ),
           ),
@@ -1393,7 +1395,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       ),
     );
   }
-
 
   Future<void> _startVoiceDictation() async {
     if (_controller == null || _isListening) return;
@@ -1453,9 +1454,16 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       onStatus: (status) {
         if (!mounted || !_isListening) return;
 
-        if (status == 'error') {
+        if (status.startsWith('error')) {
+          final errorMsg = status.split(':').length > 1 ? status.split(':')[1] : '';
+          
+          if (errorMsg == 'error_no_match' || errorMsg == 'error_speech_timeout' || errorMsg == 'error_busy') {
+            // Sessizlikten kaynaklı hata ise sadece return yap.
+            // Motor zaten done statüsüne geçip yeniden başlatılacak.
+            return;
+          }
+
           // Kalıcı bir hata oluşursa (ör: mikrofon izni reddedildi, internet koptu vs.)
-          // sonsuz döngüye girmemek için mikrofonu tamamen kapat.
           _stopVoiceDictation();
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -1570,8 +1578,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _interimText = '';
     _interimOffset = -1;
   }
-
-
 
   Future<void> _toggleListening() async {
     if (_isListening) {

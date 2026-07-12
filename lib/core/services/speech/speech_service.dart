@@ -53,7 +53,7 @@ class SpeechService {
     _isInitialized = await _speech.initialize(
       onError: (error) {
         debugPrint('Speech error: ${error.errorMsg}');
-        _onStatusCallback?.call('error');
+        _onStatusCallback?.call('error:${error.errorMsg}');
       },
       onStatus: (status) {
         debugPrint('Speech status: $status');
