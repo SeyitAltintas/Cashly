@@ -346,11 +346,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         final allColors = [..._lightNoteColors, ..._darkNoteColors];
         final allLabels = [
           ..._colorLabels,
-          'Koyu Pamuk',
-          'Koyu Nane',
-          'Koyu Mavi',
-          'Koyu Gül',
-          'Koyu Lavanta',
+          context.l10n.darkCotton,
+          context.l10n.darkMint,
+          context.l10n.darkBlue,
+          context.l10n.darkRose,
+          context.l10n.darkLavender,
         ];
 
         return StatefulBuilder(
@@ -387,7 +387,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       Row(
                         children: [
                           Text(
-                            'Tema Rengi',
+                            context.l10n.themeColor,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -397,7 +397,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             ),
                           ),
                           const SizedBox(width: 8),
-                          // "Varsayılan" küçük chip butonu
+                          // context.l10n.defaultColor küçük chip butonu
                           GestureDetector(
                             onTap: () {
                               setState(() => _selectedColor = null);
@@ -423,7 +423,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                                 ),
                               ),
                               child: Text(
-                                'Varsayılan',
+                                context.l10n.defaultColor,
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: _selectedColor == null
@@ -486,12 +486,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  static const List<String> _colorLabels = [
-    'Pamuk',
-    'Nane',
+  List<String> get _colorLabels => [
+    context.l10n.colorCotton,
+    context.l10n.colorMint,
     'Buz',
     'Gül',
-    'Lavanta',
+    context.l10n.colorLavender,
   ];
 
   // ─── Resim İşlemi ───────────────────────────────────────────────────────
@@ -605,8 +605,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           backgroundColor: Theme.of(context).brightness == Brightness.dark
               ? const Color(0xFF1E1E1E)
               : Colors.white,
-          title: const Text(
-            'Bağlantı Ekle',
+          title: Text(context.l10n.addLink,
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 18,
@@ -621,7 +620,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 TextField(
                   controller: textController,
                   decoration: InputDecoration(
-                    labelText: 'Görünecek Metin (İsteğe Bağlı)',
+                    labelText: context.l10n.displayTextOptional,
                     labelStyle: const TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 14,
@@ -639,7 +638,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 TextField(
                   controller: linkController,
                   decoration: InputDecoration(
-                    labelText: 'Web Bağlantısı (URL)',
+                    labelText: context.l10n.webUrl,
                     hintText: 'https://...',
                     labelStyle: const TextStyle(
                       fontFamily: 'Inter',
@@ -661,7 +660,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                'İptal',
+                context.l10n.cancelAction,
                 style: TextStyle(
                   color: cs.onSurface.withValues(alpha: 0.6),
                   fontFamily: 'Inter',
@@ -714,7 +713,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 Navigator.pop(context);
               },
               child: Text(
-                'Ekle',
+                context.l10n.addAction,
                 style: TextStyle(
                   color: cs.primary,
                   fontWeight: FontWeight.bold,
@@ -787,7 +786,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       return dest.path;
     } catch (_) {
       if (context.mounted) {
-        AppSnackBar.error(context, 'Video yüklenirken hata oluştu');
+        AppSnackBar.error(context, context.l10n.videoUploadError);
       }
       return null;
     }
@@ -804,8 +803,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             children: [
               ListTile(
                 leading: Icon(Icons.camera_alt_outlined, color: cs.primary),
-                title: const Text(
-                  'Fotoğraf Çek',
+                title: Text(context.l10n.takePhoto,
                   style: TextStyle(fontFamily: 'Inter'),
                 ),
                 onTap: () async {
@@ -816,8 +814,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ),
               ListTile(
                 leading: Icon(Icons.videocam_outlined, color: cs.primary),
-                title: const Text(
-                  'Video Çek',
+                title: Text(context.l10n.recordVideo,
                   style: TextStyle(fontFamily: 'Inter'),
                 ),
                 onTap: () async {
@@ -1022,7 +1019,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          'Son düzenleme: $timeString',
+          context.l10n.lastEditedAt(timeString),
           style: TextStyle(
             fontSize: 13,
             color: fgColor.withValues(alpha: 0.5),
@@ -1315,7 +1312,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   Widget _buildMicButton() {
     return IconButton(
       icon: const Icon(Icons.mic_none_rounded, size: 22),
-      tooltip: 'Sesle Yaz',
+      tooltip: context.l10n.voiceDictate,
       onPressed: _startVoiceDictation,
     );
   }
@@ -1367,8 +1364,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     children: [
                       Text(
                         _isListening
-                            ? 'Sizi Dinliyorum...'
-                            : 'Mikrofon Duraklatıldı',
+                            ? context.l10n.listeningToYou
+                            : context.l10n.micPaused,
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 20,
@@ -1380,8 +1377,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       const SizedBox(height: 4),
                       Text(
                         _isListening
-                            ? 'Duraklatmak için dalgaya dokunun'
-                            : 'Devam etmek için dokunun',
+                            ? context.l10n.tapWaveToPause
+                            : context.l10n.tapToContinue,
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 13,
@@ -1461,7 +1458,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           _isDictationBoxOpen = false;
           _controller?.readOnly = false;
         });
-        AppSnackBar.error(context, 'Mikrofon erişimi sağlanamadı.');
+        AppSnackBar.error(context, context.l10n.micAccessDenied);
       }
       return;
     }
@@ -1519,13 +1516,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           // Kalici bir hata olusursa
           _stopVoiceDictation();
           if (mounted) {
-            String userMsg = 'Ses algılama hatası oluştu.';
+            String userMsg = context.l10n.voiceRecognitionError;
             if (errorMsg == 'error_network') {
-              userMsg = 'İnternet bağlantısı koptu veya çok zayıf.';
+              userMsg = context.l10n.internetDisconnectedOrWeak;
             } else if (errorMsg == 'error_audio_error' || errorMsg == 'error_client') {
-              userMsg = 'Mikrofon kullanılamıyor.';
+              userMsg = context.l10n.micUnavailable;
             } else if (errorMsg == 'error_listen_failed') {
-              userMsg = 'Mikrofon başka bir uygulama tarafından kullanılıyor.';
+              userMsg = context.l10n.micInUseByOtherApp;
             }
             
             ScaffoldMessenger.of(context).showSnackBar(
@@ -1737,7 +1734,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     onPressed: (_controller!.hasUndo && !_isDictationBoxOpen)
                         ? () => _controller!.undo()
                         : null,
-                    tooltip: 'Geri Al',
+                    tooltip: context.l10n.undoAction,
                   ),
                   IconButton(
                     icon: Icon(
@@ -1749,7 +1746,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     onPressed: (_controller!.hasRedo && !_isDictationBoxOpen)
                         ? () => _controller!.redo()
                         : null,
-                    tooltip: 'İleri Al',
+                    tooltip: context.l10n.redoAction,
                   ),
                 ],
               );
@@ -1864,7 +1861,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             color: colorScheme.onSurface,
                           ),
                         ),
-                        tooltip: 'Yazı Boyutunu Küçült',
+                        tooltip: context.l10n.decreaseFontSize,
                         onPressed: _decreaseFontSize,
                       ),
                       QuillToolbarCustomButtonOptions(
@@ -1876,7 +1873,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             color: colorScheme.onSurface,
                           ),
                         ),
-                        tooltip: 'Yazı Boyutunu Büyüt',
+                        tooltip: context.l10n.increaseFontSize,
                         onPressed: _increaseFontSize,
                       ),
                     ],
@@ -1921,7 +1918,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           padding: const EdgeInsets.only(left: 4),
           child: IconButton(
             icon: const Icon(Icons.close_rounded, size: 20),
-            tooltip: 'Kapat',
+            tooltip: context.l10n.closeAction,
             onPressed: () => setState(() {
               _isFormatMode = false;
               _isMediaMode = false;
@@ -1942,7 +1939,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             padding: const EdgeInsets.only(right: 4),
             child: IconButton(
               icon: const Icon(Icons.font_download_outlined, size: 20),
-              tooltip: 'Metin Stili',
+              tooltip: context.l10n.textStyle,
               onPressed: () => setState(() {
                 _isFormatMode = true;
                 _isMediaMode = false;
@@ -1953,7 +1950,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             padding: const EdgeInsets.only(right: 4),
             child: IconButton(
               icon: const Icon(Icons.perm_media_outlined, size: 20),
-              tooltip: 'Medya Ekle',
+              tooltip: context.l10n.addMedia,
               onPressed: () => setState(() {
                 _isMediaMode = true;
                 _isFormatMode = false;
@@ -1964,7 +1961,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             padding: const EdgeInsets.only(right: 4),
             child: IconButton(
               icon: const Icon(Icons.link_rounded, size: 20),
-              tooltip: 'Bağlantı Ekle',
+              tooltip: context.l10n.addLink,
               onPressed: _showCustomTextLinkDialog,
             ),
           ),
@@ -2036,7 +2033,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               children: [
                 IconButton(
                   icon: const Icon(Icons.camera_alt_outlined, size: 20),
-                  tooltip: 'Kamera',
+                  tooltip: context.l10n.camera,
                   onPressed: _showCameraOptionsDialog,
                 ),
                 QuillSimpleToolbar(
@@ -2108,7 +2105,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           padding: const EdgeInsets.only(left: 4),
           child: IconButton(
             icon: const Icon(Icons.close_rounded, size: 20),
-            tooltip: 'Kapat',
+            tooltip: context.l10n.closeAction,
             onPressed: () => setState(() {
               _isFormatMode = false;
               _isMediaMode = false;
@@ -2211,8 +2208,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                         ),
                         ListTile(
                           leading: const Icon(Icons.open_in_new_rounded),
-                          title: const Text(
-                            'Bağlantıyı aç',
+                          title: Text(context.l10n.openLink,
                             style: TextStyle(
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w500,
@@ -2223,8 +2219,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                         ),
                         ListTile(
                           leading: const Icon(Icons.copy_rounded),
-                          title: const Text(
-                            'Bağlantıyı kopyala',
+                          title: Text(context.l10n.copyLink,
                             style: TextStyle(
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w500,
@@ -2238,8 +2233,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             Icons.link_off_rounded,
                             color: Colors.redAccent,
                           ),
-                          title: const Text(
-                            'Bağlantıyı kaldır',
+                          title: Text(context.l10n.removeLink,
                             style: TextStyle(
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w500,

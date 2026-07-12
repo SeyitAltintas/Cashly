@@ -4646,4 +4646,121 @@ class AppLocalizationsEn extends AppLocalizations {
   String notifRecurring5(String name, String amount) {
     return 'Payment approaching! $amount for $name will be deducted from your account tomorrow.';
   }
+
+  @override
+  String get voiceDictate => 'Voice Type';
+
+  @override
+  String get listeningToYou => 'Listening to you...';
+
+  @override
+  String get micPaused => 'Microphone Paused';
+
+  @override
+  String get tapWaveToPause => 'Tap wave to pause';
+
+  @override
+  String get tapToContinue => 'Tap to continue';
+
+  @override
+  String get micAccessDenied => 'Microphone access denied.';
+
+  @override
+  String get voiceRecognitionError => 'Voice recognition error occurred.';
+
+  @override
+  String get internetDisconnectedOrWeak =>
+      'Internet connection lost or very weak.';
+
+  @override
+  String get micUnavailable => 'Microphone is unavailable.';
+
+  @override
+  String get micInUseByOtherApp => 'Microphone is being used by another app.';
+
+  @override
+  String get videoUploadError => 'Error uploading video';
+
+  @override
+  String get darkCotton => 'Dark Cotton';
+
+  @override
+  String get darkMint => 'Dark Mint';
+
+  @override
+  String get darkBlue => 'Dark Blue';
+
+  @override
+  String get darkRose => 'Dark Rose';
+
+  @override
+  String get darkLavender => 'Dark Lavender';
+
+  @override
+  String get colorCotton => 'Cotton';
+
+  @override
+  String get colorMint => 'Mint';
+
+  @override
+  String get colorLavender => 'Lavender';
+
+  @override
+  String get themeColor => 'Theme Color';
+
+  @override
+  String get defaultColor => 'Default';
+
+  @override
+  String get addLink => 'Add Link';
+
+  @override
+  String get openLink => 'Open link';
+
+  @override
+  String get copyLink => 'Copy link';
+
+  @override
+  String get removeLink => 'Remove link';
+
+  @override
+  String get displayTextOptional => 'Text to display (Optional)';
+
+  @override
+  String get webUrl => 'Web URL';
+
+  @override
+  String get addMedia => 'Add Media';
+
+  @override
+  String get textStyle => 'Text Style';
+
+  @override
+  String get recordVideo => 'Record Video';
+
+  @override
+  String get undoAction => 'Undo';
+
+  @override
+  String get redoAction => 'Redo';
+
+  @override
+  String get decreaseFontSize => 'Decrease Font Size';
+
+  @override
+  String get increaseFontSize => 'Increase Font Size';
+
+  @override
+  String get closeAction => 'Close';
+
+  @override
+  String get cancelAction => 'Cancel';
+
+  @override
+  String get addAction => 'Add';
+
+  @override
+  String lastEditedAt(String timeString) {
+    return 'Last edited: $timeString';
+  }
 }

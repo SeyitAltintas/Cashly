@@ -8503,6 +8503,234 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Ödeme zamanı yaklaşıyor! {name} için {amount} yarın hesabından çıkacak.'**
   String notifRecurring5(String name, String amount);
+
+  /// No description provided for @voiceDictate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sesle Yaz'**
+  String get voiceDictate;
+
+  /// No description provided for @listeningToYou.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sizi Dinliyorum...'**
+  String get listeningToYou;
+
+  /// No description provided for @micPaused.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mikrofon Duraklatıldı'**
+  String get micPaused;
+
+  /// No description provided for @tapWaveToPause.
+  ///
+  /// In tr, this message translates to:
+  /// **'Duraklatmak için dalgaya dokunun'**
+  String get tapWaveToPause;
+
+  /// No description provided for @tapToContinue.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devam etmek için dokunun'**
+  String get tapToContinue;
+
+  /// No description provided for @micAccessDenied.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mikrofon erişimi sağlanamadı.'**
+  String get micAccessDenied;
+
+  /// No description provided for @voiceRecognitionError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ses algılama hatası oluştu.'**
+  String get voiceRecognitionError;
+
+  /// No description provided for @internetDisconnectedOrWeak.
+  ///
+  /// In tr, this message translates to:
+  /// **'İnternet bağlantısı koptu veya çok zayıf.'**
+  String get internetDisconnectedOrWeak;
+
+  /// No description provided for @micUnavailable.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mikrofon kullanılamıyor.'**
+  String get micUnavailable;
+
+  /// No description provided for @micInUseByOtherApp.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mikrofon başka bir uygulama tarafından kullanılıyor.'**
+  String get micInUseByOtherApp;
+
+  /// No description provided for @videoUploadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Video yüklenirken hata oluştu'**
+  String get videoUploadError;
+
+  /// No description provided for @darkCotton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Koyu Pamuk'**
+  String get darkCotton;
+
+  /// No description provided for @darkMint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Koyu Nane'**
+  String get darkMint;
+
+  /// No description provided for @darkBlue.
+  ///
+  /// In tr, this message translates to:
+  /// **'Koyu Mavi'**
+  String get darkBlue;
+
+  /// No description provided for @darkRose.
+  ///
+  /// In tr, this message translates to:
+  /// **'Koyu Gül'**
+  String get darkRose;
+
+  /// No description provided for @darkLavender.
+  ///
+  /// In tr, this message translates to:
+  /// **'Koyu Lavanta'**
+  String get darkLavender;
+
+  /// No description provided for @colorCotton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Pamuk'**
+  String get colorCotton;
+
+  /// No description provided for @colorMint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Nane'**
+  String get colorMint;
+
+  /// No description provided for @colorLavender.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lavanta'**
+  String get colorLavender;
+
+  /// No description provided for @themeColor.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tema Rengi'**
+  String get themeColor;
+
+  /// No description provided for @defaultColor.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varsayılan'**
+  String get defaultColor;
+
+  /// No description provided for @addLink.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bağlantı Ekle'**
+  String get addLink;
+
+  /// No description provided for @openLink.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bağlantıyı aç'**
+  String get openLink;
+
+  /// No description provided for @copyLink.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bağlantıyı kopyala'**
+  String get copyLink;
+
+  /// No description provided for @removeLink.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bağlantıyı kaldır'**
+  String get removeLink;
+
+  /// No description provided for @displayTextOptional.
+  ///
+  /// In tr, this message translates to:
+  /// **'Görünecek Metin (İsteğe Bağlı)'**
+  String get displayTextOptional;
+
+  /// No description provided for @webUrl.
+  ///
+  /// In tr, this message translates to:
+  /// **'Web Bağlantısı (URL)'**
+  String get webUrl;
+
+  /// No description provided for @addMedia.
+  ///
+  /// In tr, this message translates to:
+  /// **'Medya Ekle'**
+  String get addMedia;
+
+  /// No description provided for @textStyle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Metin Stili'**
+  String get textStyle;
+
+  /// No description provided for @recordVideo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Video Çek'**
+  String get recordVideo;
+
+  /// No description provided for @undoAction.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geri Al'**
+  String get undoAction;
+
+  /// No description provided for @redoAction.
+  ///
+  /// In tr, this message translates to:
+  /// **'İleri Al'**
+  String get redoAction;
+
+  /// No description provided for @decreaseFontSize.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yazı Boyutunu Küçült'**
+  String get decreaseFontSize;
+
+  /// No description provided for @increaseFontSize.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yazı Boyutunu Büyüt'**
+  String get increaseFontSize;
+
+  /// No description provided for @closeAction.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapat'**
+  String get closeAction;
+
+  /// No description provided for @cancelAction.
+  ///
+  /// In tr, this message translates to:
+  /// **'İptal'**
+  String get cancelAction;
+
+  /// No description provided for @addAction.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ekle'**
+  String get addAction;
+
+  /// No description provided for @lastEditedAt.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son düzenleme: {timeString}'**
+  String lastEditedAt(String timeString);
 }
 
 class _AppLocalizationsDelegate

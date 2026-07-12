@@ -4646,4 +4646,122 @@ class AppLocalizationsTr extends AppLocalizations {
   String notifRecurring5(String name, String amount) {
     return 'Ödeme zamanı yaklaşıyor! $name için $amount yarın hesabından çıkacak.';
   }
+
+  @override
+  String get voiceDictate => 'Sesle Yaz';
+
+  @override
+  String get listeningToYou => 'Sizi Dinliyorum...';
+
+  @override
+  String get micPaused => 'Mikrofon Duraklatıldı';
+
+  @override
+  String get tapWaveToPause => 'Duraklatmak için dalgaya dokunun';
+
+  @override
+  String get tapToContinue => 'Devam etmek için dokunun';
+
+  @override
+  String get micAccessDenied => 'Mikrofon erişimi sağlanamadı.';
+
+  @override
+  String get voiceRecognitionError => 'Ses algılama hatası oluştu.';
+
+  @override
+  String get internetDisconnectedOrWeak =>
+      'İnternet bağlantısı koptu veya çok zayıf.';
+
+  @override
+  String get micUnavailable => 'Mikrofon kullanılamıyor.';
+
+  @override
+  String get micInUseByOtherApp =>
+      'Mikrofon başka bir uygulama tarafından kullanılıyor.';
+
+  @override
+  String get videoUploadError => 'Video yüklenirken hata oluştu';
+
+  @override
+  String get darkCotton => 'Koyu Pamuk';
+
+  @override
+  String get darkMint => 'Koyu Nane';
+
+  @override
+  String get darkBlue => 'Koyu Mavi';
+
+  @override
+  String get darkRose => 'Koyu Gül';
+
+  @override
+  String get darkLavender => 'Koyu Lavanta';
+
+  @override
+  String get colorCotton => 'Pamuk';
+
+  @override
+  String get colorMint => 'Nane';
+
+  @override
+  String get colorLavender => 'Lavanta';
+
+  @override
+  String get themeColor => 'Tema Rengi';
+
+  @override
+  String get defaultColor => 'Varsayılan';
+
+  @override
+  String get addLink => 'Bağlantı Ekle';
+
+  @override
+  String get openLink => 'Bağlantıyı aç';
+
+  @override
+  String get copyLink => 'Bağlantıyı kopyala';
+
+  @override
+  String get removeLink => 'Bağlantıyı kaldır';
+
+  @override
+  String get displayTextOptional => 'Görünecek Metin (İsteğe Bağlı)';
+
+  @override
+  String get webUrl => 'Web Bağlantısı (URL)';
+
+  @override
+  String get addMedia => 'Medya Ekle';
+
+  @override
+  String get textStyle => 'Metin Stili';
+
+  @override
+  String get recordVideo => 'Video Çek';
+
+  @override
+  String get undoAction => 'Geri Al';
+
+  @override
+  String get redoAction => 'İleri Al';
+
+  @override
+  String get decreaseFontSize => 'Yazı Boyutunu Küçült';
+
+  @override
+  String get increaseFontSize => 'Yazı Boyutunu Büyüt';
+
+  @override
+  String get closeAction => 'Kapat';
+
+  @override
+  String get cancelAction => 'İptal';
+
+  @override
+  String get addAction => 'Ekle';
+
+  @override
+  String lastEditedAt(String timeString) {
+    return 'Son düzenleme: $timeString';
+  }
 }
