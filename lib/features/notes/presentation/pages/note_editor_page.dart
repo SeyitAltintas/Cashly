@@ -114,15 +114,14 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   void _onFocusChange() {
     final hasFocus = _editorFocusNode.hasFocus || _titleFocusNode.hasFocus;
 
-    // Eğer klavye açılırsa (metne dokunulursa) dikte menüsünü kapat
-    if (hasFocus && _isDictationBoxOpen) {
-      setState(() => _isDictationBoxOpen = false);
-      if (_isListening) {
-        _stopVoiceDictation();
+    if (_isListening) {
+      // Dikte sırasında metin eklendiğinde editör otomatik focus alıp klavyeyi açabilir.
+      // Klavyenin açılmasını engellemek için focus'u hemen geri alıyoruz.
+      if (hasFocus) {
+        FocusScope.of(context).unfocus();
       }
+      return;
     }
-
-    if (_isListening) return;
 
     if (_isEditing != hasFocus && mounted) {
       setState(() => _isEditing = hasFocus);
@@ -962,9 +961,16 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   Widget _buildTitleField(ColorScheme colorScheme) {
     final fgColor = _getTextColor(colorScheme);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-      child: TextField(
+    return Listener(
+      onPointerDown: (_) {
+        if (_isDictationBoxOpen) {
+          setState(() => _isDictationBoxOpen = false);
+          if (_isListening) _stopVoiceDictation();
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+        child: TextField(
         controller: _titleController,
         focusNode: _titleFocusNode,
         style: TextStyle(
@@ -989,7 +995,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         maxLines: null,
         textInputAction: TextInputAction.next,
       ),
-    );
+    ));
   }
 
   Widget _buildDateInfo(ColorScheme colorScheme) {
@@ -1305,7 +1311,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
           child: Container(
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
               top: 16,
               bottom: 0,
               // Removed left/right padding so wave can span edge to edge
@@ -2075,9 +2081,16 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   Widget _buildEditor(ColorScheme colorScheme, QuillController controller) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return QuillEditor(
-      focusNode: _editorFocusNode,
-      scrollController: _editorScrollController,
+    return Listener(
+      onPointerDown: (_) {
+        if (_isDictationBoxOpen) {
+          setState(() => _isDictationBoxOpen = false);
+          if (_isListening) _stopVoiceDictation();
+        }
+      },
+      child: QuillEditor(
+        focusNode: _editorFocusNode,
+        scrollController: _editorScrollController,
       controller: controller,
       config: QuillEditorConfig(
         scrollable: true,
@@ -2215,7 +2228,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           isDark && _selectedColor == null,
         ),
       ),
-    );
+    ));
   }
 
   DefaultStyles _buildEditorStyles(ColorScheme cs, bool isDark) {
