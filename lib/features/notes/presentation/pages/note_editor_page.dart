@@ -1377,8 +1377,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     width: double.infinity,
                     height: 120,
                     alignment: Alignment.center,
+                    clipBehavior: Clip.hardEdge,
                     child: Transform.scale(
-                      scale: 1.5,
+                      scale: 2.5,
                       child: Lottie.asset(
                         'assets/lottie/wave.json',
                         fit: BoxFit.contain,

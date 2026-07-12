@@ -91,8 +91,8 @@ class SpeechService {
       listenOptions: SpeechListenOptions(
         cancelOnError: false,
         partialResults: true,
-        listenFor: listenFor,
-        pauseFor: const Duration(seconds: 3), // Güvenli olması için 3 saniye
+        listenFor: const Duration(seconds: 60),
+        pauseFor: const Duration(seconds: 15),
         localeId: 'tr_TR',
       ),
     );
