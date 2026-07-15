@@ -830,16 +830,33 @@ class _NotesListPageState extends State<NotesListPage> {
       (id) => _repository.getNoteById(id)?.categoryId != null,
     );
 
-    if (_allCategories.isEmpty && !hasAnyTagAssigned) {
+    if (_allCategories.isEmpty) {
       if (context.mounted) {
         AppSnackBar.error(context, 'Henüz bir etiketiniz bulunmamaktadır.');
       }
       return;
     }
 
+    // Ortak kategoriyi bul
+    String? commonCategoryId;
+    if (_selectedNoteIds.isNotEmpty) {
+      final firstCat = _repository
+          .getNoteById(_selectedNoteIds.first)
+          ?.categoryId;
+      final allSame = _selectedNoteIds.every(
+        (id) => _repository.getNoteById(id)?.categoryId == firstCat,
+      );
+      if (allSame) {
+        commonCategoryId = firstCat;
+      }
+    }
+
     showDialog(
       context: context,
       builder: (ctx) {
+        String? localSelectedId =
+            commonCategoryId; // 'REMOVE' means remove category
+
         return StatefulBuilder(
           builder: (context, setDialogState) {
             final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -872,6 +889,7 @@ class _NotesListPageState extends State<NotesListPage> {
                             const SizedBox(height: 4),
                         itemBuilder: (context, index) {
                           final cat = _allCategories[index];
+                          final isSelected = localSelectedId == cat.id;
                           return ListTile(
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16,
@@ -881,101 +899,89 @@ class _NotesListPageState extends State<NotesListPage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             leading: Icon(
-                              Icons.label_outline_rounded,
-                              color: colorScheme.primary,
+                              isSelected
+                                  ? Icons.label_rounded
+                                  : Icons.label_outline_rounded,
+                              color: isSelected
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurface.withValues(
+                                      alpha: 0.5,
+                                    ),
                               size: 22,
                             ),
                             title: Text(
                               cat.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
+                                color: isSelected
+                                    ? colorScheme.primary
+                                    : colorScheme.onSurface,
                               ),
                             ),
-                            onTap: () async {
-                              if (!ctx.mounted) return;
-                              Navigator.pop(ctx);
-                              final ids = _selectedNoteIds.toList();
-                              for (final id in ids) {
-                                final note = _repository.getNoteById(id);
-                                if (note != null) {
-                                  if (note.categoryId != cat.id) {
-                                    await _repository.updateNote(
-                                      id: note.id,
-                                      deltaJson: note.deltaJson,
-                                      title: note.title,
-                                      color: note.color,
-                                      clearColor: note.color == null,
-                                      categoryId: cat.id,
-                                      originalCreatedAt: note.createdAt,
-                                    );
-                                  }
-                                }
-                              }
-                              if (!context.mounted) return;
-                              _clearSelection();
-                              AppSnackBar.success(
-                                context,
-                                context.l10n.tagAssignedSuccess,
-                              );
+                            trailing: isSelected
+                                ? Icon(
+                                    Icons.check_circle_rounded,
+                                    color: colorScheme.primary,
+                                    size: 22,
+                                  )
+                                : null,
+                            onTap: () {
+                              setDialogState(() {
+                                localSelectedId = cat.id;
+                              });
                             },
                           );
                         },
                       ),
                     ),
-                    if (hasAnyTagAssigned) ...[
-                      if (_allCategories.isNotEmpty) const Divider(height: 16),
-                      ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 2,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        leading: Icon(
-                          Icons.layers_clear_rounded,
-                          color: colorScheme.error,
-                          size: 22,
-                        ),
-                        title: Text(
-                          context.l10n.removeCategory,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: colorScheme.error,
-                          ),
-                        ),
-                        onTap: () async {
-                          if (!ctx.mounted) return;
-                          Navigator.pop(ctx);
-                          final ids = _selectedNoteIds.toList();
-                          for (final id in ids) {
-                            final note = _repository.getNoteById(id);
-                            if (note != null && note.categoryId != null) {
-                              await _repository.updateNote(
-                                id: note.id,
-                                deltaJson: note.deltaJson,
-                                title: note.title,
-                                color: note.color,
-                                clearColor: note.color == null,
-                                categoryId: null,
-                                clearCategory: true,
-                                originalCreatedAt: note.createdAt,
-                              );
-                            }
-                          }
-                          if (!context.mounted) return;
-                          _clearSelection();
-                          AppSnackBar.success(
-                            context,
-                            context.l10n.tagAssignedSuccess,
-                          );
-                        },
+                    if (_allCategories.isNotEmpty) const Divider(height: 16),
+                    ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 2,
                       ),
-                    ],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      leading: Icon(
+                        Icons.layers_clear_rounded,
+                        color: hasAnyTagAssigned
+                            ? colorScheme.error
+                            : colorScheme.onSurface.withValues(alpha: 0.3),
+                        size: 22,
+                      ),
+                      title: Text(
+                        'Seçimi Temizle (Kaldır)',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 16,
+                          fontWeight: localSelectedId == 'REMOVE'
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                          color: hasAnyTagAssigned
+                              ? colorScheme.error
+                              : colorScheme.onSurface.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      trailing: localSelectedId == 'REMOVE'
+                          ? Icon(
+                              Icons.check_circle_rounded,
+                              color: colorScheme.error,
+                              size: 22,
+                            )
+                          : null,
+                      onTap: hasAnyTagAssigned
+                          ? () {
+                              setDialogState(() {
+                                localSelectedId = 'REMOVE';
+                              });
+                            }
+                          : null,
+                    ),
                   ],
                 ),
               ),
@@ -996,7 +1002,73 @@ class _NotesListPageState extends State<NotesListPage> {
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface.withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    if (localSelectedId == null) {
+                      Navigator.pop(ctx);
+                      return;
+                    }
+                    Navigator.pop(ctx);
+
+                    final ids = _selectedNoteIds.toList();
+                    for (final id in ids) {
+                      final note = _repository.getNoteById(id);
+                      if (note != null) {
+                        if (localSelectedId == 'REMOVE') {
+                          if (note.categoryId != null) {
+                            await _repository.updateNote(
+                              id: note.id,
+                              deltaJson: note.deltaJson,
+                              title: note.title,
+                              color: note.color,
+                              clearColor: note.color == null,
+                              categoryId: null,
+                              clearCategory: true,
+                              originalCreatedAt: note.createdAt,
+                            );
+                          }
+                        } else {
+                          if (note.categoryId != localSelectedId) {
+                            await _repository.updateNote(
+                              id: note.id,
+                              deltaJson: note.deltaJson,
+                              title: note.title,
+                              color: note.color,
+                              clearColor: note.color == null,
+                              categoryId: localSelectedId,
+                              originalCreatedAt: note.createdAt,
+                            );
+                          }
+                        }
+                      }
+                    }
+                    if (!context.mounted) return;
+                    _clearSelection();
+                    AppSnackBar.success(
+                      context,
+                      context.l10n.tagAssignedSuccess,
+                    );
+                  },
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Tamam',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -1393,9 +1465,7 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
       backgroundColor: Theme.of(context).brightness == Brightness.dark
           ? const Color(0xFF1E1E1E)
           : Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
       contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
       actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -1416,13 +1486,14 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
           decoration: InputDecoration(
             hintText: context.l10n.tagName,
             hintStyle: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: Theme.of(context)
-                .colorScheme
-                .surfaceContainerHighest
-                .withValues(alpha: 0.3),
+            fillColor: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
@@ -1455,7 +1526,9 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
             style: TextStyle(
               fontFamily: 'Inter',
               fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
         ),

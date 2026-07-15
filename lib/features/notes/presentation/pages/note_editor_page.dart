@@ -2,13 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui' show ImageFilter;
 
 import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
+
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,6 +19,10 @@ import 'package:cashly/features/notes/data/models/note_category_model.dart';
 import 'package:cashly/features/notes/data/repositories/note_repository.dart';
 import 'package:cashly/features/notes/data/repositories/note_category_repository.dart';
 import 'package:cashly/core/services/speech/speech_service.dart';
+import 'package:cashly/features/notes/presentation/widgets/note_color_picker_sheet.dart';
+import 'package:cashly/features/notes/presentation/widgets/voice_dictation_overlay.dart';
+import 'package:cashly/features/notes/presentation/widgets/note_editor_toolbar.dart';
+import 'package:cashly/features/notes/presentation/widgets/note_category_selector.dart';
 
 // ─── Sabitler ───────────────────────────────────────────────────────────────
 
@@ -68,8 +71,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   final ScrollController _editorScrollController = ScrollController();
 
   bool _isEditing = false;
-  bool _isFormatMode = false;
-  bool _isMediaMode = false;
   final ImagePicker _imagePicker = ImagePicker();
   final NoteRepository _repository = NoteRepository();
   final NoteCategoryRepository _categoryRepository = NoteCategoryRepository();
@@ -313,186 +314,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   // ─── Renk Seçimi ────────────────────────────────────────────────────────
 
-  static const List<Color> _lightNoteColors = [
-    Color(0xFFFDFBF7), // Pamuk
-    Color(0xFFF0F7F4), // Nane
-    Color(0xFFF0F4F8), // Buz
-    Color(0xFFFFF0F0), // Gül
-    Color(0xFFF4F0F7), // Lavanta
-  ];
-
-  static const List<Color> _darkNoteColors = [
-    Color(0xFF242424), // Koyu Gri
-    Color(0xFF142C23), // Koyu Nane
-    Color(0xFF122236), // Koyu Mavi
-    Color(0xFF33161A), // Koyu Gül
-    Color(0xFF261933), // Koyu Lavanta
-  ];
-
   Color? _getAdaptiveColor(BuildContext context, int? colorValue) {
     if (colorValue == null) return null;
     return Color(colorValue);
   }
-
-  void _showColorPicker() {
-    final outerContext = context;
-    showModalBottomSheet(
-      context: outerContext,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (sheetContext) {
-        final cs = Theme.of(sheetContext).colorScheme;
-
-        final allColors = [..._lightNoteColors, ..._darkNoteColors];
-        final allLabels = [
-          ..._colorLabels,
-          context.l10n.darkCotton,
-          context.l10n.darkMint,
-          context.l10n.darkBlue,
-          context.l10n.darkRose,
-          context.l10n.darkLavender,
-        ];
-
-        return StatefulBuilder(
-          builder: (ctx, setSheetState) {
-            return DraggableScrollableSheet(
-              initialChildSize: 0.6,
-              minChildSize: 0.4,
-              maxChildSize: 0.9,
-              expand: false,
-              builder: (_, scrollController) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: cs.surface,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(32),
-                    ),
-                  ),
-                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Drag handle
-                      Center(
-                        child: Container(
-                          width: 40,
-                          height: 4,
-                          margin: const EdgeInsets.only(bottom: 20),
-                          decoration: BoxDecoration(
-                            color: cs.onSurface.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            context.l10n.themeColor,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: cs.onSurface,
-                              fontFamily: 'Inter',
-                              letterSpacing: -0.3,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          // context.l10n.defaultColor küçük chip butonu
-                          GestureDetector(
-                            onTap: () {
-                              setState(() => _selectedColor = null);
-                              _markUnsaved();
-                              Navigator.pop(sheetContext);
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: _selectedColor == null
-                                    ? cs.primary.withValues(alpha: 0.15)
-                                    : cs.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: _selectedColor == null
-                                      ? cs.primary
-                                      : Colors.transparent,
-                                  width: 1,
-                                ),
-                              ),
-                              child: Text(
-                                context.l10n.defaultColor,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: _selectedColor == null
-                                      ? FontWeight.w600
-                                      : FontWeight.normal,
-                                  color: _selectedColor == null
-                                      ? cs.primary
-                                      : cs.onSurface.withValues(alpha: 0.6),
-                                  fontFamily: 'Inter',
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          controller: scrollController,
-                          physics: const BouncingScrollPhysics(),
-                          child: SafeArea(
-                            top: false,
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: Wrap(
-                                spacing: 16,
-                                runSpacing: 20,
-                                children: [
-                                  for (int i = 0; i < allColors.length; i++)
-                                    _ColorOption(
-                                      color: allColors[i],
-                                      isSelected:
-                                          _selectedColor != null &&
-                                          allColors[i].toARGB32() ==
-                                              _selectedColor,
-                                      label: allLabels[i],
-                                      onTap: () {
-                                        setState(
-                                          () => _selectedColor = allColors[i]
-                                              .toARGB32(),
-                                        );
-                                        _markUnsaved();
-                                        Navigator.pop(sheetContext);
-                                      },
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  List<String> get _colorLabels => [
-    context.l10n.colorCotton,
-    context.l10n.colorMint,
-    'Buz',
-    'Gül',
-    context.l10n.colorLavender,
-  ];
 
   // ─── Resim İşlemi ───────────────────────────────────────────────────────
 
@@ -582,151 +407,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _markUnsaved();
   }
 
-  void _showCustomTextLinkDialog() {
-    final selection = _controller!.selection;
-    String selectedText = '';
-    if (selection.isValid && !selection.isCollapsed) {
-      selectedText = _controller!.document.getPlainText(
-        selection.start,
-        selection.end - selection.start,
-      );
-    }
-
-    final TextEditingController textController = TextEditingController(
-      text: selectedText,
-    );
-    final TextEditingController linkController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        final cs = Theme.of(context).colorScheme;
-        return AlertDialog(
-          backgroundColor: Theme.of(context).brightness == Brightness.dark
-              ? const Color(0xFF1E1E1E)
-              : Colors.white,
-          title: Text(context.l10n.addLink,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: textController,
-                  decoration: InputDecoration(
-                    labelText: context.l10n.displayTextOptional,
-                    labelStyle: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: linkController,
-                  decoration: InputDecoration(
-                    labelText: context.l10n.webUrl,
-                    hintText: 'https://...',
-                    labelStyle: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                context.l10n.cancelAction,
-                style: TextStyle(
-                  color: cs.onSurface.withValues(alpha: 0.6),
-                  fontFamily: 'Inter',
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                final text = textController.text.trim();
-                final url = linkController.text.trim();
-                if (url.isNotEmpty) {
-                  if (selection.isValid && !selection.isCollapsed) {
-                    if (text.isNotEmpty && text != selectedText) {
-                      _controller!.replaceText(
-                        selection.start,
-                        selection.end - selection.start,
-                        text,
-                        TextSelection.collapsed(
-                          offset: selection.start + text.length,
-                        ),
-                      );
-                      _controller!.formatText(
-                        selection.start,
-                        text.length,
-                        LinkAttribute(url),
-                      );
-                    } else {
-                      _controller!.formatSelection(LinkAttribute(url));
-                    }
-                  } else {
-                    final insertText = text.isNotEmpty ? text : url;
-                    final index = selection.isValid
-                        ? selection.baseOffset
-                        : _controller!.document.length;
-                    _controller!.document.insert(index, insertText);
-                    _controller!.formatText(
-                      index,
-                      insertText.length,
-                      LinkAttribute(url),
-                    );
-                    _controller!.updateSelection(
-                      TextSelection.collapsed(
-                        offset: index + insertText.length,
-                      ),
-                      ChangeSource.local,
-                    );
-                  }
-                  _markUnsaved();
-                }
-                Navigator.pop(context);
-              },
-              child: Text(
-                context.l10n.addAction,
-                style: TextStyle(
-                  color: cs.primary,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Inter',
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Future<String?> _pickAndReturnImagePathFromCamera(
     BuildContext context,
   ) async {
@@ -790,44 +470,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       }
       return null;
     }
-  }
-
-  void _showCameraOptionsDialog() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        final cs = Theme.of(context).colorScheme;
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: Icon(Icons.camera_alt_outlined, color: cs.primary),
-                title: Text(context.l10n.takePhoto,
-                  style: const TextStyle(fontFamily: 'Inter'),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final path = await _pickAndReturnImagePathFromCamera(context);
-                  if (path != null) _insertMedia(path, false);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.videocam_outlined, color: cs.primary),
-                title: Text(context.l10n.recordVideo,
-                  style: const TextStyle(fontFamily: 'Inter'),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final path = await _pickAndReturnVideoPathFromCamera(context);
-                  if (path != null) _insertMedia(path, true);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   // ─── Build ──────────────────────────────────────────────────────────────
@@ -899,7 +541,32 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   children: [
                     _buildTitleField(colorScheme),
                     _buildDateInfo(colorScheme),
-                    _buildCategoryTags(colorScheme, _getTextColor(colorScheme)),
+                    NoteCategorySelector(
+                      selectedCategoryId: _note?.categoryId,
+                      categories: _allCategories,
+                      colorScheme: colorScheme,
+                      fgColor: _getTextColor(colorScheme),
+                      onCategorySelected: (categoryId) {
+                        setState(() {
+                          _note = _note?.copyWith(
+                            categoryId: categoryId,
+                            clearCategory: categoryId == null,
+                          );
+                          _hasUnsavedChanges = true;
+                        });
+                        _scheduleAutoSave();
+                      },
+                      onCategoryCreated: (newCat) async {
+                        await _categoryRepository.saveCategory(newCat);
+                        await _loadCategories();
+                        if (mounted) {
+                          setState(() {
+                            _note = _note?.copyWith(categoryId: newCat.id);
+                            _markUnsaved();
+                          });
+                        }
+                      },
+                    ),
                     Expanded(
                       child: Theme(
                         data: Theme.of(context).copyWith(
@@ -939,13 +606,37 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                         ),
                       ),
                       child: _isEditing && !_isDictationBoxOpen
-                          ? _buildFloatingToolbar(colorScheme, controller)
+                          ? NoteEditorToolbar(
+                              controller: controller,
+                              onMarkUnsaved: _markUnsaved,
+                              onStartVoiceDictation: _startVoiceDictation,
+                              onPickImageFromGallery: _pickAndReturnImagePath,
+                              onPickVideoFromGallery: _pickAndReturnVideoPath,
+                              onTakePhoto: () async {
+                                final path =
+                                    await _pickAndReturnImagePathFromCamera(
+                                      context,
+                                    );
+                                if (path != null) _insertMedia(path, false);
+                              },
+                              onRecordVideo: () async {
+                                final path =
+                                    await _pickAndReturnVideoPathFromCamera(
+                                      context,
+                                    );
+                                if (path != null) _insertMedia(path, true);
+                              },
+                            )
                           : const SizedBox.shrink(),
                     ),
                   ),
                 ),
                 // Sesli dikte aktifken gösterilen floating overlay
-                if (_isDictationBoxOpen) _buildListeningOverlay(colorScheme),
+                if (_isDictationBoxOpen)
+                  VoiceDictationOverlay(
+                    isListening: _isListening,
+                    onToggleListening: _toggleListening,
+                  ),
               ],
             ),
           ),
@@ -1031,407 +722,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  Widget _buildCategoryTags(ColorScheme colorScheme, Color fgColor) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: GestureDetector(
-          onTap: () {
-            FocusScope.of(context).unfocus();
-            _showCategoryPicker(context, colorScheme, fgColor);
-          },
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Icon(
-                Icons.label_outline,
-                size: 18,
-                color: fgColor.withValues(alpha: 0.6),
-              ),
-              if (_note?.categoryId == null)
-                Text(
-                  context.l10n.addNoteTag,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: fgColor.withValues(alpha: 0.6),
-                    fontFamily: 'Inter',
-                  ),
-                )
-              else if (_allCategories.any((c) => c.id == _note!.categoryId))
-                Container(
-                  constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width - 60,
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: fgColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    _allCategories
-                        .firstWhere((c) => c.id == _note!.categoryId)
-                        .name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: fgColor,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showCategoryPicker(
-    BuildContext context,
-    ColorScheme colorScheme,
-    Color fgColor,
-  ) {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            final isDark = Theme.of(context).brightness == Brightness.dark;
-            return AlertDialog(
-              backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-              contentPadding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              title: Text(
-                context.l10n.noteTags,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              content: SizedBox(
-                width: double.maxFinite,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_allCategories.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          context.l10n.noTagsYet,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 15,
-                            color: colorScheme.onSurface.withValues(alpha: 0.6),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                    else
-                      Flexible(
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          itemCount: _allCategories.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 4),
-                          itemBuilder: (context, index) {
-                            final cat = _allCategories[index];
-                            final isSelected = _note?.categoryId == cat.id;
-                            return ListTile(
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 2,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              leading: Icon(
-                                isSelected
-                                    ? Icons.label_rounded
-                                    : Icons.label_outline_rounded,
-                                color: isSelected
-                                    ? colorScheme.primary
-                                    : colorScheme.onSurface.withValues(
-                                        alpha: 0.5,
-                                      ),
-                                size: 22,
-                              ),
-                              title: Text(
-                                cat.name,
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 16,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
-                                  color: isSelected
-                                      ? colorScheme.primary
-                                      : colorScheme.onSurface,
-                                ),
-                              ),
-                              trailing: isSelected
-                                  ? Icon(
-                                      Icons.check_circle_rounded,
-                                      color: colorScheme.primary,
-                                      size: 22,
-                                    )
-                                  : null,
-                              onTap: () {
-                                final newVal = _note?.categoryId == cat.id
-                                    ? null
-                                    : cat.id;
-                                setDialogState(() {
-                                  setState(() {
-                                    _note = _note?.copyWith(
-                                      categoryId: newVal,
-                                      clearCategory: newVal == null,
-                                    );
-                                    _hasUnsavedChanges = true;
-                                  });
-                                });
-                                _scheduleAutoSave();
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    const SizedBox(height: 8),
-                    const Divider(height: 1),
-                    const SizedBox(height: 8),
-                    if (_note?.categoryId != null) ...[
-                      ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 2,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        leading: Icon(
-                          Icons.layers_clear_rounded,
-                          color: Theme.of(context).colorScheme.error,
-                          size: 22,
-                        ),
-                        title: Text(
-                          context.l10n.removeCategory,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                        onTap: () {
-                          setDialogState(() {
-                            setState(() {
-                              _note = _note?.copyWith(
-                                categoryId: null,
-                                clearCategory: true,
-                              );
-                              _hasUnsavedChanges = true;
-                            });
-                          });
-                          _scheduleAutoSave();
-                          Navigator.pop(ctx);
-                        },
-                      ),
-                      const SizedBox(height: 4),
-                    ],
-                    ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 2,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      leading: Icon(
-                        Icons.add_rounded,
-                        color: colorScheme.primary,
-                        size: 24,
-                      ),
-                      title: Text(
-                        context.l10n.createNoteTag,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        _showCreateCategoryDialog();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                FilledButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    context.l10n.ok,
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
   // ─── Sesli Dikte ────────────────────────────────────────────────────────
 
-  Widget _buildMicButton() {
-    return IconButton(
-      icon: const Icon(Icons.mic_none_rounded, size: 22),
-      tooltip: context.l10n.voiceDictate,
-      onPressed: _startVoiceDictation,
-    );
-  }
-
   /// Dinleme aktifken ekranın altında gösterilen yuvarlak overlay.
-  Widget _buildListeningOverlay(ColorScheme colorScheme) {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-          child: Container(
-            padding: const EdgeInsets.only(
-              top: 16,
-              bottom: 0,
-              // Removed left/right padding so wave can span edge to edge
-            ),
-            decoration: BoxDecoration(
-              color: colorScheme.surface.withAlpha(240),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(15),
-                  blurRadius: 32,
-                  offset: const Offset(0, -8),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Drag handle (visual only)
-                Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: colorScheme.outlineVariant.withAlpha(100),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Title
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      Text(
-                        _isListening
-                            ? context.l10n.listeningToYou
-                            : context.l10n.micPaused,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.5,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _isListening
-                            ? context.l10n.tapWaveToPause
-                            : context.l10n.tapToContinue,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: colorScheme.onSurfaceVariant.withAlpha(150),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8), // Azaltıldı
-                // Center Lottie Animation (replaces mic icon and waveforms)
-                GestureDetector(
-                  onTap: _toggleListening,
-                  behavior: HitTestBehavior.opaque,
-                  child: ClipRect(
-                    child: Container(
-                      width: double.infinity,
-                      height: 120,
-                      alignment: Alignment.center,
-                      child: Transform.scale(
-                        scale: 2.5,
-                        child: Lottie.asset(
-                          'assets/lottie/wave.json',
-                          fit: BoxFit.cover,
-                          animate: _isListening,
-                          errorBuilder: (context, error, stackTrace) {
-                            // Fallback for worst-case scenario: asset corruption or memory issues
-                            return const SizedBox(
-                              height: 160,
-                              child: Center(
-                                child: Icon(
-                                  Icons.mic_rounded,
-                                  size: 48,
-                                  color: Colors.white54,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Future<void> _startVoiceDictation() async {
     if (_controller == null || _isListening) return;
 
@@ -1446,8 +739,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _controller?.readOnly = true;
       _isDictationBoxOpen = true;
       _isListening = true; // Anında aktif et ki double-tap engellensin
-      _isFormatMode = false;
-      _isMediaMode = false;
     });
 
     final success = await _speechService.initialize();
@@ -1519,15 +810,16 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             String userMsg = context.l10n.voiceRecognitionError;
             if (errorMsg == 'error_network') {
               userMsg = context.l10n.internetDisconnectedOrWeak;
-            } else if (errorMsg == 'error_audio_error' || errorMsg == 'error_client') {
+            } else if (errorMsg == 'error_audio_error' ||
+                errorMsg == 'error_client') {
               userMsg = context.l10n.micUnavailable;
             } else if (errorMsg == 'error_listen_failed') {
               userMsg = context.l10n.micInUseByOtherApp;
             }
-            
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(userMsg)),
-            );
+
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(userMsg)));
           }
           return;
         }
@@ -1682,24 +974,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
   }
 
-  void _showCreateCategoryDialog() {
-    showDialog(
-      context: context,
-      builder: (ctx) => _CreateCategoryDialog(
-        onCategoryCreated: (newCat) async {
-          await _categoryRepository.saveCategory(newCat);
-          await _loadCategories();
-          if (mounted) {
-            setState(() {
-              _note = _note?.copyWith(categoryId: newCat.id);
-              _markUnsaved();
-            });
-          }
-        },
-      ),
-    );
-  }
-
   PreferredSizeWidget _buildAppBar(ColorScheme colorScheme) {
     final fgColor = _getTextColor(colorScheme);
 
@@ -1756,7 +1030,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           icon: Icon(Icons.color_lens_outlined, color: fgColor),
           onPressed: () {
             FocusScope.of(context).unfocus();
-            _showColorPicker();
+            NoteColorPickerSheet.show(context, _selectedColor, (color) {
+              setState(() => _selectedColor = color);
+              _markUnsaved();
+            });
           },
         ),
         if (_isSaving)
@@ -1790,362 +1067,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  void _increaseFontSize() {
-    final style = _controller?.getSelectionStyle();
-    final currentSize = style?.attributes['size']?.value;
-    if (currentSize == 'small') {
-      _controller?.formatSelection(Attribute.size); // normal
-    } else if (currentSize == null || currentSize == '0') {
-      final attr = Attribute.fromKeyValue('size', 'large');
-      if (attr != null) _controller?.formatSelection(attr);
-    } else if (currentSize == 'large') {
-      final attr = Attribute.fromKeyValue('size', 'huge');
-      if (attr != null) _controller?.formatSelection(attr);
-    }
-  }
-
-  void _decreaseFontSize() {
-    final style = _controller?.getSelectionStyle();
-    final currentSize = style?.attributes['size']?.value;
-    if (currentSize == 'huge') {
-      final attr = Attribute.fromKeyValue('size', 'large');
-      if (attr != null) _controller?.formatSelection(attr);
-    } else if (currentSize == 'large') {
-      _controller?.formatSelection(Attribute.size); // normal
-    } else if (currentSize == null || currentSize == '0') {
-      final attr = Attribute.fromKeyValue('size', 'small');
-      if (attr != null) _controller?.formatSelection(attr);
-    }
-  }
-
-  Widget _buildFloatingToolbar(
-    ColorScheme colorScheme,
-    QuillController controller,
-  ) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-
-    final formatToolbar = Row(
-      mainAxisSize: MainAxisSize.min,
-      key: const ValueKey('format_mode'),
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Flexible(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                QuillSimpleToolbar(
-                  controller: controller,
-                  config: QuillSimpleToolbarConfig(
-                    color: Colors.transparent,
-                    headerStyleType: HeaderStyleType.buttons,
-                    buttonOptions: const QuillSimpleToolbarButtonOptions(
-                      base: QuillToolbarBaseButtonOptions(
-                        iconTheme: QuillIconTheme(
-                          iconButtonUnselectedData: IconButtonData(
-                            style: ButtonStyle(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    customButtons: [
-                      QuillToolbarCustomButtonOptions(
-                        icon: Text(
-                          'A-',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                        tooltip: context.l10n.decreaseFontSize,
-                        onPressed: _decreaseFontSize,
-                      ),
-                      QuillToolbarCustomButtonOptions(
-                        icon: Text(
-                          'A+',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                        tooltip: context.l10n.increaseFontSize,
-                        onPressed: _increaseFontSize,
-                      ),
-                    ],
-                    showDividers: true,
-                    showFontFamily: false,
-                    showFontSize: false,
-                    showBoldButton: true,
-                    showItalicButton: true,
-                    showSmallButton: false,
-                    showUnderLineButton: true,
-                    showLineHeightButton: false,
-                    showStrikeThrough: true,
-                    showInlineCode: true,
-                    showCodeBlock: true,
-                    showSubscript: true,
-                    showSuperscript: true,
-                    showColorButton: true,
-                    showBackgroundColorButton: true,
-                    showClearFormat: true,
-                    showAlignmentButtons: false,
-                    showLeftAlignment: true,
-                    showCenterAlignment: true,
-                    showRightAlignment: true,
-                    showJustifyAlignment: true,
-                    showHeaderStyle: true,
-                    showListNumbers: true,
-                    showListBullets: true,
-                    showListCheck: true,
-                    showQuote: true,
-                    showIndent: true,
-                    showLink: false,
-                    showUndo: false,
-                    showRedo: false,
-                    multiRowsDisplay: true,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 4),
-          child: IconButton(
-            icon: const Icon(Icons.close_rounded, size: 20),
-            tooltip: context.l10n.closeAction,
-            onPressed: () => setState(() {
-              _isFormatMode = false;
-              _isMediaMode = false;
-            }),
-          ),
-        ),
-      ],
-    );
-
-    final mainToolbar = SingleChildScrollView(
-      key: const ValueKey('main_mode'),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: IconButton(
-              icon: const Icon(Icons.font_download_outlined, size: 20),
-              tooltip: context.l10n.textStyle,
-              onPressed: () => setState(() {
-                _isFormatMode = true;
-                _isMediaMode = false;
-              }),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: IconButton(
-              icon: const Icon(Icons.perm_media_outlined, size: 20),
-              tooltip: context.l10n.addMedia,
-              onPressed: () => setState(() {
-                _isMediaMode = true;
-                _isFormatMode = false;
-              }),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: IconButton(
-              icon: const Icon(Icons.link_rounded, size: 20),
-              tooltip: context.l10n.addLink,
-              onPressed: _showCustomTextLinkDialog,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: _buildMicButton(),
-          ),
-          QuillSimpleToolbar(
-            controller: controller,
-            config: const QuillSimpleToolbarConfig(
-              color: Colors.transparent,
-              buttonOptions: QuillSimpleToolbarButtonOptions(
-                base: QuillToolbarBaseButtonOptions(
-                  iconTheme: QuillIconTheme(
-                    iconButtonUnselectedData: IconButtonData(
-                      style: ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              showDividers: true,
-              showFontFamily: false,
-              showFontSize: false,
-              showBoldButton: false,
-              showItalicButton: false,
-              showSmallButton: false,
-              showUnderLineButton: false,
-              showLineHeightButton: false,
-              showStrikeThrough: false,
-              showInlineCode: false,
-              showCodeBlock: false,
-              showSubscript: false,
-              showSuperscript: false,
-              showColorButton: false,
-              showBackgroundColorButton: false,
-              showClearFormat: false,
-              showAlignmentButtons: false,
-              showLeftAlignment: false,
-              showCenterAlignment: false,
-              showRightAlignment: false,
-              showJustifyAlignment: false,
-              showHeaderStyle: false,
-              showListNumbers: false,
-              showListBullets: false,
-              showListCheck: false,
-              showQuote: false,
-              showIndent: false,
-              showLink: false,
-              showUndo: false,
-              showRedo: false,
-              multiRowsDisplay: true,
-            ),
-          ),
-        ],
-      ),
-    );
-
-    final mediaToolbar = Row(
-      mainAxisSize: MainAxisSize.min,
-      key: const ValueKey('media_mode'),
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Flexible(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.camera_alt_outlined, size: 20),
-                  tooltip: context.l10n.camera,
-                  onPressed: _showCameraOptionsDialog,
-                ),
-                QuillSimpleToolbar(
-                  controller: controller,
-                  config: QuillSimpleToolbarConfig(
-                    color: Colors.transparent,
-                    buttonOptions: const QuillSimpleToolbarButtonOptions(
-                      base: QuillToolbarBaseButtonOptions(
-                        iconTheme: QuillIconTheme(
-                          iconButtonUnselectedData: IconButtonData(
-                            style: ButtonStyle(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    showDividers: true,
-                    showFontFamily: false,
-                    showFontSize: false,
-                    showBoldButton: false,
-                    showItalicButton: false,
-                    showSmallButton: false,
-                    showUnderLineButton: false,
-                    showLineHeightButton: false,
-                    showStrikeThrough: false,
-                    showInlineCode: false,
-                    showCodeBlock: false,
-                    showSubscript: false,
-                    showSuperscript: false,
-                    showColorButton: false,
-                    showBackgroundColorButton: false,
-                    showClearFormat: false,
-                    showAlignmentButtons: false,
-                    showLeftAlignment: false,
-                    showCenterAlignment: false,
-                    showRightAlignment: false,
-                    showJustifyAlignment: false,
-                    showHeaderStyle: false,
-                    showListNumbers: false,
-                    showListBullets: false,
-                    showListCheck: false,
-                    showQuote: false,
-                    showIndent: false,
-                    showLink: false,
-                    showUndo: false,
-                    showRedo: false,
-                    showSearchButton: false,
-                    multiRowsDisplay: true,
-                    embedButtons: FlutterQuillEmbeds.toolbarButtons(
-                      imageButtonOptions: QuillToolbarImageButtonOptions(
-                        imageButtonConfig: QuillToolbarImageConfig(
-                          onRequestPickImage: _pickAndReturnImagePath,
-                        ),
-                      ),
-                      videoButtonOptions: QuillToolbarVideoButtonOptions(
-                        videoConfig: QuillToolbarVideoConfig(
-                          onRequestPickVideo: _pickAndReturnVideoPath,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 4),
-          child: IconButton(
-            icon: const Icon(Icons.close_rounded, size: 20),
-            tooltip: context.l10n.closeAction,
-            onPressed: () => setState(() {
-              _isFormatMode = false;
-              _isMediaMode = false;
-            }),
-          ),
-        ),
-      ],
-    );
-
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Theme(
-        data: Theme.of(context).copyWith(
-          menuTheme: const MenuThemeData(
-            style: MenuStyle(alignment: Alignment.topLeft),
-          ),
-        ),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 250),
-          child: _isFormatMode
-              ? formatToolbar
-              : _isMediaMode
-              ? mediaToolbar
-              : mainToolbar,
-        ),
-      ),
-    );
-  }
 
   Widget _buildEditor(ColorScheme colorScheme, QuillController controller) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -2208,7 +1129,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                         ),
                         ListTile(
                           leading: const Icon(Icons.open_in_new_rounded),
-                          title: Text(context.l10n.openLink,
+                          title: Text(
+                            context.l10n.openLink,
                             style: const TextStyle(
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w500,
@@ -2219,7 +1141,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                         ),
                         ListTile(
                           leading: const Icon(Icons.copy_rounded),
-                          title: Text(context.l10n.copyLink,
+                          title: Text(
+                            context.l10n.copyLink,
                             style: const TextStyle(
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w500,
@@ -2233,7 +1156,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             Icons.link_off_rounded,
                             color: Colors.redAccent,
                           ),
-                          title: Text(context.l10n.removeLink,
+                          title: Text(
+                            context.l10n.removeLink,
                             style: const TextStyle(
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w500,
@@ -2435,232 +1359,5 @@ class _LoadingScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(body: Center(child: CircularProgressIndicator()));
-  }
-}
-
-class _ColorOption extends StatelessWidget {
-  final Color? color;
-  final bool isSelected;
-  final VoidCallback onTap;
-  final String? label;
-
-  const _ColorOption({
-    this.color,
-    required this.isSelected,
-    required this.onTap,
-    this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final cs = Theme.of(context).colorScheme;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        width: 64,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color:
-                    color ?? (isDark ? const Color(0xFF2C2C2C) : Colors.white),
-                border: Border.all(
-                  color: isSelected
-                      ? primaryColor
-                      : cs.outlineVariant.withValues(alpha: 0.5),
-                  width: isSelected ? 2.5 : 1,
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: primaryColor.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : [],
-              ),
-              child: isSelected
-                  ? Icon(
-                      Icons.check_rounded,
-                      size: 28,
-                      color: color == null
-                          ? cs.onSurface
-                          : (color!.computeLuminance() < 0.5
-                                ? Colors.white
-                                : Colors.black87),
-                    )
-                  : (color == null
-                        ? Icon(
-                            Icons.format_color_reset_outlined,
-                            color: cs.onSurface.withValues(alpha: 0.4),
-                          )
-                        : null),
-            ),
-            if (label != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                label!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: isSelected
-                      ? primaryColor
-                      : cs.onSurface.withValues(alpha: 0.6),
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  fontFamily: 'Inter',
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CreateCategoryDialog extends StatefulWidget {
-  final Future<void> Function(NoteCategoryModel) onCategoryCreated;
-
-  const _CreateCategoryDialog({required this.onCategoryCreated});
-
-  @override
-  State<_CreateCategoryDialog> createState() => _CreateCategoryDialogState();
-}
-
-class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
-  late final TextEditingController _nameController;
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF1E1E1E)
-          : Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-      contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-      actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-      title: Text(
-        context.l10n.newNoteTag,
-        style: const TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      content: SizedBox(
-        width: 360,
-        child: TextField(
-          controller: _nameController,
-          autofocus: true,
-          textCapitalization: TextCapitalization.words,
-          decoration: InputDecoration(
-            hintText: context.l10n.tagName,
-            hintStyle: TextStyle(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.5),
-            ),
-            filled: true,
-            fillColor: Theme.of(
-              context,
-            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              ),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: _isLoading ? null : () => Navigator.pop(context),
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: Text(
-            context.l10n.cancel,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.w600,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-        ),
-        FilledButton(
-          onPressed: _isLoading
-              ? null
-              : () async {
-                  final name = _nameController.text.trim();
-                  if (name.isNotEmpty) {
-                    setState(() => _isLoading = true);
-                    final newCat = NoteCategoryModel.create(name: name);
-                    await widget.onCategoryCreated(newCat);
-                    if (!mounted) return;
-                    // context'i await öncesinde yerel değişkene al
-                    // (use_build_context_synchronously uyarısını önler)
-                    Navigator.pop(this.context);
-                  }
-                },
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: _isLoading
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(
-                  context.l10n.createNoteTag,
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-        ),
-      ],
-    );
   }
 }
