@@ -7,9 +7,11 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:cashly/features/notes/presentation/widgets/note_editor_styles.dart';
+import 'package:cashly/features/notes/presentation/widgets/note_editor_embed_builders.dart';
 
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/services/image_compression_service.dart';
@@ -1067,9 +1069,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-
   Widget _buildEditor(ColorScheme colorScheme, QuillController controller) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Listener(
       onPointerDown: (_) {
@@ -1175,177 +1175,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             );
             return result ?? LinkMenuAction.none;
           },
-          embedBuilders: [
-            ...FlutterQuillEmbeds.editorBuilders(
-              imageEmbedConfig: QuillEditorImageEmbedConfig(
-                imageProviderBuilder: (context, imageUrl) {
-                  if (!imageUrl.startsWith('http')) {
-                    return FileImage(File(imageUrl));
-                  }
-                  return NetworkImage(imageUrl);
-                },
-                // EC-15: Eksik/bozuk dosyada Flutter'in kirık ikon yerine
-                // kullanıcı dostu ikon gösterilir.
-                imageErrorWidgetBuilder: (context, imageUrl, error) {
-                  return Container(
-                    width: 120,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.broken_image_outlined,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.35),
-                          size: 28,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          context.l10n.imageLoadError,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.4),
-                            fontFamily: 'Inter',
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-          customStyles: _buildEditorStyles(
+          embedBuilders: NoteEditorEmbedBuilders.build(context),
+          customStyles: NoteEditorStyles.buildStyles(
             colorScheme,
-            isDark && _selectedColor == null,
+            _getTextColor(colorScheme),
           ),
         ),
-      ),
-    );
-  }
-
-  DefaultStyles _buildEditorStyles(ColorScheme cs, bool isDark) {
-    final bodyColor = _getTextColor(cs);
-
-    return DefaultStyles(
-      paragraph: DefaultTextBlockStyle(
-        TextStyle(
-          fontSize: 15,
-          height: 1.6,
-          color: bodyColor,
-          fontFamily: 'Inter',
-        ),
-        const HorizontalSpacing(0, 0),
-        const VerticalSpacing(0, 0),
-        const VerticalSpacing(0, 0),
-        null,
-      ),
-      placeHolder: DefaultTextBlockStyle(
-        TextStyle(
-          fontSize: 15,
-          color: bodyColor.withValues(alpha: 0.35),
-          fontFamily: 'Inter',
-        ),
-        const HorizontalSpacing(0, 0),
-        const VerticalSpacing(0, 0),
-        const VerticalSpacing(0, 0),
-        null,
-      ),
-      h1: DefaultTextBlockStyle(
-        TextStyle(
-          fontSize: 26,
-          fontWeight: FontWeight.w600,
-          color: bodyColor,
-          fontFamily: 'Inter',
-          letterSpacing: -0.3,
-        ),
-        const HorizontalSpacing(0, 0),
-        const VerticalSpacing(8, 4),
-        const VerticalSpacing(0, 0),
-        null,
-      ),
-      h2: DefaultTextBlockStyle(
-        TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w500,
-          color: bodyColor,
-          fontFamily: 'Inter',
-        ),
-        const HorizontalSpacing(0, 0),
-        const VerticalSpacing(6, 2),
-        const VerticalSpacing(0, 0),
-        null,
-      ),
-      h3: DefaultTextBlockStyle(
-        TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-          color: bodyColor,
-          fontFamily: 'Inter',
-        ),
-        const HorizontalSpacing(0, 0),
-        const VerticalSpacing(4, 2),
-        const VerticalSpacing(0, 0),
-        null,
-      ),
-      bold: TextStyle(fontWeight: FontWeight.w600, color: bodyColor),
-      italic: TextStyle(fontStyle: FontStyle.italic, color: bodyColor),
-      underline: const TextStyle(decoration: TextDecoration.underline),
-      strikeThrough: const TextStyle(decoration: TextDecoration.lineThrough),
-      inlineCode: InlineCodeStyle(
-        backgroundColor: bodyColor.withValues(alpha: 0.08),
-        style: TextStyle(
-          fontFamily: 'monospace',
-          fontSize: 13,
-          color: bodyColor,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      code: DefaultTextBlockStyle(
-        TextStyle(
-          fontFamily: 'monospace',
-          fontSize: 13,
-          color: bodyColor.withValues(alpha: 0.9),
-          height: 1.5,
-        ),
-        const HorizontalSpacing(12, 12),
-        const VerticalSpacing(8, 8),
-        const VerticalSpacing(0, 0),
-        BoxDecoration(
-          color: bodyColor.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      quote: DefaultTextBlockStyle(
-        TextStyle(
-          fontSize: 15,
-          color: bodyColor.withValues(alpha: 0.7),
-          fontStyle: FontStyle.italic,
-        ),
-        const HorizontalSpacing(16, 0),
-        const VerticalSpacing(8, 8),
-        const VerticalSpacing(0, 0),
-        BoxDecoration(
-          border: Border(
-            left: BorderSide(
-              color: cs.primary.withValues(alpha: 0.6),
-              width: 3,
-            ),
-          ),
-        ),
-      ),
-      link: TextStyle(
-        color: bodyColor,
-        decoration: TextDecoration.underline,
-        decorationColor: bodyColor,
-        fontWeight: FontWeight.w600,
       ),
     );
   }
