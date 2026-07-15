@@ -1,35 +1,28 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
-
-import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:cashly/features/notes/utils/note_media_helper.dart';
+
 import 'package:cashly/features/notes/presentation/widgets/note_editor_styles.dart';
 import 'package:cashly/features/notes/presentation/widgets/note_editor_embed_builders.dart';
 
 import 'package:flutter_quill/flutter_quill.dart';
 
-import 'package:image_picker/image_picker.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
-import 'package:cashly/core/services/image_compression_service.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/features/notes/data/models/note_model.dart';
 import 'package:cashly/features/notes/data/models/note_category_model.dart';
 import 'package:cashly/features/notes/data/repositories/note_repository.dart';
 import 'package:cashly/features/notes/data/repositories/note_category_repository.dart';
-import 'package:cashly/core/services/speech/speech_service.dart';
 import 'package:cashly/features/notes/presentation/widgets/note_color_picker_sheet.dart';
 import 'package:cashly/features/notes/presentation/widgets/voice_dictation_overlay.dart';
 import 'package:cashly/features/notes/presentation/widgets/note_editor_toolbar.dart';
 import 'package:cashly/features/notes/presentation/widgets/note_category_selector.dart';
+import 'package:cashly/features/notes/utils/voice_dictation_manager.dart';
 
 // ─── Sabitler ───────────────────────────────────────────────────────────────
-
-const int _kImageMaxWidth = 1280;
-const int _kImageQuality = 78;
 
 // ─── Widget ─────────────────────────────────────────────────────────────────
 
@@ -57,13 +50,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     with WidgetsBindingObserver {
   // Nullable: async _loadNote bitmeden dispose gelirse LateInitializationError önlenir.
   QuillController? _controller;
+  VoiceDictationManager? _voiceDictationManager;
   NoteModel? _note;
   int? _selectedColor;
 
   Timer? _autoSaveTimer;
-  Timer? _voicePauseTimer; // Konuşma duraksamalarını algılamak için
-  Timer?
-  _voiceSilenceTimer; // 3 saniyelik sessizlik durumunda mikrofonu kapatmak için
   final TextEditingController _titleController = TextEditingController();
 
   StreamSubscription? _docSubscription;
@@ -73,18 +64,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   final ScrollController _editorScrollController = ScrollController();
 
   bool _isEditing = false;
-  final ImagePicker _imagePicker = ImagePicker();
   final NoteRepository _repository = NoteRepository();
   final NoteCategoryRepository _categoryRepository = NoteCategoryRepository();
   List<NoteCategoryModel> _allCategories = [];
 
   // Speech-to-text
-  final SpeechService _speechService = SpeechService();
-  bool _isDictationBoxOpen = false;
-  bool _isListening = false;
-  bool _isRestarting = false; // Eş zamanlı yeniden başlamayı engeller
-  String _interimText = ''; // Son partial metin
-  int _interimOffset = -1; // Interim metnin başladığı Quill offset'i
 
   bool _isSaving = false;
   bool _saveQueued = false;
@@ -118,7 +102,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   void _onFocusChange() {
     final hasFocus = _editorFocusNode.hasFocus || _titleFocusNode.hasFocus;
 
-    if (_isListening) {
+    if ((_voiceDictationManager?.isListening ?? false)) {
       // Dikte sırasında metin eklendiğinde editör otomatik focus alıp klavyeyi açabilir.
       // Ancak unfocus() çağırmak QuillEditor ile sonsuz bir focus savaşına girip ANR'a sebep oluyor!
       // Bu yüzden sadece işlemi yoksayıyoruz.
@@ -134,8 +118,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _autoSaveTimer?.cancel();
-    _voicePauseTimer?.cancel();
-    _voiceSilenceTimer?.cancel();
+
     _docSubscription?.cancel();
     _titleController.dispose();
     _controller?.dispose();
@@ -144,7 +127,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _editorFocusNode.dispose();
     _titleFocusNode.dispose();
     _editorScrollController.dispose();
-    _speechService.dispose();
+    _voiceDictationManager?.dispose();
     super.dispose();
   }
 
@@ -154,8 +137,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     // Bu, işletim sisteminin bellek açmak için uygulamayı öldürdüğü durumlarda veri kaybını önler.
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
-      if (_isListening) {
-        _stopVoiceDictation();
+      if ((_voiceDictationManager?.isListening ?? false)) {
+        _voiceDictationManager?.stopVoiceDictation();
       }
       if (_hasUnsavedChanges) {
         _saveNote();
@@ -201,6 +184,15 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _note = note;
       _controller = controller;
       _selectedColor = note.color;
+
+      _voiceDictationManager = VoiceDictationManager(
+        context: context,
+        controller: _controller!,
+        onStateChanged: () {
+          if (mounted) setState(() {});
+        },
+        onUnsavedChanges: _markUnsaved,
+      );
       _isLoading = false;
       _titleController.text = note.title;
     });
@@ -323,157 +315,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   // ─── Resim İşlemi ───────────────────────────────────────────────────────
 
-  Future<String?> _pickAndReturnVideoPath(BuildContext context) async {
-    try {
-      final picked = await _imagePicker.pickVideo(source: ImageSource.gallery);
-      if (picked == null) return null;
-
-      final appDir = await getApplicationDocumentsDirectory();
-      final notesVidDir = Directory('${appDir.path}/notes_videos');
-      if (!await notesVidDir.exists()) {
-        await notesVidDir.create(recursive: true);
-      }
-      final parts = picked.path.split('.');
-      final ext = parts.length > 1 ? parts.last : 'mp4';
-      final fileName =
-          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
-      final dest = File('${notesVidDir.path}/$fileName');
-      await File(picked.path).copy(dest.path);
-      return dest.path;
-    } catch (e) {
-      debugPrint('Video pick error: $e');
-      return null;
-    }
-  }
-
-  /// EC-5: Galeriden seçilen resmi Documents dizinine kopyalar.
-  /// Cache silinse veya uygulama güncellense bile resim kaybolmaz.
-  Future<String?> _pickAndReturnImagePath(BuildContext context) async {
-    try {
-      final XFile? picked = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 100,
-      );
-      if (picked == null) return null;
-
-      final File compressed = await ImageCompressionService.compress(
-        File(picked.path),
-        maxWidth: _kImageMaxWidth,
-        quality: _kImageQuality,
-      );
-
-      // Kalıcı dizine kopyala — cache dosyası silinirse resim hala erişilebilir.
-      final docsDir = await getApplicationDocumentsDirectory();
-      final notesImgDir = Directory('${docsDir.path}/note_images');
-      if (!notesImgDir.existsSync()) notesImgDir.createSync(recursive: true);
-
-      // EC-14: Uzantsız dosyalarda split('.').last tamamı alır → 'jpg' fallback.
-      final parts = compressed.path.split('.');
-      final ext = parts.length > 1 ? parts.last : 'jpg';
-      final fileName =
-          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
-      final dest = File('${notesImgDir.path}/$fileName');
-      await compressed.copy(dest.path);
-
-      return dest.path;
-    } catch (_) {
-      if (context.mounted) {
-        AppSnackBar.error(context, context.l10n.imageLoadError);
-      }
-      return null;
-    }
-  }
-
-  void _insertMedia(String path, bool isVideo) {
-    final c = _controller;
-    if (c == null) return;
-
-    final index = c.selection.baseOffset;
-    final length = c.selection.extentOffset - index;
-
-    if (length > 0) {
-      c.document.delete(index, length);
-    }
-
-    c.document.insert(
-      index,
-      isVideo ? BlockEmbed.video(path) : BlockEmbed.image(path),
-    );
-
-    c.document.insert(index + 1, '\n');
-    c.updateSelection(
-      TextSelection.collapsed(offset: index + 2),
-      ChangeSource.local,
-    );
-
-    _markUnsaved();
-  }
-
-  Future<String?> _pickAndReturnImagePathFromCamera(
-    BuildContext context,
-  ) async {
-    try {
-      final XFile? picked = await _imagePicker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 100,
-      );
-      if (picked == null) return null;
-
-      final File compressed = await ImageCompressionService.compress(
-        File(picked.path),
-        maxWidth: _kImageMaxWidth,
-        quality: _kImageQuality,
-      );
-
-      final docsDir = await getApplicationDocumentsDirectory();
-      final notesImgDir = Directory('${docsDir.path}/note_images');
-      if (!notesImgDir.existsSync()) notesImgDir.createSync(recursive: true);
-
-      final parts = compressed.path.split('.');
-      final ext = parts.length > 1 ? parts.last : 'jpg';
-      final fileName =
-          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
-      final dest = File('${notesImgDir.path}/$fileName');
-      await compressed.copy(dest.path);
-
-      return dest.path;
-    } catch (_) {
-      if (context.mounted) {
-        AppSnackBar.error(context, context.l10n.imageLoadError);
-      }
-      return null;
-    }
-  }
-
-  Future<String?> _pickAndReturnVideoPathFromCamera(
-    BuildContext context,
-  ) async {
-    try {
-      final XFile? picked = await _imagePicker.pickVideo(
-        source: ImageSource.camera,
-      );
-      if (picked == null) return null;
-
-      final docsDir = await getApplicationDocumentsDirectory();
-      final notesVidDir = Directory('${docsDir.path}/note_videos');
-      if (!notesVidDir.existsSync()) notesVidDir.createSync(recursive: true);
-
-      final parts = picked.path.split('.');
-      final ext = parts.length > 1 ? parts.last : 'mp4';
-      final fileName =
-          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
-      final dest = File('${notesVidDir.path}/$fileName');
-      await File(picked.path).copy(dest.path);
-
-      return dest.path;
-    } catch (_) {
-      if (context.mounted) {
-        AppSnackBar.error(context, context.l10n.videoUploadError);
-      }
-      return null;
-    }
-  }
-
   // ─── Build ──────────────────────────────────────────────────────────────
 
   @override
@@ -495,16 +336,19 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
 
     return PopScope(
-      canPop: !_hasUnsavedChanges && !_isDictationBoxOpen,
+      canPop:
+          !_hasUnsavedChanges &&
+          !(_voiceDictationManager?.isDictationBoxOpen ?? false),
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
 
-        if (_isDictationBoxOpen) {
+        if ((_voiceDictationManager?.isDictationBoxOpen ?? false)) {
           setState(() {
-            _isDictationBoxOpen = false;
+            _voiceDictationManager?.stopVoiceDictation();
             _controller?.readOnly = false;
           });
-          if (_isListening) _stopVoiceDictation();
+          if ((_voiceDictationManager?.isListening ?? false))
+            _voiceDictationManager?.stopVoiceDictation();
           return;
         }
 
@@ -535,7 +379,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           body: GestureDetector(
             onTap: () {
               // Sesli dikte aktifken dokunma ile klavye açılmasını engelle
-              if (!_isListening) FocusScope.of(context).unfocus();
+              if (!(_voiceDictationManager?.isListening ?? false))
+                FocusScope.of(context).unfocus();
             },
             child: Stack(
               children: [
@@ -607,26 +452,50 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           child: child,
                         ),
                       ),
-                      child: _isEditing && !_isDictationBoxOpen
+                      child:
+                          _isEditing &&
+                              !(_voiceDictationManager?.isDictationBoxOpen ??
+                                  false)
                           ? NoteEditorToolbar(
                               controller: controller,
                               onMarkUnsaved: _markUnsaved,
-                              onStartVoiceDictation: _startVoiceDictation,
-                              onPickImageFromGallery: _pickAndReturnImagePath,
-                              onPickVideoFromGallery: _pickAndReturnVideoPath,
+                              onStartVoiceDictation: () =>
+                                  _voiceDictationManager?.startVoiceDictation(),
+                              onPickImageFromGallery: (ctx) =>
+                                  NoteMediaHelper.pickImage(
+                                    ctx,
+                                    fromCamera: false,
+                                  ),
+                              onPickVideoFromGallery: (ctx) =>
+                                  NoteMediaHelper.pickVideo(
+                                    ctx,
+                                    fromCamera: false,
+                                  ),
                               onTakePhoto: () async {
-                                final path =
-                                    await _pickAndReturnImagePathFromCamera(
-                                      context,
-                                    );
-                                if (path != null) _insertMedia(path, false);
+                                final path = await NoteMediaHelper.pickImage(
+                                  context,
+                                  fromCamera: true,
+                                );
+                                if (path != null)
+                                  NoteMediaHelper.insertMedia(
+                                    controller: _controller!,
+                                    path: path,
+                                    isVideo: false,
+                                    onMediaInserted: _markUnsaved,
+                                  );
                               },
                               onRecordVideo: () async {
-                                final path =
-                                    await _pickAndReturnVideoPathFromCamera(
-                                      context,
-                                    );
-                                if (path != null) _insertMedia(path, true);
+                                final path = await NoteMediaHelper.pickVideo(
+                                  context,
+                                  fromCamera: true,
+                                );
+                                if (path != null)
+                                  NoteMediaHelper.insertMedia(
+                                    controller: _controller!,
+                                    path: path,
+                                    isVideo: true,
+                                    onMediaInserted: _markUnsaved,
+                                  );
                               },
                             )
                           : const SizedBox.shrink(),
@@ -634,10 +503,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   ),
                 ),
                 // Sesli dikte aktifken gösterilen floating overlay
-                if (_isDictationBoxOpen)
+                if ((_voiceDictationManager?.isDictationBoxOpen ?? false))
                   VoiceDictationOverlay(
-                    isListening: _isListening,
-                    onToggleListening: _toggleListening,
+                    isListening: (_voiceDictationManager?.isListening ?? false),
+                    onToggleListening: () =>
+                        _voiceDictationManager?.toggleListening(),
                   ),
               ],
             ),
@@ -661,12 +531,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     final fgColor = _getTextColor(colorScheme);
     return Listener(
       onPointerDown: (_) {
-        if (_isDictationBoxOpen) {
+        if ((_voiceDictationManager?.isDictationBoxOpen ?? false)) {
           setState(() {
-            _isDictationBoxOpen = false;
+            _voiceDictationManager?.stopVoiceDictation();
             _controller?.readOnly = false;
           });
-          if (_isListening) _stopVoiceDictation();
+          if ((_voiceDictationManager?.isListening ?? false))
+            _voiceDictationManager?.stopVoiceDictation();
         }
       },
       child: Padding(
@@ -724,258 +595,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  // ─── Sesli Dikte ────────────────────────────────────────────────────────
-
-  /// Dinleme aktifken ekranın altında gösterilen yuvarlak overlay.
-  Future<void> _startVoiceDictation() async {
-    if (_controller == null || _isListening) return;
-
-    // Önce focus'u kaldır ve klavyeyi kesin olarak gizle.
-    // Bunu _isListening = true olmadan önce yapıyoruz ki _onFocusChange
-    // tetiklendiğinde return ile çıkış yapmasın ve _isEditing state'i false olabilsin.
-    FocusScope.of(context).unfocus();
-    SystemChannels.textInput.invokeMethod('TextInput.hide');
-
-    // Toolbar ve klavyeyi kapat (await öncesinde - context async gap önler)
-    setState(() {
-      _controller?.readOnly = true;
-      _isDictationBoxOpen = true;
-      _isListening = true; // Anında aktif et ki double-tap engellensin
-    });
-
-    final success = await _speechService.initialize();
-    if (!success) {
-      if (mounted) {
-        setState(() {
-          _isListening = false;
-          _isDictationBoxOpen = false;
-          _controller?.readOnly = false;
-        });
-        AppSnackBar.error(context, context.l10n.micAccessDenied);
-      }
-      return;
-    }
-
-    if (!mounted) return;
-    _interimText = '';
-    _interimOffset = -1;
-    _isRestarting = false;
-    _voicePauseTimer?.cancel();
-
-    _resetVoiceSilenceTimer();
-    await _resumeListeningSession();
-  }
-
-  /// Bir dinleme oturumu başlatır. Her cümle bittiğinde otomatik yeniden
-  /// başlar — kullanıcı elle durdurana kadar kapanmaz.
-  Future<void> _resumeListeningSession() async {
-    if (!_isListening || !mounted || _isRestarting) return;
-
-    _resetVoiceSilenceTimer();
-
-    await _speechService.startListening(
-      onResult: (text, {required bool isFinal}) {
-        if (!mounted || !_isListening) return;
-
-        if (text.trim().isNotEmpty) {
-          _resetVoiceSilenceTimer();
-        }
-
-        if (isFinal) {
-          if (text.isNotEmpty) _applyInterimText(text);
-          _commitInterimText();
-          _markUnsaved();
-          _scheduleAutoSave();
-        } else {
-          _applyInterimText(text);
-        }
-      },
-      onStatus: (status) {
-        if (!mounted || !_isListening) return;
-
-        if (status.startsWith('error')) {
-          final errorMsg = status.split(':').length > 1
-              ? status.split(':')[1]
-              : '';
-
-          if (errorMsg == 'error_no_match' ||
-              errorMsg == 'error_speech_timeout' ||
-              errorMsg == 'error_busy') {
-            // Sessizlikten kaynaklı hata ise sadece return yap.
-            // Motor zaten done statüsüne geçip yeniden başlatılacak.
-            return;
-          }
-
-          // Kalici bir hata olusursa
-          _stopVoiceDictation();
-          if (mounted) {
-            String userMsg = context.l10n.voiceRecognitionError;
-            if (errorMsg == 'error_network') {
-              userMsg = context.l10n.internetDisconnectedOrWeak;
-            } else if (errorMsg == 'error_audio_error' ||
-                errorMsg == 'error_client') {
-              userMsg = context.l10n.micUnavailable;
-            } else if (errorMsg == 'error_listen_failed') {
-              userMsg = context.l10n.micInUseByOtherApp;
-            }
-
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(userMsg)));
-          }
-          return;
-        }
-
-        if (status == 'done' || status == 'notListening') {
-          // Motor herhangi bir sebeple durursa (sessizlik, hata, final vs)
-          _commitInterimText();
-          _markUnsaved();
-          _scheduleAutoSave();
-
-          if (!_isRestarting) {
-            _isRestarting = true;
-            Future.delayed(const Duration(milliseconds: 250), () async {
-              _isRestarting = false;
-              if (mounted && _isListening) await _resumeListeningSession();
-            });
-          }
-        }
-      },
-    );
-  }
-
-  /// Partial / final tanıma sonucunu Quill dokümanına yansıt.
-  void _applyInterimText(String newText) {
-    // Boş sonucu yok say: motor duraksama sırasında boş partial gönderebilir.
-    if (newText.isEmpty) return;
-
-    final controller = _controller;
-    if (controller == null) return;
-
-    // Önceki interim bloğunu kesin offsetinden sil
-    if (_interimText.isNotEmpty && _interimOffset >= 0) {
-      controller.replaceText(
-        _interimOffset,
-        _interimText.length,
-        '',
-        TextSelection.collapsed(offset: _interimOffset),
-      );
-    }
-
-    _interimText = newText;
-    final doc = controller.document;
-
-    // Eğer yeni bir cümleye başlıyorsak, imlecin o anki konumunu baz al
-    if (_interimOffset < 0) {
-      final selection = controller.selection;
-      if (selection.isValid) {
-        if (!selection.isCollapsed) {
-          // Secili metin varsa, once onu sil
-          final start = selection.start;
-          final length = selection.end - selection.start;
-          controller.replaceText(
-            start,
-            length,
-            '',
-            TextSelection.collapsed(offset: start),
-          );
-          _interimOffset = start.clamp(0, controller.document.length - 1);
-        } else {
-          _interimOffset = selection.baseOffset.clamp(0, doc.length - 1);
-        }
-      } else {
-        _interimOffset = (doc.length - 1).clamp(0, doc.length - 1);
-      }
-    }
-
-    controller.replaceText(
-      _interimOffset,
-      0,
-      newText,
-      TextSelection.collapsed(offset: _interimOffset + newText.length),
-    );
-
-    // Duraksama (Pause) tespiti:
-    // Android SpeechToText bazen isFinal fırlatmadan yeni bir cümleye başlayabilir.
-    // Bu durumda eski cümlenin silinmesini önlemek için 1.2 saniyelik bir timer kuruyoruz.
-    _voicePauseTimer?.cancel();
-    _voicePauseTimer = Timer(const Duration(milliseconds: 1200), () {
-      if (mounted && _isListening && _interimText.isNotEmpty) {
-        _commitInterimText();
-        _markUnsaved();
-        _scheduleAutoSave();
-      }
-    });
-  }
-
-  /// Interim metni kalıcı yap ve iki cümle arasına boşluk ekle.
-  void _resetVoiceSilenceTimer() {
-    _voiceSilenceTimer?.cancel();
-    if (!_isListening) return;
-
-    _voiceSilenceTimer = Timer(const Duration(seconds: 6), () {
-      if (mounted && _isListening) {
-        _stopVoiceDictation();
-      }
-    });
-  }
-
-  void _commitInterimText({bool addSeparator = true}) {
-    if (addSeparator && _interimText.isNotEmpty && _interimOffset >= 0) {
-      // Noktalı virgul / cümle arası boşluk
-      final controller = _controller;
-      if (controller != null) {
-        final spaceOffset = _interimOffset + _interimText.length;
-        final maxOffset = (controller.document.length - 1).clamp(
-          0,
-          controller.document.length - 1,
-        );
-        if (spaceOffset <= maxOffset) {
-          controller.replaceText(
-            spaceOffset,
-            0,
-            ' ',
-            TextSelection.collapsed(offset: spaceOffset + 1),
-          );
-        }
-      }
-    }
-    _voicePauseTimer?.cancel();
-    _interimText = '';
-    _interimOffset = -1;
-  }
-
-  Future<void> _toggleListening() async {
-    if (_isListening) {
-      await _stopVoiceDictation();
-    } else {
-      setState(() => _isListening = true);
-      await _resumeListeningSession();
-    }
-  }
-
-  Future<void> _stopVoiceDictation() async {
-    if (!_isListening) return;
-    // Flag önce false — restart döngüsünü kır
-    setState(() => _isListening = false);
-    _isRestarting = false;
-
-    // Bekleyen interim metni sil (cancel— yazilmamis partial)
-    // veya kullanıcı konuyu yarıda bırakmışsa commit et (sessiz kalma)
-    _voicePauseTimer?.cancel();
-    _voiceSilenceTimer?.cancel();
-    _commitInterimText(addSeparator: false);
-
-    // Focus node'ları kutu kapandığında aktifleştirilecek (_closeDictationBox içinde)
-
-    await _speechService.stopListening();
-
-    if (mounted) {
-      _markUnsaved();
-      _scheduleAutoSave();
-    }
-  }
-
   PreferredSizeWidget _buildAppBar(ColorScheme colorScheme) {
     final fgColor = _getTextColor(colorScheme);
 
@@ -1003,11 +622,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   IconButton(
                     icon: Icon(
                       Icons.undo_rounded,
-                      color: (_controller!.hasUndo && !_isDictationBoxOpen)
+                      color:
+                          (_controller!.hasUndo &&
+                              !(_voiceDictationManager?.isDictationBoxOpen ??
+                                  false))
                           ? fgColor
                           : fgColor.withValues(alpha: 0.3),
                     ),
-                    onPressed: (_controller!.hasUndo && !_isDictationBoxOpen)
+                    onPressed:
+                        (_controller!.hasUndo &&
+                            !(_voiceDictationManager?.isDictationBoxOpen ??
+                                false))
                         ? () => _controller!.undo()
                         : null,
                     tooltip: context.l10n.undoAction,
@@ -1015,11 +640,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   IconButton(
                     icon: Icon(
                       Icons.redo_rounded,
-                      color: (_controller!.hasRedo && !_isDictationBoxOpen)
+                      color:
+                          (_controller!.hasRedo &&
+                              !(_voiceDictationManager?.isDictationBoxOpen ??
+                                  false))
                           ? fgColor
                           : fgColor.withValues(alpha: 0.3),
                     ),
-                    onPressed: (_controller!.hasRedo && !_isDictationBoxOpen)
+                    onPressed:
+                        (_controller!.hasRedo &&
+                            !(_voiceDictationManager?.isDictationBoxOpen ??
+                                false))
                         ? () => _controller!.redo()
                         : null,
                     tooltip: context.l10n.redoAction,
@@ -1070,15 +701,15 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   }
 
   Widget _buildEditor(ColorScheme colorScheme, QuillController controller) {
-
     return Listener(
       onPointerDown: (_) {
-        if (_isDictationBoxOpen) {
+        if ((_voiceDictationManager?.isDictationBoxOpen ?? false)) {
           setState(() {
-            _isDictationBoxOpen = false;
+            _voiceDictationManager?.stopVoiceDictation();
             _controller?.readOnly = false;
           });
-          if (_isListening) _stopVoiceDictation();
+          if ((_voiceDictationManager?.isListening ?? false))
+            _voiceDictationManager?.stopVoiceDictation();
           // Rebuild sonrası editörün focus alabilmesi için post frame callback kullanıyoruz
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
