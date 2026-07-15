@@ -98,7 +98,7 @@ class VoiceDictationManager {
           }
 
           // Kalıcı hata: dikteyi durdur ve kullanıcıya bilgi ver.
-          stopVoiceDictation();
+          stopVoiceDictation(closeBox: false);
           String userMsg = context.l10n.voiceRecognitionError;
           if (errorMsg == 'error_network') {
             userMsg = context.l10n.internetDisconnectedOrWeak;
@@ -117,7 +117,7 @@ class VoiceDictationManager {
             _isRestarting = true;
             Future.delayed(const Duration(milliseconds: 250), () async {
               _isRestarting = false;
-              if (isListening) await resumeListeningSession();
+              if (isListening && context.mounted) await resumeListeningSession();
             });
           }
         }
@@ -126,6 +126,7 @@ class VoiceDictationManager {
   }
 
   void applyInterimText(String newText) {
+    newText = newText.trimLeft();
     if (newText.isEmpty) return;
 
     if (interimText.isNotEmpty && _interimOffset >= 0) {
@@ -167,8 +168,6 @@ class VoiceDictationManager {
       newText,
       TextSelection.collapsed(offset: _interimOffset + newText.length),
     );
-
-    onStateChanged();
     
     _voicePauseTimer?.cancel();
     _voicePauseTimer = Timer(const Duration(milliseconds: 1200), () {
@@ -193,18 +192,20 @@ class VoiceDictationManager {
 
   void commitInterimText({bool addSeparator = true}) {
     if (addSeparator && interimText.isNotEmpty && _interimOffset >= 0) {
-      final spaceOffset = _interimOffset + interimText.length;
-      final maxOffset = (controller.document.length - 1).clamp(
-        0,
-        controller.document.length - 1,
-      );
-      if (spaceOffset <= maxOffset) {
-        controller.replaceText(
-          spaceOffset,
+      if (!interimText.endsWith(' ')) {
+        final spaceOffset = _interimOffset + interimText.length;
+        final maxOffset = (controller.document.length - 1).clamp(
           0,
-          ' ',
-          TextSelection.collapsed(offset: spaceOffset + 1),
+          controller.document.length - 1,
         );
+        if (spaceOffset <= maxOffset) {
+          controller.replaceText(
+            spaceOffset,
+            0,
+            ' ',
+            TextSelection.collapsed(offset: spaceOffset + 1),
+          );
+        }
       }
     }
     _voicePauseTimer?.cancel();
@@ -216,7 +217,7 @@ class VoiceDictationManager {
 
   Future<void> toggleListening() async {
     if (isListening) {
-      await stopVoiceDictation();
+      await stopVoiceDictation(closeBox: false);
     } else {
       isListening = true;
       onStateChanged();
@@ -224,8 +225,8 @@ class VoiceDictationManager {
     }
   }
 
-  Future<void> stopVoiceDictation() async {
-    if (!isListening) return;
+  Future<void> stopVoiceDictation({bool closeBox = true}) async {
+    if (!isListening && !closeBox) return;
     
     isListening = false;
     _isRestarting = false;
@@ -234,9 +235,12 @@ class VoiceDictationManager {
     _voicePauseTimer?.cancel();
     commitInterimText(addSeparator: false);
     await _speechService.stopListening();
-    isDictationBoxOpen = false;
-    isListening = false;
-    controller.readOnly = false;
+    
+    if (closeBox) {
+      isDictationBoxOpen = false;
+      controller.readOnly = false;
+    }
+    
     onStateChanged();
     onUnsavedChanges();
   }
