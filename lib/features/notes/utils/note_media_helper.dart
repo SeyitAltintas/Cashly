@@ -63,6 +63,10 @@ class NoteMediaHelper {
       final fileName = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesImgDir.path}/$fileName');
       await compressed.copy(dest.path);
+      
+      // Delay slightly to ensure the file is completely flushed to disk
+      // and available for FileImage to read, preventing the 'image load error' warning.
+      await Future.delayed(const Duration(milliseconds: 250));
 
       return dest.path;
     } catch (_) {

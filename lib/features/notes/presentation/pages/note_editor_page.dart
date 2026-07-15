@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/features/notes/utils/note_media_helper.dart';
 
@@ -347,8 +345,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             _voiceDictationManager?.stopVoiceDictation();
             _controller?.readOnly = false;
           });
-          if ((_voiceDictationManager?.isListening ?? false))
+          if ((_voiceDictationManager?.isListening ?? false)) {
             _voiceDictationManager?.stopVoiceDictation();
+          }
           return;
         }
 
@@ -379,8 +378,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           body: GestureDetector(
             onTap: () {
               // Sesli dikte aktifken dokunma ile klavye açılmasını engelle
-              if (!(_voiceDictationManager?.isListening ?? false))
+              if (!(_voiceDictationManager?.isListening ?? false)) {
                 FocusScope.of(context).unfocus();
+              }
             },
             child: Stack(
               children: [
@@ -476,26 +476,28 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                                   context,
                                   fromCamera: true,
                                 );
-                                if (path != null)
+                                if (path != null) {
                                   NoteMediaHelper.insertMedia(
                                     controller: _controller!,
                                     path: path,
                                     isVideo: false,
                                     onMediaInserted: _markUnsaved,
                                   );
+                                }
                               },
                               onRecordVideo: () async {
                                 final path = await NoteMediaHelper.pickVideo(
                                   context,
                                   fromCamera: true,
                                 );
-                                if (path != null)
+                                if (path != null) {
                                   NoteMediaHelper.insertMedia(
                                     controller: _controller!,
                                     path: path,
                                     isVideo: true,
                                     onMediaInserted: _markUnsaved,
                                   );
+                                }
                               },
                             )
                           : const SizedBox.shrink(),
@@ -536,8 +538,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             _voiceDictationManager?.stopVoiceDictation();
             _controller?.readOnly = false;
           });
-          if ((_voiceDictationManager?.isListening ?? false))
+          if ((_voiceDictationManager?.isListening ?? false)) {
             _voiceDictationManager?.stopVoiceDictation();
+          }
         }
       },
       child: Padding(
@@ -708,8 +711,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             _voiceDictationManager?.stopVoiceDictation();
             _controller?.readOnly = false;
           });
-          if ((_voiceDictationManager?.isListening ?? false))
+          if ((_voiceDictationManager?.isListening ?? false)) {
             _voiceDictationManager?.stopVoiceDictation();
+          }
           // Rebuild sonrası editörün focus alabilmesi için post frame callback kullanıyoruz
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
