@@ -830,7 +830,7 @@ class _NotesListPageState extends State<NotesListPage> {
       (id) => _repository.getNoteById(id)?.categoryId != null,
     );
 
-    if (_allCategories.isEmpty) {
+    if (_allCategories.isEmpty && !hasAnyTagAssigned) {
       if (context.mounted) {
         AppSnackBar.error(context, 'Henüz bir etiketiniz bulunmamaktadır.');
       }
