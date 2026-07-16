@@ -54,7 +54,9 @@ class VoiceDictationManager {
       controller.readOnly = false;
       onStateChanged();
       // ignore: use_build_context_synchronously
-      if (context.mounted) AppSnackBar.error(context, context.l10n.micAccessDenied);
+      if (context.mounted) {
+        AppSnackBar.error(context, context.l10n.micAccessDenied);
+      }
       return;
     }
 
@@ -117,7 +119,9 @@ class VoiceDictationManager {
             _isRestarting = true;
             Future.delayed(const Duration(milliseconds: 250), () async {
               _isRestarting = false;
-              if (isListening && context.mounted) await resumeListeningSession();
+              if (isListening && context.mounted) {
+                await resumeListeningSession();
+              }
             });
           }
         }
@@ -168,7 +172,7 @@ class VoiceDictationManager {
       newText,
       TextSelection.collapsed(offset: _interimOffset + newText.length),
     );
-    
+
     _voicePauseTimer?.cancel();
     _voicePauseTimer = Timer(const Duration(milliseconds: 1200), () {
       if (isListening && interimText.isNotEmpty) {
@@ -227,20 +231,20 @@ class VoiceDictationManager {
 
   Future<void> stopVoiceDictation({bool closeBox = true}) async {
     if (!isListening && !closeBox) return;
-    
+
     isListening = false;
     _isRestarting = false;
-    
+
     _voiceSilenceTimer?.cancel();
     _voicePauseTimer?.cancel();
     commitInterimText(addSeparator: false);
     await _speechService.stopListening();
-    
+
     if (closeBox) {
       isDictationBoxOpen = false;
       controller.readOnly = false;
     }
-    
+
     onStateChanged();
     onUnsavedChanges();
   }
