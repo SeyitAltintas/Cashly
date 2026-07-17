@@ -120,7 +120,7 @@ class CustomTextLinkDialog {
                     final insertText = text.isNotEmpty ? text : url;
                     final index = selection.isValid
                         ? selection.baseOffset
-                        : controller.document.length;
+                        : (controller.document.length - 1).clamp(0, controller.document.length);
                     controller.document.insert(index, insertText);
                     controller.formatText(
                       index,
