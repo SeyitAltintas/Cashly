@@ -27,6 +27,12 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
         User? user,
       ) async {
         if (user == null && _currentUser != null) {
+          if (kDebugMode) {
+            debugPrint(
+              'Debug modunda Firebase null user eventi yoksayıldı (Hot restart PIN bypass koruması).',
+            );
+            return;
+          }
           debugPrint(
             'Bulut kaynaklı çıkış (Force Logout) algılandı, lokal oturum temizleniyor.',
           );
