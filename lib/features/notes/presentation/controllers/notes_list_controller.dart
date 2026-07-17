@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -23,6 +24,8 @@ class NotesListController extends ChangeNotifier {
   List<NoteCategoryModel> _allCategories = [];
   List<NoteModel> _allNotes = [];
   List<NoteModel> _visibleNotes = [];
+
+  Timer? _debounceTimer;
 
   late final VoidCallback _boxListener;
   ValueListenable<Box>? _boxListenable;
@@ -66,8 +69,26 @@ class NotesListController extends ChangeNotifier {
   }
 
   void setSearchQuery(String query) {
-    _searchQuery = _toTurkishLowerCase(query);
-    _updateVisibleNotes();
+    final lowerQuery = _toTurkishLowerCase(query);
+    if (_searchQuery == lowerQuery) return;
+    
+    _searchQuery = lowerQuery;
+
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+
+    // Arama tamamen temizlendiyse listeyi anında getir (bekleme)
+    if (lowerQuery.isEmpty) {
+      _updateVisibleNotes();
+      notifyListeners();
+      return;
+    }
+
+    // 300ms Debounce: UI hemen tepki versin diye notifyListeners çağrılır ama filtreleme gecikir
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      _updateVisibleNotes();
+      notifyListeners();
+    });
+
     notifyListeners();
   }
 
@@ -201,6 +222,7 @@ class NotesListController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _boxListenable?.removeListener(_boxListener);
     super.dispose();
   }
