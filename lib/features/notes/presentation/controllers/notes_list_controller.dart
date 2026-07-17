@@ -11,6 +11,8 @@ class NotesListController extends ChangeNotifier {
   final NoteRepository _repository;
   final NoteCategoryRepository _categoryRepository;
 
+  bool _isDisposed = false;
+
   NotesListController({
     required NoteRepository repository,
     required NoteCategoryRepository categoryRepository,
@@ -244,7 +246,15 @@ class NotesListController extends ChangeNotifier {
   }
 
   @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
+  }
+
+  @override
   void dispose() {
+    _isDisposed = true;
     _debounceTimer?.cancel();
     _boxListenable?.removeListener(_boxListener);
     super.dispose();
