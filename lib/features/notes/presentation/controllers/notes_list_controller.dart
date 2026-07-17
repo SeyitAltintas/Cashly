@@ -21,6 +21,7 @@ class NotesListController extends ChangeNotifier {
   bool _isReady = false;
   String? _selectedFilterId;
   List<NoteCategoryModel> _allCategories = [];
+  List<NoteModel> _allNotes = [];
   List<NoteModel> _visibleNotes = [];
 
   late final VoidCallback _boxListener;
@@ -47,11 +48,11 @@ class NotesListController extends ChangeNotifier {
 
     _allCategories = _categoryRepository.getAllCategories();
     _isReady = true;
-    _updateVisibleNotes();
+    _fetchAndCacheAllNotes();
     notifyListeners();
 
     _boxListener = () {
-      _updateVisibleNotes();
+      _fetchAndCacheAllNotes();
       notifyListeners();
     };
     _boxListenable = _repository.listenable();
@@ -129,12 +130,18 @@ class NotesListController extends ChangeNotifier {
     return selectedNotes.isNotEmpty && selectedNotes.every((n) => n.isPinned);
   }
 
+  void _fetchAndCacheAllNotes() {
+    if (!_isReady) return;
+    _allNotes = _repository.getAllNotes();
+    _updateVisibleNotes();
+  }
+
   void _updateVisibleNotes() {
     if (!_isReady) {
       _visibleNotes = [];
       return;
     }
-    List<NoteModel> notes = _repository.getAllNotes();
+    Iterable<NoteModel> notes = _allNotes;
 
     // Bellek Sızıntısı Koruması: Önbellekteki ölü (eski) kayıtları temizle
     if (_plainTextCache.length > notes.length + 200) {
@@ -147,14 +154,14 @@ class NotesListController extends ChangeNotifier {
         final titleMatch = _toTurkishLowerCase(note.title).contains(_searchQuery);
         final contentMatch = _getCachedPlainText(note).contains(_searchQuery);
         return titleMatch || contentMatch;
-      }).toList();
+      });
     }
     if (_selectedFilterId == 'pinned') {
-      notes = notes.where((note) => note.isPinned).toList();
+      notes = notes.where((note) => note.isPinned);
     } else if (_selectedFilterId != null) {
-      notes = notes.where((note) => note.categoryId == _selectedFilterId).toList();
+      notes = notes.where((note) => note.categoryId == _selectedFilterId);
     }
-    _visibleNotes = notes;
+    _visibleNotes = notes.toList();
   }
 
   String _toTurkishLowerCase(String text) {
