@@ -277,7 +277,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     try {
       final deltaJson = jsonEncode(controller.document.toDelta().toJson());
       final updatedTitle = _titleController.text.trim();
-      await _repository.updateNote(
+      final updatedNote = await _repository.updateNote(
         id: note.id,
         deltaJson: deltaJson,
         title: updatedTitle,
@@ -288,7 +288,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         originalCreatedAt: note.createdAt, // EC-16: orijinal tarihi koru
       );
       if (mounted) {
-        setState(() => _hasUnsavedChanges = false);
+        setState(() {
+          _note = updatedNote;
+          _hasUnsavedChanges = false;
+        });
         // Sessiz otomatik kayıt (seamless save)
       }
     } catch (_) {
