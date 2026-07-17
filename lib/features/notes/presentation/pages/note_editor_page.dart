@@ -257,6 +257,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       if (mounted) {
         setState(() => _hasUnsavedChanges = false);
       }
+      
+      // UX Edge Case: Var olan bir not tamamen silindiyse veritabanından da kaldırılmalı
+      if (widget.noteId != null && note.id.isNotEmpty) {
+        await _repository.deleteNotes([note.id]);
+      }
+
       // Rebuild'i beklemek için bir frame atla, böylece PopScope canPop: true olur
       await Future.delayed(Duration.zero);
       return;
