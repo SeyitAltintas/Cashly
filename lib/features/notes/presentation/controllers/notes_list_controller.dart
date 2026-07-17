@@ -46,20 +46,29 @@ class NotesListController extends ChangeNotifier {
   NoteCategoryRepository get categoryRepository => _categoryRepository;
 
   Future<void> init() async {
-    await _repository.init();
-    await _categoryRepository.init();
+    if (_isReady) return; // Çift tetiklenme koruması (Double-init prevention)
+    
+    try {
+      await _repository.init();
+      await _categoryRepository.init();
 
-    _allCategories = _categoryRepository.getAllCategories();
-    _isReady = true;
-    _fetchAndCacheAllNotes();
-    notifyListeners();
-
-    _boxListener = () {
+      _allCategories = _categoryRepository.getAllCategories();
+      _isReady = true;
       _fetchAndCacheAllNotes();
       notifyListeners();
-    };
-    _boxListenable = _repository.listenable();
-    _boxListenable!.addListener(_boxListener);
+
+      _boxListener = () {
+        _fetchAndCacheAllNotes();
+        notifyListeners();
+      };
+      _boxListenable = _repository.listenable();
+      _boxListenable!.addListener(_boxListener);
+    } catch (e) {
+      // DB yüklenirken hata çıkarsa ekranda sonsuz loading dönmesini engelle
+      debugPrint('NotesListController init error: $e');
+      _isReady = true;
+      notifyListeners();
+    }
   }
 
   void refreshCategories() {
@@ -154,6 +163,13 @@ class NotesListController extends ChangeNotifier {
   void _fetchAndCacheAllNotes() {
     if (!_isReady) return;
     _allNotes = _repository.getAllNotes();
+
+    // Uç Durum (Edge Case): Eğer seçili bir not silinirse, seçili ID'ler listesinden otomatik olarak düşsün (Ghost Selection Koruması)
+    if (_selectedNoteIds.isNotEmpty) {
+      final allNoteIds = _allNotes.map((n) => n.id).toSet();
+      _selectedNoteIds.removeWhere((id) => !allNoteIds.contains(id));
+    }
+
     _updateVisibleNotes();
   }
 
