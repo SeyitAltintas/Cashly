@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/features/notes/data/models/note_model.dart';
-import 'package:cashly/features/notes/data/repositories/note_repository.dart';
 
 /// Notlar listesi AppBar'ı.
 ///
@@ -15,9 +13,10 @@ class NotesAppBar extends StatelessWidget implements PreferredSizeWidget {
   final int selectedCount;
   final List<NoteModel> visibleNotes;
   final Set<String> selectedNoteIds;
-  final NoteRepository repository;
+  final bool isGridView;
   final VoidCallback onClearSelection;
   final VoidCallback onSelectAll;
+  final VoidCallback onToggleGridView;
 
   const NotesAppBar({
     super.key,
@@ -26,9 +25,10 @@ class NotesAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.selectedCount,
     required this.visibleNotes,
     required this.selectedNoteIds,
-    required this.repository,
+    required this.isGridView,
     required this.onClearSelection,
     required this.onSelectAll,
+    required this.onToggleGridView,
   });
 
   @override
@@ -97,18 +97,12 @@ class NotesAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: false,
       actions: [
         if (isReady)
-          ValueListenableBuilder<Box>(
-            valueListenable: repository.listenable(),
-            builder: (context, box, _) {
-              final isGrid = repository.isGridView;
-              return IconButton(
-                icon: Icon(
-                  isGrid ? Icons.view_agenda_rounded : Icons.grid_view_rounded,
-                  size: 22,
-                ),
-                onPressed: () => repository.setGridView(!isGrid),
-              );
-            },
+          IconButton(
+            icon: Icon(
+              isGridView ? Icons.view_agenda_rounded : Icons.grid_view_rounded,
+              size: 22,
+            ),
+            onPressed: onToggleGridView,
           ),
         const SizedBox(width: 4),
       ],
