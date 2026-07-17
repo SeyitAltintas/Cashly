@@ -170,6 +170,11 @@ class NotesListController extends ChangeNotifier {
       _selectedNoteIds.removeWhere((id) => !allNoteIds.contains(id));
     }
 
+    // Önbellek Çöp Toplayıcı (Cache Garbage Collector): 
+    // Yalnızca güncel notların cache anahtarlarını tut, silinmiş veya düzenlenmiş (tarihi değişmiş) olanların çöpünü bellekten temizle.
+    final validCacheKeys = _allNotes.map((n) => '${n.id}_${n.updatedAt.millisecondsSinceEpoch}').toSet();
+    _plainTextCache.removeWhere((key, _) => !validCacheKeys.contains(key));
+
     _updateVisibleNotes();
   }
 
