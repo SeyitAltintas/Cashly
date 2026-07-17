@@ -301,12 +301,15 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
+      } else {
+        _isSaving = false;
       }
+      
       if (_saveQueued) {
         _saveQueued = false;
-        if (mounted) {
-          _saveNote();
-        }
+        // EC-DATA-LOSS: mounted olmasa bile sıradaki kaydı yap!
+        // Aksi takdirde PopScope çıkışında son tuş vuruşu kaybolur.
+        await _saveNote();
       }
     }
   }
@@ -343,6 +346,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     return PopScope(
       canPop:
           !_hasUnsavedChanges &&
+          !_isSaving &&
+          !_saveQueued &&
           !(_voiceDictationManager?.isDictationBoxOpen ?? false),
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
@@ -358,12 +363,22 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           return;
         }
 
-        if (_hasUnsavedChanges) {
-          // Klavyeyi kapat — pop animasyonu sırasında klavyenin bir sonraki sayfaya
-          // yapışmasını önler (geri tuşu ile çıkışta klavye ekranda asilı kalabilir)
+        if (_hasUnsavedChanges || _isSaving || _saveQueued) {
+          // Klavyeyi kapat
           FocusScope.of(context).unfocus();
-          await _saveNote();
-          if (mounted && !_hasUnsavedChanges) {
+          
+          if (_hasUnsavedChanges) {
+            await _saveNote();
+          }
+          
+          // EĞER OTOMATİK KAYIT ÇALIŞIYORSA BİTMESİNİ BEKLE (Back Button Ignoring Bug Fix)
+          // Aksi takdirde await _saveNote() anında döner, hasUnsavedChanges true kalır
+          // ve Navigator.pop asla çağrılmaz (Kullanıcı ekranda hapsolur)!
+          while (_isSaving || _saveQueued) {
+            await Future.delayed(const Duration(milliseconds: 50));
+          }
+
+          if (mounted) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted) {
                 Navigator.of(context).pop();
