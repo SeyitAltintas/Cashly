@@ -35,8 +35,85 @@ class NoteRepository {
 
   Future<void> _openBox_() async {
     _box = await Hive.openBox(_boxName);
+    
+    // iOS Sandbox Path Değişikliği Taraması (Hot Migration)
+    await _fixSandboxPaths();
+
     // Arka planda orphan resimleri temizle (EC-25)
     cleanOrphanImages();
+  }
+
+  /// Eğer uygulama iOS'ta güncellendiyse veya Android'de başka bir cihaza klonlandıysa
+  /// `getApplicationDocumentsDirectory` yolu değişir.
+  /// Bu metod, deltaJson içindeki kırık eski yolları güncel yollarla düzeltir (Hot Fix).
+  Future<void> _fixSandboxPaths() async {
+    try {
+      final docsDir = await getApplicationDocumentsDirectory();
+      final imgDir = Directory('${docsDir.path}/note_images');
+      final vidDir = Directory('${docsDir.path}/note_videos');
+      
+      final updates = <String, Map<String, dynamic>>{};
+
+      for (final key in _box!.keys) {
+        if (key == 'prefs_is_grid_view') continue;
+        final raw = _box!.get(key);
+        if (raw is! Map) continue;
+        
+        final noteMap = Map<String, dynamic>.from(raw);
+        final deltaStr = noteMap['deltaJson'] as String?;
+        if (deltaStr == null) continue;
+
+        bool changed = false;
+        List<dynamic> ops;
+        try {
+          ops = jsonDecode(deltaStr) as List<dynamic>;
+        } catch (_) {
+          continue;
+        }
+
+        for (final op in ops) {
+          if (op is! Map) continue;
+          final insert = op['insert'];
+          if (insert is! Map) continue;
+          
+          if (insert.containsKey('image')) {
+            final mediaPath = insert['image'];
+            if (mediaPath is String && !mediaPath.startsWith('http')) {
+              final fileName = mediaPath.split('/').last.split('\\').last;
+              final correctPath = '${imgDir.path}/$fileName';
+              if (mediaPath != correctPath) {
+                insert['image'] = correctPath;
+                changed = true;
+              }
+            }
+          }
+          
+          if (insert.containsKey('video')) {
+            final mediaPath = insert['video'];
+            if (mediaPath is String && !mediaPath.startsWith('http')) {
+              final fileName = mediaPath.split('/').last.split('\\').last;
+              final correctPath = '${vidDir.path}/$fileName';
+              if (mediaPath != correctPath) {
+                insert['video'] = correctPath;
+                changed = true;
+              }
+            }
+          }
+        }
+
+        if (changed) {
+          noteMap['deltaJson'] = jsonEncode(ops);
+          updates[key as String] = noteMap;
+        }
+      }
+
+      if (updates.isNotEmpty) {
+        await _box!.putAll(updates);
+        debugPrint('EC-26: ${updates.length} notun kırık medya yolları onarıldı.');
+      }
+    } catch (e) {
+      debugPrint('Path migration error: $e');
+    }
   }
 
   /// [ValueListenableBuilder] ile kullanım için Hive Listenable döndürür.
