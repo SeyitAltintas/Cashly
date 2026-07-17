@@ -84,6 +84,9 @@ class NotesListController extends ChangeNotifier {
     if (_searchQuery == lowerQuery) return;
     
     _searchQuery = lowerQuery;
+    
+    // EC-GHOST: Arama değiştiğinde eski seçimleri temizle (Görünmez not silme koruması)
+    _selectedNoteIds.clear();
 
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
 
@@ -105,6 +108,10 @@ class NotesListController extends ChangeNotifier {
 
   void setFilter(String? filterId) {
     _selectedFilterId = filterId;
+    
+    // EC-GHOST: Filtre (Kategori) değiştiğinde eski seçimleri temizle
+    _selectedNoteIds.clear();
+    
     _updateVisibleNotes();
     notifyListeners();
   }
