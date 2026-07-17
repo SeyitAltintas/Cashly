@@ -108,13 +108,15 @@ class _NoteCreateCategoryDialogState extends State<NoteCreateCategoryDialog> {
               : () async {
                   final name = _nameController.text.trim();
                   if (name.isNotEmpty) {
-                    // Aynı isimde kategori var mı kontrolü (Büyük/küçük harf duyarsız)
+                    // Türkçe karakter duyarlı kontrol (Turkish Case-Insensitivity Duplicate Category Bug Fix)
+                    String toTrLower(String text) => text.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase();
+
                     final isDuplicate = widget.existingCategories.any(
-                      (cat) => cat.name.toLowerCase() == name.toLowerCase()
+                      (cat) => toTrLower(cat.name) == toTrLower(name)
                     );
                     
                     if (isDuplicate) {
-                      AppSnackBar.error(context, 'Bu isimde bir etiket zaten mevcut.');
+                      AppSnackBar.error(context, context.l10n.errDbAlreadyExists);
                       return;
                     }
 
