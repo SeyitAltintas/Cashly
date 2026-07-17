@@ -125,11 +125,17 @@ class NoteRepository {
   /// Çoklu not sabitleme/kaldırma.
   Future<void> setPinStateForNotes(List<String> ids, bool isPinned) async {
     await init();
+    final updates = <String, Map<String, dynamic>>{};
+
     for (final id in ids) {
       final note = getNoteById(id);
       if (note != null) {
-        await saveNote(note.copyWith(isPinned: isPinned));
+        updates[id] = note.copyWith(isPinned: isPinned).toMap();
       }
+    }
+
+    if (updates.isNotEmpty) {
+      await _requireBox.putAll(updates);
     }
   }
 
@@ -216,8 +222,19 @@ class NoteRepository {
 
   /// Çoklu not silme.
   Future<void> deleteNotes(List<String> ids) async {
+    await init();
+    final keysToDelete = <String>[];
+
     for (final id in ids) {
-      await deleteNote(id);
+      final note = getNoteById(id);
+      if (note != null) {
+        await _deleteLocalImages(note.deltaJson);
+        keysToDelete.add(id);
+      }
+    }
+
+    if (keysToDelete.isNotEmpty) {
+      await _requireBox.deleteAll(keysToDelete);
     }
   }
 
