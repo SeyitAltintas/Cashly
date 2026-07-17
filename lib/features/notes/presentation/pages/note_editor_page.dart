@@ -258,8 +258,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         setState(() => _hasUnsavedChanges = false);
       }
       
-      // UX Edge Case: Var olan bir not tamamen silindiyse veritabanından da kaldırılmalı
-      if (widget.noteId != null && note.id.isNotEmpty) {
+      // UX Edge Case: Yeni not (widget.noteId == null) olsa dahi auto-save 
+      // çalışmış ve veritabanına yazılmış olabilir! Bu yüzden şartı kaldırdık.
+      if (note.id.isNotEmpty) {
         await _repository.deleteNotes([note.id]);
       }
 
