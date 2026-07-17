@@ -642,6 +642,11 @@ class AuthRepositoryFirestore implements AuthRepository {
         if (e is SessionExpiredException) rethrow; // Hatayı UI'a ilet
         debugPrint('getCurrentUser CloudSync Hatasi (offline?): $e');
 
+        if (kDebugMode) {
+          debugPrint('Debug modunda offline TTL kontrolleri yoksayildi (Hot restart bypass).');
+          return user;
+        }
+
         // GÜVENLİK YAMASI: Auto-Login Offline TTL Kontrolü
         final lastSync = await _localHiveRepo.getLastOnlineSync(user.id);
         if (lastSync != null) {
