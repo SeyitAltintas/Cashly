@@ -69,63 +69,72 @@ class _NotesListViewState extends State<_NotesListView> {
     final colorScheme = Theme.of(context).colorScheme;
     final controller = context.watch<NotesListController>();
 
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        backgroundColor: colorScheme.surface,
-        appBar: NotesAppBar(
-          isSelectionMode: controller.isSelectionMode,
-          isReady: controller.isReady,
-          selectedCount: controller.selectedNoteIds.length,
-          visibleNotes: controller.visibleNotes,
-          selectedNoteIds: controller.selectedNoteIds,
-          isGridView: controller.isGridView,
-          onClearSelection: controller.clearSelection,
-          onSelectAll: controller.selectAll,
-          onToggleGridView: controller.toggleGridView,
+    return PopScope(
+      canPop: !controller.isSelectionMode,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (controller.isSelectionMode) {
+          controller.clearSelection();
+        }
+      },
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          backgroundColor: colorScheme.surface,
+          appBar: NotesAppBar(
+            isSelectionMode: controller.isSelectionMode,
+            isReady: controller.isReady,
+            selectedCount: controller.selectedNoteIds.length,
+            visibleNotes: controller.visibleNotes,
+            selectedNoteIds: controller.selectedNoteIds,
+            isGridView: controller.isGridView,
+            onClearSelection: controller.clearSelection,
+            onSelectAll: controller.selectAll,
+            onToggleGridView: controller.toggleGridView,
+          ),
+          body: controller.isReady
+              ? Stack(
+                  children: [
+                    Column(
+                      children: [
+                        if (!controller.isSelectionMode)
+                          NotesSearchBar(
+                            controller: _searchController,
+                            searchQuery: controller.searchQuery,
+                            onChanged: controller.setSearchQuery,
+                            onClear: () {
+                              _searchController.clear();
+                              controller.setSearchQuery('');
+                            },
+                          ),
+                        if (!controller.isSelectionMode)
+                          NotesFilterChips(
+                            selectedFilterId: controller.selectedFilterId,
+                            categories: controller.allCategories,
+                            onFilterSelected: controller.setFilter,
+                            onCategoryLongPressed: (cat) =>
+                                _showDeleteCategoryDialog(context, cat),
+                            onAddCategory: () => _showCreateCategoryDialog(context),
+                          ),
+                        Expanded(child: _buildBody(context, controller)),
+                      ],
+                    ),
+                    NotesBottomActionBar(
+                      isVisible: controller.isSelectionMode,
+                      allPinned: controller.selectedNotesAreAllPinned,
+                      onHide: controller.clearSelection,
+                      onTogglePin: controller.togglePinSelected,
+                      onMoveTag: () =>
+                          _showBulkAssignTagDialog(context, colorScheme),
+                      onDelete: () => _confirmAndDeleteSelected(context),
+                    ),
+                  ],
+                )
+              : const Center(child: CircularProgressIndicator()),
+          floatingActionButton: controller.isSelectionMode
+              ? null
+              : _buildFab(context, colorScheme),
         ),
-        body: controller.isReady
-            ? Stack(
-                children: [
-                  Column(
-                    children: [
-                      if (!controller.isSelectionMode)
-                        NotesSearchBar(
-                          controller: _searchController,
-                          searchQuery: controller.searchQuery,
-                          onChanged: controller.setSearchQuery,
-                          onClear: () {
-                            _searchController.clear();
-                            controller.setSearchQuery('');
-                          },
-                        ),
-                      if (!controller.isSelectionMode)
-                        NotesFilterChips(
-                          selectedFilterId: controller.selectedFilterId,
-                          categories: controller.allCategories,
-                          onFilterSelected: controller.setFilter,
-                          onCategoryLongPressed: (cat) =>
-                              _showDeleteCategoryDialog(context, cat),
-                          onAddCategory: () => _showCreateCategoryDialog(context),
-                        ),
-                      Expanded(child: _buildBody(context, controller)),
-                    ],
-                  ),
-                  NotesBottomActionBar(
-                    isVisible: controller.isSelectionMode,
-                    allPinned: controller.selectedNotesAreAllPinned,
-                    onHide: controller.clearSelection,
-                    onTogglePin: controller.togglePinSelected,
-                    onMoveTag: () =>
-                        _showBulkAssignTagDialog(context, colorScheme),
-                    onDelete: () => _confirmAndDeleteSelected(context),
-                  ),
-                ],
-              )
-            : const Center(child: CircularProgressIndicator()),
-        floatingActionButton: controller.isSelectionMode
-            ? null
-            : _buildFab(context, colorScheme),
       ),
     );
   }

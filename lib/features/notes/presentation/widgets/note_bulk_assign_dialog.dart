@@ -197,35 +197,8 @@ class _NoteBulkAssignDialogState extends State<NoteBulkAssignDialog> {
   }
 
   Future<void> _onConfirm() async {
-    for (final id in widget.selectedNoteIds) {
-      final note = widget.repository.getNoteById(id);
-      if (note == null) continue;
-
-      if (_localSelectedId == 'REMOVE') {
-        if (note.categoryId != null) {
-          await widget.repository.updateNote(
-            id: note.id,
-            deltaJson: note.deltaJson,
-            title: note.title,
-            color: note.color,
-            clearColor: note.color == null,
-            categoryId: null,
-            clearCategory: true,
-            originalCreatedAt: note.createdAt,
-          );
-        }
-      } else if (note.categoryId != _localSelectedId) {
-        await widget.repository.updateNote(
-          id: note.id,
-          deltaJson: note.deltaJson,
-          title: note.title,
-          color: note.color,
-          clearColor: note.color == null,
-          categoryId: _localSelectedId,
-          originalCreatedAt: note.createdAt,
-        );
-      }
-    }
+    final categoryId = _localSelectedId == 'REMOVE' ? null : _localSelectedId;
+    await widget.repository.setCategoryForNotes(widget.selectedNoteIds, categoryId);
 
     if (!mounted) return;
     widget.onDone();

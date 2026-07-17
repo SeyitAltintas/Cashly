@@ -139,6 +139,27 @@ class NoteRepository {
     }
   }
 
+  /// Çoklu notlara kategori atama veya kaldırma (categoryId null ise kaldırır).
+  Future<void> setCategoryForNotes(List<String> ids, String? categoryId) async {
+    await init();
+    final updates = <String, Map<String, dynamic>>{};
+
+    for (final id in ids) {
+      final note = getNoteById(id);
+      if (note != null && note.categoryId != categoryId) {
+        updates[id] = note.copyWith(
+          categoryId: categoryId,
+          clearCategory: categoryId == null,
+          updatedAt: DateTime.now(),
+        ).toMap();
+      }
+    }
+
+    if (updates.isNotEmpty) {
+      await _requireBox.putAll(updates);
+    }
+  }
+
   /// Removes a specific category from all notes that have it.
   Future<void> removeCategoryFromNotes(String categoryId) async {
     await init();
