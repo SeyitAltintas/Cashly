@@ -296,7 +296,7 @@ class NoteRepository {
         debugPrint('EC-24: Tüm not resimleri silindi.');
       }
       
-      final noteVidDir = Directory('${docsDir.path}/notes_videos');
+      final noteVidDir = Directory('${docsDir.path}/note_videos');
       if (await noteVidDir.exists()) {
         await noteVidDir.delete(recursive: true);
         debugPrint('EC-24: Tüm not videoları silindi.');
@@ -312,7 +312,7 @@ class NoteRepository {
     try {
       final docsDir = await getApplicationDocumentsDirectory();
       final imgDir = Directory('${docsDir.path}/note_images');
-      final vidDir = Directory('${docsDir.path}/notes_videos');
+      final vidDir = Directory('${docsDir.path}/note_videos');
 
       // 1. Hive'daki tüm notların deltaJson'larından aktif medya yollarını topla
       final activePaths = <String>{};

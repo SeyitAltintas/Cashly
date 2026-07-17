@@ -216,7 +216,9 @@ class NotesListController extends ChangeNotifier {
       return _plainTextCache[cacheKey]!;
     }
 
-    final plainText = _extractPlainText(note.deltaJson);
+    // Arama hızını artırmak ve Case-Sensitivity hatalarını önlemek için,
+    // içeriği en baştan küçük harfe çevirerek önbellekliyoruz.
+    final plainText = _toTurkishLowerCase(_extractPlainText(note.deltaJson));
     _plainTextCache[cacheKey] = plainText;
 
     return plainText;
