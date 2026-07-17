@@ -30,7 +30,9 @@ class NoteCategoryModel {
   factory NoteCategoryModel.fromMap(Map<String, dynamic> map) => NoteCategoryModel(
         id: (map['id'] as String?) ?? '',
         name: (map['name'] as String?) ?? '',
-        createdAt: map['createdAt'] != null ? DateTime.parse(map['createdAt'] as String) : DateTime.now(),
+        createdAt: map['createdAt'] != null 
+            ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now() 
+            : DateTime.now(),
       );
 
   factory NoteCategoryModel.create({required String name}) {
