@@ -21,6 +21,8 @@ import '../../features/streak/data/repositories/streak_repository_firestore.dart
 import '../../features/settings/data/repositories/settings_repository_firestore.dart';
 import '../data/repositories/category_repository_firestore.dart';
 import '../data/repositories/recurring_repository_firestore.dart';
+import '../../features/notes/data/repositories/note_repository.dart';
+import '../../features/notes/data/repositories/note_category_repository.dart';
 
 // Services
 import '../services/batch_service.dart';
@@ -51,6 +53,7 @@ import '../../features/dashboard/presentation/controllers/dashboard_controller.d
 import '../../features/analysis/presentation/controllers/analysis_controller.dart';
 import '../../features/streak/presentation/controllers/streak_controller.dart';
 import '../../features/tools/presentation/controllers/tools_controller.dart';
+import '../../features/notes/presentation/controllers/notes_list_controller.dart';
 
 /// GetIt service locator instance
 final getIt = GetIt.instance;
@@ -132,6 +135,12 @@ Future<void> initializeDependencies() async {
   // Recurring Repository
   getIt.registerLazySingleton<RecurringRepository>(
     () => RecurringRepositoryFirestore(),
+  );
+  getIt.registerLazySingleton<NoteRepository>(
+    () => NoteRepository(),
+  );
+  getIt.registerLazySingleton<NoteCategoryRepository>(
+    () => NoteCategoryRepository(),
   );
 
   // ===== USE CASES =====
@@ -309,4 +318,12 @@ Future<void> initializeDependencies() async {
 
   // Tools Controller - singleton
   getIt.registerLazySingleton<ToolsController>(() => ToolsController());
+
+  // Notes Controller - factory (kendi lifecycle'ını yönetir)
+  getIt.registerFactory<NotesListController>(
+    () => NotesListController(
+      repository: getIt<NoteRepository>(),
+      categoryRepository: getIt<NoteCategoryRepository>(),
+    ),
+  );
 }

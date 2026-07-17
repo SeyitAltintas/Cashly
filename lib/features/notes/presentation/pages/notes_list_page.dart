@@ -4,6 +4,7 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/features/notes/data/models/note_category_model.dart';
 import 'package:cashly/features/notes/presentation/controllers/notes_list_controller.dart';
+import 'package:cashly/core/di/injection_container.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'note_editor_page.dart';
@@ -27,7 +28,7 @@ class NotesListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => NotesListController()..init(),
+      create: (_) => getIt<NotesListController>()..init(),
       child: const _NotesListView(),
     );
   }

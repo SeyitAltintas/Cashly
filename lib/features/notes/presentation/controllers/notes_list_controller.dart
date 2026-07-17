@@ -11,10 +11,10 @@ class NotesListController extends ChangeNotifier {
   final NoteCategoryRepository _categoryRepository;
 
   NotesListController({
-    NoteRepository? repository,
-    NoteCategoryRepository? categoryRepository,
-  }) : _repository = repository ?? NoteRepository(),
-       _categoryRepository = categoryRepository ?? NoteCategoryRepository();
+    required NoteRepository repository,
+    required NoteCategoryRepository categoryRepository,
+  })  : _repository = repository,
+        _categoryRepository = categoryRepository;
 
   String _searchQuery = '';
   final Set<String> _selectedNoteIds = {};
