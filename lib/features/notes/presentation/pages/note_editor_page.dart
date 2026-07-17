@@ -16,6 +16,7 @@ import 'package:cashly/features/notes/data/repositories/note_repository.dart';
 import 'package:cashly/features/notes/data/repositories/note_category_repository.dart';
 import 'package:cashly/features/notes/presentation/widgets/note_color_picker_sheet.dart';
 import 'package:cashly/features/notes/presentation/widgets/voice_dictation_overlay.dart';
+import 'package:cashly/core/di/injection_container.dart';
 import 'package:cashly/features/notes/presentation/widgets/note_editor_toolbar.dart';
 import 'package:cashly/features/notes/presentation/widgets/note_category_selector.dart';
 import 'package:cashly/features/notes/utils/voice_dictation_manager.dart';
@@ -62,8 +63,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   final ScrollController _editorScrollController = ScrollController();
 
   bool _isEditing = false;
-  final NoteRepository _repository = NoteRepository();
-  final NoteCategoryRepository _categoryRepository = NoteCategoryRepository();
+  final NoteRepository _repository = getIt<NoteRepository>();
+  final NoteCategoryRepository _categoryRepository = getIt<NoteCategoryRepository>();
   List<NoteCategoryModel> _allCategories = [];
 
   // Speech-to-text
