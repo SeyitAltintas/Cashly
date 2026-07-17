@@ -83,8 +83,11 @@ class NoteMediaHelper {
     required bool isVideo,
     VoidCallback? onMediaInserted,
   }) {
-    final index = controller.selection.baseOffset;
-    final length = controller.selection.extentOffset - index;
+    // EC-SELECTION: Kullanıcı metni sağdan sola (ters) seçerse
+    // baseOffset > extentOffset olur ve length negatif çıkar!
+    // Bu yüzden start ve end kullanmalıyız.
+    final index = controller.selection.start;
+    final length = controller.selection.end - index;
 
     if (length > 0) {
       controller.document.delete(index, length);
