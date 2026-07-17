@@ -502,7 +502,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                                   context,
                                   fromCamera: true,
                                 );
-                                if (path != null) {
+                                // EC-UNMOUNTED: Kopyalama bitene kadar kullanıcı çıkmış olabilir!
+                                if (path != null && mounted) {
                                   NoteMediaHelper.insertMedia(
                                     controller: _controller!,
                                     path: path,
