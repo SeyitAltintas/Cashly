@@ -21,9 +21,13 @@ class NotesListController extends ChangeNotifier {
   bool _isReady = false;
   String? _selectedFilterId;
   List<NoteCategoryModel> _allCategories = [];
+  List<NoteModel> _visibleNotes = [];
 
   late final VoidCallback _boxListener;
   ValueListenable<Box>? _boxListenable;
+
+  // Performans optimizasyonu için in-memory arama önbelleği
+  final Map<String, String> _plainTextCache = {};
 
   // Getters
   String get searchQuery => _searchQuery;
@@ -31,6 +35,7 @@ class NotesListController extends ChangeNotifier {
   bool get isReady => _isReady;
   String? get selectedFilterId => _selectedFilterId;
   List<NoteCategoryModel> get allCategories => _allCategories;
+  List<NoteModel> get visibleNotes => _visibleNotes;
   bool get isSelectionMode => _selectedNoteIds.isNotEmpty;
   bool get isGridView => _repository.isGridView;
   NoteRepository get repository => _repository;
@@ -42,9 +47,11 @@ class NotesListController extends ChangeNotifier {
 
     _allCategories = _categoryRepository.getAllCategories();
     _isReady = true;
+    _updateVisibleNotes();
     notifyListeners();
 
     _boxListener = () {
+      _updateVisibleNotes();
       notifyListeners();
     };
     _boxListenable = _repository.listenable();
@@ -53,16 +60,19 @@ class NotesListController extends ChangeNotifier {
 
   void refreshCategories() {
     _allCategories = _categoryRepository.getAllCategories();
+    _updateVisibleNotes();
     notifyListeners();
   }
 
   void setSearchQuery(String query) {
     _searchQuery = _toTurkishLowerCase(query);
+    _updateVisibleNotes();
     notifyListeners();
   }
 
   void setFilter(String? filterId) {
     _selectedFilterId = filterId;
+    _updateVisibleNotes();
     notifyListeners();
   }
 
@@ -119,32 +129,48 @@ class NotesListController extends ChangeNotifier {
     return selectedNotes.isNotEmpty && selectedNotes.every((n) => n.isPinned);
   }
 
-  List<NoteModel> get visibleNotes {
-    if (!_isReady) return [];
+  void _updateVisibleNotes() {
+    if (!_isReady) {
+      _visibleNotes = [];
+      return;
+    }
     List<NoteModel> notes = _repository.getAllNotes();
+
+    // Bellek Sızıntısı Koruması: Önbellekteki ölü (eski) kayıtları temizle
+    if (_plainTextCache.length > notes.length + 200) {
+      final activeKeys = notes.map((n) => '${n.id}_${n.updatedAt.millisecondsSinceEpoch}').toSet();
+      _plainTextCache.removeWhere((key, _) => !activeKeys.contains(key));
+    }
+
     if (_searchQuery.isNotEmpty) {
       notes = notes.where((note) {
-        final titleMatch = _toTurkishLowerCase(
-          note.title,
-        ).contains(_searchQuery);
-        final contentMatch = _extractPlainText(
-          note.deltaJson,
-        ).contains(_searchQuery);
+        final titleMatch = _toTurkishLowerCase(note.title).contains(_searchQuery);
+        final contentMatch = _getCachedPlainText(note).contains(_searchQuery);
         return titleMatch || contentMatch;
       }).toList();
     }
     if (_selectedFilterId == 'pinned') {
       notes = notes.where((note) => note.isPinned).toList();
     } else if (_selectedFilterId != null) {
-      notes = notes
-          .where((note) => note.categoryId == _selectedFilterId)
-          .toList();
+      notes = notes.where((note) => note.categoryId == _selectedFilterId).toList();
     }
-    return notes;
+    _visibleNotes = notes;
   }
 
   String _toTurkishLowerCase(String text) {
     return text.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase();
+  }
+
+  String _getCachedPlainText(NoteModel note) {
+    final cacheKey = '${note.id}_${note.updatedAt.millisecondsSinceEpoch}';
+    if (_plainTextCache.containsKey(cacheKey)) {
+      return _plainTextCache[cacheKey]!;
+    }
+
+    final plainText = _extractPlainText(note.deltaJson);
+    _plainTextCache[cacheKey] = plainText;
+
+    return plainText;
   }
 
   String _extractPlainText(String deltaJson) {
