@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/features/notes/data/models/note_category_model.dart';
+import 'package:cashly/core/widgets/app_snackbar.dart';
 
 /// Yeni kategori/etiket oluşturma dialog'u.
 ///
 /// Kategori adını alır, [onCategoryCreated] callback'i ile üst katmana iletir.
 class NoteCreateCategoryDialog extends StatefulWidget {
   final Future<void> Function(NoteCategoryModel) onCategoryCreated;
+  final List<NoteCategoryModel> existingCategories;
 
-  const NoteCreateCategoryDialog({super.key, required this.onCategoryCreated});
+  const NoteCreateCategoryDialog({
+    super.key, 
+    required this.onCategoryCreated,
+    required this.existingCategories,
+  });
 
   @override
   State<NoteCreateCategoryDialog> createState() =>
@@ -102,11 +108,24 @@ class _NoteCreateCategoryDialogState extends State<NoteCreateCategoryDialog> {
               : () async {
                   final name = _nameController.text.trim();
                   if (name.isNotEmpty) {
+                    // Aynı isimde kategori var mı kontrolü (Büyük/küçük harf duyarsız)
+                    final isDuplicate = widget.existingCategories.any(
+                      (cat) => cat.name.toLowerCase() == name.toLowerCase()
+                    );
+                    
+                    if (isDuplicate) {
+                      AppSnackBar.error(context, 'Bu isimde bir etiket zaten mevcut.');
+                      return;
+                    }
+
                     setState(() => _isLoading = true);
-                    final newCat = NoteCategoryModel.create(name: name);
-                    await widget.onCategoryCreated(newCat);
-                    if (!mounted) return;
-                    Navigator.pop(this.context);
+                    try {
+                      final newCat = NoteCategoryModel.create(name: name);
+                      await widget.onCategoryCreated(newCat);
+                      if (mounted) Navigator.pop(this.context);
+                    } finally {
+                      if (mounted) setState(() => _isLoading = false);
+                    }
                   }
                 },
           style: FilledButton.styleFrom(

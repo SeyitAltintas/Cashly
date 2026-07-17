@@ -279,6 +279,7 @@ class _NotesListViewState extends State<_NotesListView> {
     showDialog(
       context: context,
       builder: (ctx) => NoteCreateCategoryDialog(
+        existingCategories: controller.allCategories,
         onCategoryCreated: (newCat) async {
           await controller.categoryRepository.saveCategory(newCat);
           if (context.mounted) {
