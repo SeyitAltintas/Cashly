@@ -314,8 +314,8 @@ class NoteRepository {
       final imgDir = Directory('${docsDir.path}/note_images');
       final vidDir = Directory('${docsDir.path}/note_videos');
 
-      // 1. Hive'daki tüm notların deltaJson'larından aktif medya yollarını topla
-      final activePaths = <String>{};
+      // 1. Hive'daki tüm notların deltaJson'larından aktif medya dosya adlarını topla
+      final activeFileNames = <String>{};
       final notes = getAllNotes();
       for (final note in notes) {
         try {
@@ -326,20 +326,26 @@ class NoteRepository {
             if (insert is! Map) continue;
             final mediaPath = insert['image'] ?? insert['video'];
             if (mediaPath is String && !mediaPath.startsWith('http')) {
-              // Path ayırıcı farklılıklarını (Windows \ vs Unix /) eşitle
-              activePaths.add(File(mediaPath).path);
+              // SADECE DOSYA ADINI AL: 
+              // iOS'ta uygulama güncellendiğinde Sandbox GUID değişir ve absolute path'ler geçersiz olur.
+              // Mutlak yol karşılaştırması yaparsak aktif resimler "yetim" sanılıp silinir (Data Loss)!
+              final fileName = mediaPath.split('/').last.split('\\').last;
+              activeFileNames.add(fileName);
             }
           }
         } catch (_) {}
       }
 
-      // 2. Klasörlerdeki tüm dosyaları gez, aktif listede olmayanları sil
+      // 2. Klasörlerdeki tüm dosyaları gez, aktif dosya adı listesinde olmayanları sil
       if (await imgDir.exists()) {
         final files = imgDir.listSync();
         for (final entity in files) {
-          if (entity is File && !activePaths.contains(entity.path)) {
-            await entity.delete();
-            debugPrint('EC-25: Orphan resim silindi → ${entity.path}');
+          if (entity is File) {
+            final fileName = entity.path.split('/').last.split('\\').last;
+            if (!activeFileNames.contains(fileName)) {
+              await entity.delete();
+              debugPrint('EC-25: Orphan resim silindi → ${entity.path}');
+            }
           }
         }
       }
@@ -347,9 +353,12 @@ class NoteRepository {
       if (await vidDir.exists()) {
         final files = vidDir.listSync();
         for (final entity in files) {
-          if (entity is File && !activePaths.contains(entity.path)) {
-            await entity.delete();
-            debugPrint('EC-25: Orphan video silindi → ${entity.path}');
+          if (entity is File) {
+            final fileName = entity.path.split('/').last.split('\\').last;
+            if (!activeFileNames.contains(fileName)) {
+              await entity.delete();
+              debugPrint('EC-25: Orphan video silindi → ${entity.path}');
+            }
           }
         }
       }
