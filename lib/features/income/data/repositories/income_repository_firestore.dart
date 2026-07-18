@@ -205,22 +205,53 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       final globalCacheKey = 'incomes_$userId';
       final globalCached =
           CacheService.get<List<Map<String, dynamic>>>(globalCacheKey) ?? [];
+      
+      // Eski tarihi bul (Aylar değişti mi kontrolü için)
+      String? oldTarihStr;
       final globalIndex = globalCached.indexWhere((i) => i['id'] == income['id']);
       if (globalIndex != -1) {
+        oldTarihStr = globalCached[globalIndex]['date']?.toString() ?? globalCached[globalIndex]['tarih']?.toString();
         globalCached[globalIndex] = income;
         CacheService.set(globalCacheKey, globalCached);
       }
 
       // Time-Series Partition Cache'i güncelle
-      final tarih = DateTime.tryParse(income['date']?.toString() ?? income['tarih']?.toString() ?? '');
-      if (tarih != null) {
-        final monthCacheKey = 'incomes_${userId}_${tarih.year}_${tarih.month}';
-        final monthCached = CacheService.get<List<Map<String, dynamic>>>(monthCacheKey);
-        if (monthCached != null) {
-          final monthIndex = monthCached.indexWhere((i) => i['id'] == income['id']);
-          if (monthIndex != -1) {
-            monthCached[monthIndex] = income;
-            CacheService.set(monthCacheKey, monthCached);
+      final newTarihStr = income['date']?.toString() ?? income['tarih']?.toString();
+      
+      if (oldTarihStr != null && newTarihStr != null) {
+        final oldTarih = DateTime.tryParse(oldTarihStr);
+        final newTarih = DateTime.tryParse(newTarihStr);
+        
+        if (oldTarih != null && newTarih != null) {
+          final oldMonthKey = 'incomes_${userId}_${oldTarih.year}_${oldTarih.month}';
+          final newMonthKey = 'incomes_${userId}_${newTarih.year}_${newTarih.month}';
+          
+          if (oldMonthKey == newMonthKey) {
+            // Ay değişmediyse aynı liste içinde güncelle
+            final monthCached = CacheService.get<List<Map<String, dynamic>>>(newMonthKey);
+            if (monthCached != null) {
+              final monthIndex = monthCached.indexWhere((i) => i['id'] == income['id']);
+              if (monthIndex != -1) {
+                monthCached[monthIndex] = income;
+                CacheService.set(newMonthKey, monthCached);
+              }
+            }
+          } else {
+            // Ay değiştiyse, eski aydan sil ve yeni aya ekle
+            final oldMonthCached = CacheService.get<List<Map<String, dynamic>>>(oldMonthKey);
+            if (oldMonthCached != null) {
+              oldMonthCached.removeWhere((i) => i['id'] == income['id']);
+              CacheService.set(oldMonthKey, oldMonthCached);
+            }
+            
+            var newMonthCached = CacheService.get<List<Map<String, dynamic>>>(newMonthKey);
+            if (newMonthCached == null) {
+              newMonthCached = [income];
+              CacheService.set(newMonthKey, newMonthCached);
+            } else if (!newMonthCached.any((i) => i['id'] == income['id'])) {
+              newMonthCached.add(income);
+              CacheService.set(newMonthKey, newMonthCached);
+            }
           }
         }
       }
