@@ -511,10 +511,23 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
       currentCurrency: service.currentCurrency,
     );
 
-    // Performans Optimizasyonu: "compute" (Isolate) kullanımı özellikle debug modunda
-    // 1-2 saniyelik bir gecikmeye yol açıyor. Veri seti küçük olduğu için
-    // ana thread üzerinde senkron hesaplamak 0-frame delay sağlar.
-    _result = _calculateDashboardWorker(payload);
+    final int totalItems = _harcamalar.length + _gelirler.length + _varliklar.length + _transferler.length;
+
+    // Performans Optimizasyonu: Hybrid Isolate Stratejisi
+    // Veri seti küçükse (<= 500) ana thread üzerinde senkron hesapla (0-frame delay).
+    // Veri seti büyükse UI donmasını (Jank) önlemek için arka plan Isolate kullan.
+    if (totalItems > 500) {
+      if (!_disposed) {
+        _isLoading = true;
+        notifyListeners();
+      }
+      _result = await compute(_calculateDashboardWorker, payload);
+      if (!_disposed) {
+        _isLoading = false;
+      }
+    } else {
+      _result = _calculateDashboardWorker(payload);
+    }
 
     if (!_disposed) notifyListeners();
   }
