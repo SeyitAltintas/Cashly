@@ -199,34 +199,20 @@ class _NotesListViewState extends State<_NotesListView> {
 
   Future<void> _confirmAndDeleteSelected(BuildContext context) async {
     final controller = context.read<NotesListController>();
-    // Dialog açılmadan önce count'u sabitle (trash page ile tutarlı)
     final count = controller.selectedNoteIds.length;
     if (count == 0) return;
 
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(ctx.l10n.warning),
-        content: Text('$count notu silmek istediğinize emin misiniz?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(ctx.l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(ctx.l10n.delete),
-          ),
-        ],
-      ),
-    );
+    final selectedIds = controller.selectedNoteIds.toList();
+    await controller.deleteSelected();
 
-    if (confirm == true) {
-      await controller.deleteSelected();
-      if (context.mounted) {
-        AppSnackBar.success(context, context.l10n.notesMovedToTrash);
-      }
+    if (context.mounted) {
+      AppSnackBar.deleted(
+        context,
+        '$count adet not çöp kutusuna taşındı',
+        onUndo: () async {
+          await controller.repository.restoreNotes(selectedIds);
+        },
+      );
     }
   }
 
@@ -403,8 +389,10 @@ class _NotesBodySection extends StatelessWidget {
           );
         }
 
+        Widget child;
         if (isGrid) {
-          return MasonryGridView.builder(
+          child = MasonryGridView.builder(
+            key: const ValueKey('grid_view'),
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
             gridDelegate:
@@ -432,30 +420,38 @@ class _NotesBodySection extends StatelessWidget {
               ),
             ),
           );
+        } else {
+          child = ListView.separated(
+            key: const ValueKey('list_view'),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+            itemCount: notes.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            itemBuilder: (context, index) => RepaintBoundary(
+              child: NoteCard(
+                note: notes[index],
+                isGrid: false,
+                isSelected: selectedIds.contains(notes[index].id),
+                isSelectionMode: isSelectionMode,
+                searchQuery: searchQuery,
+                onTap: () {
+                  if (isSelectionMode) {
+                    c.toggleSelection(notes[index].id);
+                  } else {
+                    onOpenNote(notes[index].id);
+                  }
+                },
+                onLongPress: () => c.toggleSelection(notes[index].id),
+              ),
+            ),
+          );
         }
 
-        return ListView.separated(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
-          itemCount: notes.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
-          itemBuilder: (context, index) => RepaintBoundary(
-            child: NoteCard(
-              note: notes[index],
-              isGrid: false,
-              isSelected: selectedIds.contains(notes[index].id),
-              isSelectionMode: isSelectionMode,
-              searchQuery: searchQuery,
-              onTap: () {
-                if (isSelectionMode) {
-                  c.toggleSelection(notes[index].id);
-                } else {
-                  onOpenNote(notes[index].id);
-                }
-              },
-              onLongPress: () => c.toggleSelection(notes[index].id),
-            ),
-          ),
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          switchInCurve: Curves.easeInOut,
+          switchOutCurve: Curves.easeInOut,
+          child: child,
         );
       },
     );
