@@ -521,12 +521,23 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
         _isLoading = true;
         notifyListeners();
       }
-      _result = await compute(_calculateDashboardWorker, payload);
-      if (!_disposed) {
-        _isLoading = false;
+      try {
+        _result = await compute(_calculateDashboardWorker, payload);
+      } catch (e) {
+        debugPrint('DashboardController: Compute hatası - $e');
+        // Fallback: Hata olursa senkron hesaplamayı dene
+        _result = _calculateDashboardWorker(payload);
+      } finally {
+        if (!_disposed) {
+          _isLoading = false;
+        }
       }
     } else {
-      _result = _calculateDashboardWorker(payload);
+      try {
+        _result = _calculateDashboardWorker(payload);
+      } catch (e) {
+        debugPrint('DashboardController: Senkron hesaplama hatası - $e');
+      }
     }
 
     if (!_disposed) notifyListeners();
