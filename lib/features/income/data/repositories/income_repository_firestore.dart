@@ -164,8 +164,13 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       final tarih = DateTime.tryParse(income['date']?.toString() ?? income['tarih']?.toString() ?? '');
       if (tarih != null) {
         final monthCacheKey = 'incomes_${userId}_${tarih.year}_${tarih.month}';
-        final monthCached = CacheService.get<List<Map<String, dynamic>>>(monthCacheKey);
-        if (monthCached != null && !monthCached.any((i) => i['id'] == income['id'])) {
+        var monthCached = CacheService.get<List<Map<String, dynamic>>>(monthCacheKey);
+        
+        if (monthCached == null) {
+          // Eğer o ay henüz hiç yüklenmediyse (Cache null ise), yeni liste oluştur
+          monthCached = [income];
+          CacheService.set(monthCacheKey, monthCached);
+        } else if (!monthCached.any((i) => i['id'] == income['id'])) {
           monthCached.add(income);
           CacheService.set(monthCacheKey, monthCached);
         }

@@ -153,8 +153,13 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
       final tarih = DateTime.tryParse(expense['tarih'].toString());
       if (tarih != null) {
         final monthCacheKey = 'expenses_${userId}_${tarih.year}_${tarih.month}';
-        final monthCached = CacheService.get<List<Map<String, dynamic>>>(monthCacheKey);
-        if (monthCached != null && !monthCached.any((e) => e['id'] == expense['id'])) {
+        var monthCached = CacheService.get<List<Map<String, dynamic>>>(monthCacheKey);
+        
+        if (monthCached == null) {
+          // Eğer o ay henüz hiç yüklenmediyse (Cache null ise), yeni liste oluştur
+          monthCached = [expense];
+          CacheService.set(monthCacheKey, monthCached);
+        } else if (!monthCached.any((e) => e['id'] == expense['id'])) {
           monthCached.add(expense);
           CacheService.set(monthCacheKey, monthCached);
         }
