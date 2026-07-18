@@ -151,13 +151,24 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       data['updatedAt'] = FieldValue.serverTimestamp();
       await docRef.set(data);
 
-      // Cache'i güncelle
-      final cacheKey = 'incomes_$userId';
-      final cached =
-          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
-      if (!cached.any((i) => i['id'] == income['id'])) {
-        cached.add(income);
-        CacheService.set(cacheKey, cached);
+      // Cache'i güncelle (Global Cache)
+      final globalCacheKey = 'incomes_$userId';
+      final globalCached =
+          CacheService.get<List<Map<String, dynamic>>>(globalCacheKey) ?? [];
+      if (!globalCached.any((i) => i['id'] == income['id'])) {
+        globalCached.add(income);
+        CacheService.set(globalCacheKey, globalCached);
+      }
+
+      // Time-Series Partition Cache'i güncelle
+      final tarih = DateTime.tryParse(income['date']?.toString() ?? income['tarih']?.toString() ?? '');
+      if (tarih != null) {
+        final monthCacheKey = 'incomes_${userId}_${tarih.year}_${tarih.month}';
+        final monthCached = CacheService.get<List<Map<String, dynamic>>>(monthCacheKey);
+        if (monthCached != null && !monthCached.any((i) => i['id'] == income['id'])) {
+          monthCached.add(income);
+          CacheService.set(monthCacheKey, monthCached);
+        }
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore gelir ekleme hatası: $e');
@@ -185,14 +196,28 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       data['updatedAt'] = FieldValue.serverTimestamp();
       await docRef.update(data);
 
-      // Cache'i güncelle
-      final cacheKey = 'incomes_$userId';
-      final cached =
-          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
-      final index = cached.indexWhere((i) => i['id'] == income['id']);
-      if (index != -1) {
-        cached[index] = income;
-        CacheService.set(cacheKey, cached);
+      // Cache'i güncelle (Global)
+      final globalCacheKey = 'incomes_$userId';
+      final globalCached =
+          CacheService.get<List<Map<String, dynamic>>>(globalCacheKey) ?? [];
+      final globalIndex = globalCached.indexWhere((i) => i['id'] == income['id']);
+      if (globalIndex != -1) {
+        globalCached[globalIndex] = income;
+        CacheService.set(globalCacheKey, globalCached);
+      }
+
+      // Time-Series Partition Cache'i güncelle
+      final tarih = DateTime.tryParse(income['date']?.toString() ?? income['tarih']?.toString() ?? '');
+      if (tarih != null) {
+        final monthCacheKey = 'incomes_${userId}_${tarih.year}_${tarih.month}';
+        final monthCached = CacheService.get<List<Map<String, dynamic>>>(monthCacheKey);
+        if (monthCached != null) {
+          final monthIndex = monthCached.indexWhere((i) => i['id'] == income['id']);
+          if (monthIndex != -1) {
+            monthCached[monthIndex] = income;
+            CacheService.set(monthCacheKey, monthCached);
+          }
+        }
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore gelir güncelleme hatası: $e');
@@ -265,12 +290,29 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       final docRef = _userDoc(userId).collection('incomes').doc(incomeId);
       await docRef.delete();
 
-      // Cache'i güncelle
-      final cacheKey = 'incomes_$userId';
-      final cached =
-          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
-      cached.removeWhere((i) => i['id'] == incomeId);
-      CacheService.set(cacheKey, cached);
+      // Cache'i güncelle (Global)
+      final globalCacheKey = 'incomes_$userId';
+      final globalCached =
+          CacheService.get<List<Map<String, dynamic>>>(globalCacheKey) ?? [];
+      
+      final deletedItem = globalCached.firstWhere((i) => i['id'] == incomeId, orElse: () => {});
+      final tarihStr = deletedItem['date']?.toString() ?? deletedItem['tarih']?.toString();
+
+      globalCached.removeWhere((i) => i['id'] == incomeId);
+      CacheService.set(globalCacheKey, globalCached);
+
+      // Time-Series Partition Cache'i güncelle
+      if (tarihStr != null) {
+        final tarih = DateTime.tryParse(tarihStr);
+        if (tarih != null) {
+          final monthCacheKey = 'incomes_${userId}_${tarih.year}_${tarih.month}';
+          final monthCached = CacheService.get<List<Map<String, dynamic>>>(monthCacheKey);
+          if (monthCached != null) {
+            monthCached.removeWhere((i) => i['id'] == incomeId);
+            CacheService.set(monthCacheKey, monthCached);
+          }
+        }
+      }
     } catch (e, stackTrace) {
       debugPrint('Firestore gelir silme hatası: $e');
       ErrorLoggerService.logError(

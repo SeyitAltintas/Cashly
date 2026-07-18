@@ -140,14 +140,24 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
       final data = _convertStringToTimestamp(expense);
       await docRef.set(data);
 
-      // Cache'i güncelle
-      final cacheKey = 'expenses_$userId';
-      final cached =
-          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
-      // Aynı ID'de veri varsa ekleme
-      if (!cached.any((e) => e['id'] == expense['id'])) {
-        cached.add(expense);
-        CacheService.set(cacheKey, cached);
+      // Cache'i güncelle (Global Cache - Limitli son işlemler için)
+      final globalCacheKey = 'expenses_$userId';
+      final globalCached =
+          CacheService.get<List<Map<String, dynamic>>>(globalCacheKey) ?? [];
+      if (!globalCached.any((e) => e['id'] == expense['id'])) {
+        globalCached.add(expense);
+        CacheService.set(globalCacheKey, globalCached);
+      }
+
+      // Time-Series Partition Cache'i de güncelle (Offline First için)
+      final tarih = DateTime.tryParse(expense['tarih'].toString());
+      if (tarih != null) {
+        final monthCacheKey = 'expenses_${userId}_${tarih.year}_${tarih.month}';
+        final monthCached = CacheService.get<List<Map<String, dynamic>>>(monthCacheKey);
+        if (monthCached != null && !monthCached.any((e) => e['id'] == expense['id'])) {
+          monthCached.add(expense);
+          CacheService.set(monthCacheKey, monthCached);
+        }
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore harcama ekleme hatası: $e');
@@ -174,14 +184,28 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
       final data = _convertStringToTimestamp(expense);
       await docRef.update(data);
 
-      // Cache'i güncelle
-      final cacheKey = 'expenses_$userId';
-      final cached =
-          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
-      final index = cached.indexWhere((e) => e['id'] == expense['id']);
-      if (index != -1) {
-        cached[index] = expense;
-        CacheService.set(cacheKey, cached);
+      // Cache'i güncelle (Global Cache)
+      final globalCacheKey = 'expenses_$userId';
+      final globalCached =
+          CacheService.get<List<Map<String, dynamic>>>(globalCacheKey) ?? [];
+      final globalIndex = globalCached.indexWhere((e) => e['id'] == expense['id']);
+      if (globalIndex != -1) {
+        globalCached[globalIndex] = expense;
+        CacheService.set(globalCacheKey, globalCached);
+      }
+
+      // Time-Series Partition Cache'i güncelle
+      final tarih = DateTime.tryParse(expense['tarih'].toString());
+      if (tarih != null) {
+        final monthCacheKey = 'expenses_${userId}_${tarih.year}_${tarih.month}';
+        final monthCached = CacheService.get<List<Map<String, dynamic>>>(monthCacheKey);
+        if (monthCached != null) {
+          final monthIndex = monthCached.indexWhere((e) => e['id'] == expense['id']);
+          if (monthIndex != -1) {
+            monthCached[monthIndex] = expense;
+            CacheService.set(monthCacheKey, monthCached);
+          }
+        }
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore harcama güncelleme hatası: $e');
@@ -199,12 +223,29 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
       final docRef = _userDoc(userId).collection('expenses').doc(expenseId);
       await docRef.delete();
 
-      // Cache'i güncelle
-      final cacheKey = 'expenses_$userId';
-      final cached =
-          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
-      cached.removeWhere((e) => e['id'] == expenseId);
-      CacheService.set(cacheKey, cached);
+      // Cache'i güncelle (Global Cache)
+      final globalCacheKey = 'expenses_$userId';
+      final globalCached =
+          CacheService.get<List<Map<String, dynamic>>>(globalCacheKey) ?? [];
+      
+      final deletedItem = globalCached.firstWhere((e) => e['id'] == expenseId, orElse: () => {});
+      final tarihStr = deletedItem['tarih']?.toString();
+
+      globalCached.removeWhere((e) => e['id'] == expenseId);
+      CacheService.set(globalCacheKey, globalCached);
+
+      // Time-Series Partition Cache'i güncelle
+      if (tarihStr != null) {
+        final tarih = DateTime.tryParse(tarihStr);
+        if (tarih != null) {
+          final monthCacheKey = 'expenses_${userId}_${tarih.year}_${tarih.month}';
+          final monthCached = CacheService.get<List<Map<String, dynamic>>>(monthCacheKey);
+          if (monthCached != null) {
+            monthCached.removeWhere((e) => e['id'] == expenseId);
+            CacheService.set(monthCacheKey, monthCached);
+          }
+        }
+      }
     } catch (e, stackTrace) {
       debugPrint('Firestore harcama silme hatası: $e');
       ErrorLoggerService.logError(
