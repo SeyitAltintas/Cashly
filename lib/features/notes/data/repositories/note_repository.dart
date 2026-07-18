@@ -221,6 +221,7 @@ class NoteRepository {
         final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
         if (note.id.isEmpty) continue; 
         if (note.id == 'prefs_is_grid_view') continue;
+        if (note.deletedAt != null) continue; // Çöp kutusundakileri atla
 
         result.add(note);
       } catch (_) {}
@@ -230,6 +231,26 @@ class NoteRepository {
       if (!a.isPinned && b.isPinned) return 1;
       return b.updatedAt.compareTo(a.updatedAt);
     });
+    return result;
+  }
+
+  List<NoteModel> getTrashNotes() {
+    if (_indexBox == null || !_indexBox!.isOpen) return [];
+
+    final result = <NoteModel>[];
+    for (final raw in _indexBox!.values) {
+      try {
+        if (raw is! Map) continue;
+        final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
+        if (note.id.isEmpty) continue; 
+        if (note.id == 'prefs_is_grid_view') continue;
+        if (note.deletedAt == null) continue; // Sadece çöp kutusundakiler
+
+        result.add(note);
+      } catch (_) {}
+    }
+    // En son silinenler en üstte görünsün
+    result.sort((a, b) => b.deletedAt!.compareTo(a.deletedAt!));
     return result;
   }
 
@@ -265,10 +286,11 @@ class NoteRepository {
   }
 
   Future<void> togglePin(String id) async {
+    await init();
+    // Sadece index güncellenir — setPinStateForNotes batch ile tutarlı
     final note = getNoteById(id);
     if (note != null) {
-      final deltaStr = await getNoteDeltaJson(id);
-      await saveNote(note.copyWith(isPinned: !note.isPinned, deltaJson: deltaStr));
+      await _requireIndexBox.put(id, note.copyWith(isPinned: !note.isPinned).toMap());
     }
   }
 
@@ -364,6 +386,7 @@ class NoteRepository {
       clearColor: clearColor,
       categoryId: categoryId,
       clearCategory: clearCategory,
+      // deletedAt korunur — çöp kutusundaki not editörden kaydedilse bile aktif listeye çıkmaz
     );
 
     await saveNote(note);
@@ -374,29 +397,120 @@ class NoteRepository {
 
   Future<void> deleteNote(String id) async {
     await init();
-    final deltaStr = await getNoteDeltaJson(id);
-    await _requireIndexBox.delete(id);
-    await _lazyDataBox!.delete(id);
-    if (deltaStr.isNotEmpty && deltaStr != '[]') {
-      _deleteLocalImages(deltaStr);
+    // LazyBox okunmaz — sadece index güncellenir (deleteNotes batch ile tutarlı)
+    final note = getNoteById(id);
+    if (note != null) {
+      await _requireIndexBox.put(id, note.copyWith(deletedAt: DateTime.now()).toMap());
     }
   }
 
   Future<void> deleteNotes(List<String> ids) async {
     await init();
-    final keysToDelete = <String>[];
+    final updates = <String, Map<String, dynamic>>{};
+    final now = DateTime.now();
 
     for (final id in ids) {
+      final note = getNoteById(id);
+      if (note != null) {
+        updates[id] = note.copyWith(deletedAt: now).toMap();
+      }
+    }
+
+    if (updates.isNotEmpty) {
+      await _requireIndexBox.putAll(updates);
+    }
+  }
+
+  Future<void> restoreNote(String id) async {
+    await init();
+    // Sadece index güncellenir — restoreNotes batch ile tutarlı
+    final note = getNoteById(id);
+    if (note != null) {
+      await _requireIndexBox.put(id, note.copyWith(clearDeletedAt: true).toMap());
+    }
+  }
+
+  Future<void> restoreNotes(List<String> ids) async {
+    await init();
+    final updates = <String, Map<String, dynamic>>{};
+
+    for (final id in ids) {
+      final note = getNoteById(id);
+      if (note != null) {
+        updates[id] = note.copyWith(clearDeletedAt: true).toMap();
+      }
+    }
+
+    if (updates.isNotEmpty) {
+      await _requireIndexBox.putAll(updates);
+    }
+  }
+
+  Future<void> permanentlyDeleteNote(String id) async {
+    await init();
+    // 1. LazyBox'tan delta oku (silinmeden önce)
+    final deltaStr = await getNoteDeltaJson(id);
+    // 2. DB'den önce sil
+    await _requireIndexBox.delete(id);
+    await _lazyDataBox!.delete(id);
+    // 3. Dosyaları sonra sil
+    if (deltaStr.isNotEmpty && deltaStr != '[]') {
+      await _deleteLocalImages(deltaStr);
+    }
+  }
+
+  Future<void> permanentlyDeleteNotes(List<String> ids) async {
+    await init();
+    if (ids.isEmpty) return;
+
+    // 1. Delta JSON'ları önceden topla (LazyBox silinmeden önce okunmalı)
+    final deltaJsons = <String>[];
+    for (final id in ids) {
       final deltaStr = await getNoteDeltaJson(id);
+      deltaJsons.add(deltaStr);
+    }
+
+    // 2. Önce DB'den sil (kaynak gerçeği temizle)
+    //    Crash olursa dosyalar orphan kalır → cleanOrphanImages() temizler.
+    //    Ters sırada crash → DB'de kayıt var ama dosya yok (daha kötü).
+    await _requireIndexBox.deleteAll(ids);
+    await _lazyDataBox!.deleteAll(ids);
+
+    // 3. Sonra yerel medya dosyalarını sil
+    for (final deltaStr in deltaJsons) {
       if (deltaStr.isNotEmpty && deltaStr != '[]') {
         await _deleteLocalImages(deltaStr);
       }
-      keysToDelete.add(id);
+    }
+  }
+
+  Future<void> emptyTrash() async {
+    await init(); // Box'un açık olduğundan emin ol
+    final trashNotes = getTrashNotes();
+    if (trashNotes.isEmpty) return;
+    
+    final ids = trashNotes.map((n) => n.id).toList();
+    await permanentlyDeleteNotes(ids);
+  }
+
+  Future<void> cleanOldTrashNotes([int days = 30]) async {
+    await init();
+    final trashNotes = getTrashNotes();
+    if (trashNotes.isEmpty) return;
+
+    final now = DateTime.now();
+    final limitDate = now.subtract(Duration(days: days));
+    final idsToDelete = <String>[];
+
+    for (final note in trashNotes) {
+      if (note.deletedAt != null && note.deletedAt!.isBefore(limitDate)) {
+        idsToDelete.add(note.id);
+      }
     }
 
-    if (keysToDelete.isNotEmpty) {
-      await _requireIndexBox.deleteAll(keysToDelete);
-      await _lazyDataBox!.deleteAll(keysToDelete);
+    if (idsToDelete.isNotEmpty) {
+      await permanentlyDeleteNotes(idsToDelete);
+      debugPrint('EC-TRASH: $days günden eski ${idsToDelete.length} not kalıcı olarak silindi.');
     }
   }
 
@@ -451,6 +565,8 @@ class NoteRepository {
       final vidDir = Directory('${docsDir.path}/note_videos');
 
       final activeFileNames = <String>{};
+      // Aktif notlar VE çöp kutusundaki notlar — her ikisinin medyaları da korunmalı.
+      // Çöp kutusundaki notlar henüz kalıcı silinmediği için medyaları geçerlidir.
       for (final key in _lazyDataBox!.keys) {
         try {
           final deltaStr = await _lazyDataBox!.get(key) as String?;
@@ -502,11 +618,6 @@ class NoteRepository {
   // ─── İstatistik ──────────────────────────────────────────────────────────
 
   int get noteCount {
-    if (_indexBox == null || !_indexBox!.isOpen) return 0;
-    int count = _requireIndexBox.length;
-    if (_requireIndexBox.containsKey('prefs_is_grid_view')) {
-      count -= 1;
-    }
-    return count;
+    return getAllNotes().length;
   }
 }

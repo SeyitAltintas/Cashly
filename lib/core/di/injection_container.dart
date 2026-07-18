@@ -54,6 +54,7 @@ import '../../features/analysis/presentation/controllers/analysis_controller.dar
 import '../../features/streak/presentation/controllers/streak_controller.dart';
 import '../../features/tools/presentation/controllers/tools_controller.dart';
 import '../../features/notes/presentation/controllers/notes_list_controller.dart';
+import '../../features/notes/presentation/controllers/trash_notes_controller.dart';
 
 /// GetIt service locator instance
 final getIt = GetIt.instance;
@@ -324,6 +325,13 @@ Future<void> initializeDependencies() async {
     () => NotesListController(
       repository: getIt<NoteRepository>(),
       categoryRepository: getIt<NoteCategoryRepository>(),
+    ),
+  );
+
+  // Trash Notes Controller - factory
+  getIt.registerFactory<TrashNotesController>(
+    () => TrashNotesController(
+      repository: getIt<NoteRepository>(),
     ),
   );
 }

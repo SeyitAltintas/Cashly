@@ -2455,5 +2455,33 @@
         "type": "String"
       }
     }
-  }
+  },
+  "trashBin": "Trash",
+  "trashEmpty": "Trash is Empty",
+  "restore": "Restore",
+  "permanentlyDelete": "Delete Permanently",
+  "emptyTrash": "Empty Trash",
+  "daysLeft": "{days} days left",
+  "@daysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "permanentlyDeleteConfirm": "Are you sure you want to permanently delete {count} notes? This action cannot be undone.",
+  "@permanentlyDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "emptyTrashConfirm": "Are you sure you want to permanently delete all notes in the trash? This action cannot be undone.",
+  "notesRestored": "Notes restored",
+  "notesPermanentlyDeleted": "Notes permanently deleted",
+  "trashEmptied": "Trash emptied",
+  "notesMovedToTrash": "Notes moved to trash",
+  "trashEmptyHint": "Deleted notes can be recovered within 30 days.",
+  "restoreToView": "Restore the note first to view it."
 }

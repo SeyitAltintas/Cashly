@@ -2535,10 +2535,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get emptyTrashConfirm =>
-      'Tüm silinen harcamalar kalıcı olarak yok edilecek. Emin misin?';
+      'Çöp kutusundaki tüm notları kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.';
 
   @override
-  String get trashEmptied => 'Çöp kutusu temizlendi.';
+  String get trashEmptied => 'Çöp kutusu boşaltıldı';
 
   @override
   String get restoreAllTitle => 'Tümünü Geri Yükle';
@@ -4764,4 +4764,38 @@ class AppLocalizationsTr extends AppLocalizations {
   String lastEditedAt(String timeString) {
     return 'Son düzenleme: $timeString';
   }
+
+  @override
+  String get trashEmpty => 'Çöp Kutusu Boş';
+
+  @override
+  String get permanentlyDelete => 'Kalıcı Sil';
+
+  @override
+  String get emptyTrash => 'Boşalt';
+
+  @override
+  String daysLeft(int days) {
+    return 'Son $days gün';
+  }
+
+  @override
+  String permanentlyDeleteConfirm(int count) {
+    return '$count notu kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.';
+  }
+
+  @override
+  String get notesRestored => 'Notlar geri yüklendi';
+
+  @override
+  String get notesPermanentlyDeleted => 'Notlar kalıcı olarak silindi';
+
+  @override
+  String get notesMovedToTrash => 'Notlar çöp kutusuna taşındı';
+
+  @override
+  String get trashEmptyHint => 'Silinen notlar 30 gün içinde geri alınabilir.';
+
+  @override
+  String get restoreToView => 'Görüntülemek için önce notu geri yükleyin.';
 }

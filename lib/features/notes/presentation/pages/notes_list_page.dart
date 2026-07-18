@@ -9,6 +9,7 @@ import 'package:cashly/core/di/injection_container.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'note_editor_page.dart';
+import 'trash_notes_page.dart';
 import '../widgets/note_card.dart';
 import '../widgets/notes_empty_state.dart';
 import '../widgets/notes_search_bar.dart';
@@ -61,6 +62,20 @@ class _NotesListViewState extends State<_NotesListView> {
       ),
     );
     if (mounted) {
+      controller.refreshCategories();
+    }
+  }
+
+  Future<void> _openTrash(BuildContext context) async {
+    final controller = context.read<NotesListController>();
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const TrashNotesPage(),
+      ),
+    );
+    // Çöp kutusundan not geri yüklenmiş veya silinmiş olabilir
+    if (mounted) {
+      // _fetchAndCacheAllNotes() already called via _boxListener but let's notify listeners if needed
       controller.refreshCategories();
     }
   }
@@ -156,6 +171,7 @@ class _NotesListViewState extends State<_NotesListView> {
             onClearSelection: c.clearSelection,
             onSelectAll: c.selectAll,
             onToggleGridView: c.toggleGridView,
+            onOpenTrash: () => _openTrash(context),
           );
         },
       ),
@@ -183,7 +199,9 @@ class _NotesListViewState extends State<_NotesListView> {
 
   Future<void> _confirmAndDeleteSelected(BuildContext context) async {
     final controller = context.read<NotesListController>();
+    // Dialog açılmadan önce count'u sabitle (trash page ile tutarlı)
     final count = controller.selectedNoteIds.length;
+    if (count == 0) return;
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -207,7 +225,7 @@ class _NotesListViewState extends State<_NotesListView> {
     if (confirm == true) {
       await controller.deleteSelected();
       if (context.mounted) {
-        AppSnackBar.success(context, context.l10n.noteDeleteConfirm);
+        AppSnackBar.success(context, context.l10n.notesMovedToTrash);
       }
     }
   }

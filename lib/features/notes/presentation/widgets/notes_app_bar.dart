@@ -17,6 +17,7 @@ class NotesAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onClearSelection;
   final VoidCallback onSelectAll;
   final VoidCallback onToggleGridView;
+  final VoidCallback onOpenTrash;
 
   const NotesAppBar({
     super.key,
@@ -29,6 +30,7 @@ class NotesAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.onClearSelection,
     required this.onSelectAll,
     required this.onToggleGridView,
+    required this.onOpenTrash,
   });
 
   @override
@@ -96,7 +98,12 @@ class NotesAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: false,
       actions: [
-        if (isReady)
+        if (isReady) ...[
+          IconButton(
+            icon: const Icon(Icons.delete_outline_rounded, size: 22),
+            onPressed: onOpenTrash,
+            tooltip: context.l10n.trashBin,
+          ),
           IconButton(
             icon: Icon(
               isGridView ? Icons.view_agenda_rounded : Icons.grid_view_rounded,
@@ -104,6 +111,7 @@ class NotesAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
             onPressed: onToggleGridView,
           ),
+        ],
         const SizedBox(width: 4),
       ],
     );

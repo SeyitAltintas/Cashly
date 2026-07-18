@@ -2534,10 +2534,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emptyTrashConfirm =>
-      'All deleted expenses will be permanently destroyed. Are you sure?';
+      'Are you sure you want to permanently delete all notes in the trash? This action cannot be undone.';
 
   @override
-  String get trashEmptied => 'Trash emptied.';
+  String get trashEmptied => 'Trash emptied';
 
   @override
   String get restoreAllTitle => 'Restore All';
@@ -3193,7 +3193,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchPaymentMethod => 'Search payment method...';
 
   @override
-  String get trashBin => 'Trash Bin';
+  String get trashBin => 'Trash';
 
   @override
   String get noResultsFound => 'No results found';
@@ -4763,4 +4763,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String lastEditedAt(String timeString) {
     return 'Last edited: $timeString';
   }
+
+  @override
+  String get trashEmpty => 'Trash is Empty';
+
+  @override
+  String get permanentlyDelete => 'Delete Permanently';
+
+  @override
+  String get emptyTrash => 'Empty Trash';
+
+  @override
+  String daysLeft(int days) {
+    return '$days days left';
+  }
+
+  @override
+  String permanentlyDeleteConfirm(int count) {
+    return 'Are you sure you want to permanently delete $count notes? This action cannot be undone.';
+  }
+
+  @override
+  String get notesRestored => 'Notes restored';
+
+  @override
+  String get notesPermanentlyDeleted => 'Notes permanently deleted';
+
+  @override
+  String get notesMovedToTrash => 'Notes moved to trash';
+
+  @override
+  String get trashEmptyHint => 'Deleted notes can be recovered within 30 days.';
+
+  @override
+  String get restoreToView => 'Restore the note first to view it.';
 }

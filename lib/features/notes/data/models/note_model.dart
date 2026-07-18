@@ -16,6 +16,7 @@ class NoteModel {
     this.categoryId,
     required this.createdAt,
     required this.updatedAt,
+    this.deletedAt,
   });
 
   final String id;
@@ -37,11 +38,11 @@ class NoteModel {
 
   final bool isPinned;
 
-  /// Notun dahil olduğu kategori (etiket) ID'si
   final String? categoryId;
 
   final DateTime createdAt;
   final DateTime updatedAt;
+  final DateTime? deletedAt;
 
   NoteModel copyWith({
     String? title,
@@ -54,6 +55,8 @@ class NoteModel {
     String? categoryId,
     bool clearCategory = false,
     DateTime? updatedAt,
+    DateTime? deletedAt,
+    bool clearDeletedAt = false,
   }) {
     return NoteModel(
       id: id,
@@ -66,6 +69,7 @@ class NoteModel {
       categoryId: clearCategory ? null : (categoryId ?? this.categoryId),
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: clearDeletedAt ? null : (deletedAt ?? this.deletedAt),
     );
   }
 
@@ -80,6 +84,7 @@ class NoteModel {
         'categoryId': categoryId,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
+        if (deletedAt != null) 'deletedAt': deletedAt!.toIso8601String(),
       };
 
   factory NoteModel.fromMap(Map<String, dynamic> map) => NoteModel(
@@ -101,6 +106,9 @@ class NoteModel {
         updatedAt: map['updatedAt'] != null
             ? DateTime.tryParse(map['updatedAt'].toString()) ?? DateTime.now()
             : DateTime.now(),
+        deletedAt: map['deletedAt'] != null
+            ? DateTime.tryParse(map['deletedAt'].toString())
+            : null,
       );
 
   factory NoteModel.empty() {
@@ -115,6 +123,7 @@ class NoteModel {
       categoryId: null,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
+      deletedAt: null,
     );
   }
 }

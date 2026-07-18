@@ -56,6 +56,11 @@ class NotesListController extends ChangeNotifier {
       _isReady = true;
       _fetchAndCacheAllNotes();
       notifyListeners();
+      
+      // Çöp kutusundaki 30 günden eski notları arka planda temizle
+      _repository.cleanOldTrashNotes(30).catchError((e) {
+        debugPrint('cleanOldTrashNotes error: $e');
+      });
 
       _boxListener = () {
         _fetchAndCacheAllNotes();

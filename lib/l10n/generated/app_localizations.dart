@@ -4817,13 +4817,13 @@ abstract class AppLocalizations {
   /// No description provided for @emptyTrashConfirm.
   ///
   /// In tr, this message translates to:
-  /// **'Tüm silinen harcamalar kalıcı olarak yok edilecek. Emin misin?'**
+  /// **'Çöp kutusundaki tüm notları kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.'**
   String get emptyTrashConfirm;
 
   /// No description provided for @trashEmptied.
   ///
   /// In tr, this message translates to:
-  /// **'Çöp kutusu temizlendi.'**
+  /// **'Çöp kutusu boşaltıldı'**
   String get trashEmptied;
 
   /// No description provided for @restoreAllTitle.
@@ -8731,6 +8731,66 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Son düzenleme: {timeString}'**
   String lastEditedAt(String timeString);
+
+  /// No description provided for @trashEmpty.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çöp Kutusu Boş'**
+  String get trashEmpty;
+
+  /// No description provided for @permanentlyDelete.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kalıcı Sil'**
+  String get permanentlyDelete;
+
+  /// No description provided for @emptyTrash.
+  ///
+  /// In tr, this message translates to:
+  /// **'Boşalt'**
+  String get emptyTrash;
+
+  /// No description provided for @daysLeft.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son {days} gün'**
+  String daysLeft(int days);
+
+  /// No description provided for @permanentlyDeleteConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} notu kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.'**
+  String permanentlyDeleteConfirm(int count);
+
+  /// No description provided for @notesRestored.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notlar geri yüklendi'**
+  String get notesRestored;
+
+  /// No description provided for @notesPermanentlyDeleted.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notlar kalıcı olarak silindi'**
+  String get notesPermanentlyDeleted;
+
+  /// No description provided for @notesMovedToTrash.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notlar çöp kutusuna taşındı'**
+  String get notesMovedToTrash;
+
+  /// No description provided for @trashEmptyHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Silinen notlar 30 gün içinde geri alınabilir.'**
+  String get trashEmptyHint;
+
+  /// No description provided for @restoreToView.
+  ///
+  /// In tr, this message translates to:
+  /// **'Görüntülemek için önce notu geri yükleyin.'**
+  String get restoreToView;
 }
 
 class _AppLocalizationsDelegate

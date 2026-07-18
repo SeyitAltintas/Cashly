@@ -2455,5 +2455,33 @@
         "type": "String"
       }
     }
-  }
+  },
+  "trashBin": "Çöp Kutusu",
+  "trashEmpty": "Çöp Kutusu Boş",
+  "restore": "Geri Yükle",
+  "permanentlyDelete": "Kalıcı Sil",
+  "emptyTrash": "Boşalt",
+  "daysLeft": "Son {days} gün",
+  "@daysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "permanentlyDeleteConfirm": "{count} notu kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+  "@permanentlyDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "emptyTrashConfirm": "Çöp kutusundaki tüm notları kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+  "notesRestored": "Notlar geri yüklendi",
+  "notesPermanentlyDeleted": "Notlar kalıcı olarak silindi",
+  "trashEmptied": "Çöp kutusu boşaltıldı",
+  "notesMovedToTrash": "Notlar çöp kutusuna taşındı",
+  "trashEmptyHint": "Silinen notlar 30 gün içinde geri alınabilir.",
+  "restoreToView": "Görüntülemek için önce notu geri yükleyin."
 }
