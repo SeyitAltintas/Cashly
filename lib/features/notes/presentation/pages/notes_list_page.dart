@@ -206,11 +206,13 @@ class _NotesListViewState extends State<_NotesListView> {
     await controller.deleteSelected();
 
     if (context.mounted) {
+      final messenger = ScaffoldMessenger.of(context);
       AppSnackBar.deleted(
         context,
         '$count adet not çöp kutusuna taşındı',
         onUndo: () async {
           await controller.repository.restoreNotes(selectedIds);
+          AppSnackBar.successWithMessenger(messenger, 'Geri alındı');
         },
       );
     }
