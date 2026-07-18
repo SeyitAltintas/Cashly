@@ -7,6 +7,7 @@ import 'package:cashly/features/notes/data/models/note_model.dart';
 import 'package:cashly/features/notes/presentation/controllers/notes_list_controller.dart';
 import 'package:cashly/core/di/injection_container.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:collection/collection.dart';
 
 import 'note_editor_page.dart';
 import 'trash_notes_page.dart';
@@ -22,7 +23,7 @@ import '../widgets/notes_app_bar.dart';
 
 /// Kayıtlı notların listelendiği sayfa.
 ///
-/// UI katmanı sadece görünüme odaklanır, 
+/// UI katmanı sadece görünüme odaklanır,
 /// tüm durum yönetimi [NotesListController] üzerinden yapılır.
 class NotesListPage extends StatelessWidget {
   const NotesListPage({super.key});
@@ -68,11 +69,9 @@ class _NotesListViewState extends State<_NotesListView> {
 
   Future<void> _openTrash(BuildContext context) async {
     final controller = context.read<NotesListController>();
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const TrashNotesPage(),
-      ),
-    );
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const TrashNotesPage()));
     // Çöp kutusundan not geri yüklenmiş veya silinmiş olabilir
     if (mounted) {
       // _fetchAndCacheAllNotes() already called via _boxListener but let's notify listeners if needed
@@ -108,20 +107,22 @@ class _NotesListViewState extends State<_NotesListView> {
             builder: (context, data, _) {
               final isReady = data.$1;
               final selMode = data.$2;
-              if (!isReady) return const Center(child: CircularProgressIndicator());
+              if (!isReady) {
+                return const Center(child: CircularProgressIndicator());
+              }
               return Stack(
                 children: [
                   Column(
                     children: [
-                      if (!selMode) _SearchBarSection(
-                        searchController: _searchController,
-                      ),
-                      if (!selMode) _FilterChipsSection(
-                        onShowDeleteDialog: (cat) =>
-                            _showDeleteCategoryDialog(context, cat),
-                        onShowCreateDialog: () =>
-                            _showCreateCategoryDialog(context),
-                      ),
+                      if (!selMode)
+                        _SearchBarSection(searchController: _searchController),
+                      if (!selMode)
+                        _FilterChipsSection(
+                          onShowDeleteDialog: (cat) =>
+                              _showDeleteCategoryDialog(context, cat),
+                          onShowCreateDialog: () =>
+                              _showCreateCategoryDialog(context),
+                        ),
                       Expanded(
                         child: _NotesBodySection(
                           onOpenNote: (id) => _openNote(context, id),
@@ -133,20 +134,19 @@ class _NotesListViewState extends State<_NotesListView> {
                     colorScheme: colorScheme,
                     onShowBulkAssign: () =>
                         _showBulkAssignTagDialog(context, colorScheme),
-                    onConfirmDelete: () =>
-                        _confirmAndDeleteSelected(context),
+                    onConfirmDelete: () => _confirmAndDeleteSelected(context),
                   ),
                 ],
               );
             },
           ),
-          floatingActionButton:
-              isSelectionMode ? null : _buildFab(context, colorScheme),
+          floatingActionButton: isSelectionMode
+              ? null
+              : _buildFab(context, colorScheme),
         ),
       ),
     );
   }
-
 
   // AppBar: selection + grid toggle + seçim sayısı değişince rebuild eder
   PreferredSizeWidget _buildAppBar() {
@@ -355,33 +355,38 @@ class _FilterChipsSection extends StatelessWidget {
 /// Not listesi/grid: Sadece [visibleNotes], [isGridView], [searchQuery],
 /// [isSelectionMode] ve [selectedNoteIds] değişince rebuild eder.
 class _NotesBodySection extends StatelessWidget {
-  const _NotesBodySection({
-    required this.onOpenNote,
-  });
+  const _NotesBodySection({required this.onOpenNote});
 
   final void Function(String? id) onOpenNote;
 
   @override
   Widget build(BuildContext context) {
-    return Selector<NotesListController,
-        (List<NoteModel>, bool, String, bool, int)>(
-      // Set<String> equality her zaman false döner (referans); bunun yerine
-      // count (int) kullanılır. Gerçek set, builder içinde context.read ile alınır.
+    return Selector<
+      NotesListController,
+      (List<NoteModel>, bool, String, bool, Set<String>)
+    >(
+      // Referans eşitsizliği sorununu çözmek için SetEquality ile özel shouldRebuild tanımlanmıştır.
       selector: (_, c) => (
         c.visibleNotes,
         c.isGridView,
         c.searchQuery,
         c.isSelectionMode,
-        c.selectedNoteIds.length,
+        c.selectedNoteIds,
       ),
+      shouldRebuild: (prev, next) {
+        return prev.$1 != next.$1 ||
+               prev.$2 != next.$2 ||
+               prev.$3 != next.$3 ||
+               prev.$4 != next.$4 ||
+               !const SetEquality().equals(prev.$5, next.$5);
+      },
       builder: (context, data, _) {
         final notes = data.$1;
         final isGrid = data.$2;
         final searchQuery = data.$3;
         final isSelectionMode = data.$4;
-        // Count değişince rebuild tetiklendi; gerçek set'i builder'da al.
+        final selectedIds = data.$5;
         final c = context.read<NotesListController>();
-        final selectedIds = c.selectedNoteIds;
 
         if (notes.isEmpty) {
           return NotesEmptyState(
@@ -397,8 +402,7 @@ class _NotesBodySection extends StatelessWidget {
             key: const ValueKey('grid_view'),
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
-            gridDelegate:
-                const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
             ),
             mainAxisSpacing: 12,

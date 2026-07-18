@@ -64,7 +64,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   bool _isEditing = false;
   final NoteRepository _repository = getIt<NoteRepository>();
-  final NoteCategoryRepository _categoryRepository = getIt<NoteCategoryRepository>();
+  final NoteCategoryRepository _categoryRepository =
+      getIt<NoteCategoryRepository>();
   List<NoteCategoryModel> _allCategories = [];
 
   // Speech-to-text
@@ -261,8 +262,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       if (mounted) {
         setState(() => _hasUnsavedChanges = false);
       }
-      
-      // UX Edge Case: Yeni not (widget.noteId == null) olsa dahi auto-save 
+
+      // UX Edge Case: Yeni not (widget.noteId == null) olsa dahi auto-save
       // çalışmış ve veritabanına yazılmış olabilir! Bu yüzden şartı kaldırdık.
       if (note.id.isNotEmpty) {
         await _repository.deleteNotes([note.id]);
@@ -312,7 +313,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       } else {
         _isSaving = false;
       }
-      
+
       if (_saveQueued) {
         _saveQueued = false;
         // EC-DATA-LOSS: mounted olmasa bile sıradaki kaydı yap!
@@ -374,11 +375,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         if (_hasUnsavedChanges || _isSaving || _saveQueued) {
           // Klavyeyi kapat
           FocusScope.of(context).unfocus();
-          
+
           if (_hasUnsavedChanges) {
             await _saveNote();
           }
-          
+
           // EĞER OTOMATİK KAYIT ÇALIŞIYORSA BİTMESİNİ BEKLE (Back Button Ignoring Bug Fix)
           // Aksi takdirde await _saveNote() anında döner, hasUnsavedChanges true kalır
           // ve Navigator.pop asla çağrılmaz (Kullanıcı ekranda hapsolur)!
@@ -395,154 +396,160 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           }
         }
       },
-      // Hero kaldırıldı: Scaffold içinde SnackBar'ın kendi Hero'su ile çakışıyordu.
-      // ("A Hero widget cannot be the descendant of another Hero widget" assertion)
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-        color: bgColor,
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          resizeToAvoidBottomInset: true,
-          appBar: _buildAppBar(colorScheme),
-          body: GestureDetector(
-            onTap: () {
-              // Sesli dikte aktifken dokunma ile klavye açılmasını engelle
-              if (!(_voiceDictationManager?.isListening ?? false)) {
-                FocusScope.of(context).unfocus();
-              }
-            },
-            child: Stack(
-              children: [
-                Column(
-                  children: [
-                    _buildTitleField(colorScheme),
-                    _buildDateInfo(colorScheme),
-                    NoteCategorySelector(
-                      selectedCategoryId: _note?.categoryId,
-                      categories: _allCategories,
-                      colorScheme: colorScheme,
-                      fgColor: _getTextColor(colorScheme),
-                      onCategorySelected: (categoryId) {
-                        setState(() {
-                          _note = _note?.copyWith(
-                            categoryId: categoryId,
-                            clearCategory: categoryId == null,
-                          );
-                          _hasUnsavedChanges = true;
-                        });
-                        _scheduleAutoSave();
-                      },
-                      onCategoryCreated: (newCat) async {
-                        await _categoryRepository.saveCategory(newCat);
-                        await _loadCategories();
-                        if (mounted) {
+      // Hero yeniden eklendi: Scaffold hatasını aşmak için ConditionalHero ile sarmalanmıştır.
+      child: ConditionalHero(
+        tag: widget.noteId != null ? 'note_hero_${widget.noteId}' : null,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+          color: bgColor,
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            resizeToAvoidBottomInset: true,
+            appBar: _buildAppBar(colorScheme),
+            body: GestureDetector(
+              onTap: () {
+                // Sesli dikte aktifken dokunma ile klavye açılmasını engelle
+                if (!(_voiceDictationManager?.isListening ?? false)) {
+                  FocusScope.of(context).unfocus();
+                }
+              },
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      _buildTitleField(colorScheme),
+                      _buildDateInfo(colorScheme),
+                      NoteCategorySelector(
+                        selectedCategoryId: _note?.categoryId,
+                        categories: _allCategories,
+                        colorScheme: colorScheme,
+                        fgColor: _getTextColor(colorScheme),
+                        onCategorySelected: (categoryId) {
                           setState(() {
-                            _note = _note?.copyWith(categoryId: newCat.id);
-                            _markUnsaved();
+                            _note = _note?.copyWith(
+                              categoryId: categoryId,
+                              clearCategory: categoryId == null,
+                            );
+                            _hasUnsavedChanges = true;
                           });
-                        }
-                      },
-                    ),
-                    Expanded(
-                      child: Theme(
-                        data: Theme.of(context).copyWith(
-                          textSelectionTheme: TextSelectionThemeData(
-                            cursorColor: cursorColor,
-                            selectionColor: cursorColor.withValues(alpha: 0.3),
-                            selectionHandleColor: cursorColor,
+                          _scheduleAutoSave();
+                        },
+                        onCategoryCreated: (newCat) async {
+                          await _categoryRepository.saveCategory(newCat);
+                          await _loadCategories();
+                          if (mounted) {
+                            setState(() {
+                              _note = _note?.copyWith(categoryId: newCat.id);
+                              _markUnsaved();
+                            });
+                          }
+                        },
+                      ),
+                      Expanded(
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            textSelectionTheme: TextSelectionThemeData(
+                              cursorColor: cursorColor,
+                              selectionColor: cursorColor.withValues(
+                                alpha: 0.3,
+                              ),
+                              selectionHandleColor: cursorColor,
+                            ),
+                          ),
+                          child: _buildEditor(colorScheme, controller),
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Toolbar: dinleme aktifken gizle
+                  Positioned(
+                    bottom: 16,
+                    left: 16,
+                    right: 16,
+                    child: Center(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 250),
+                        transitionBuilder: (child, animation) => FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position:
+                                Tween<Offset>(
+                                  begin: const Offset(0, 0.5),
+                                  end: Offset.zero,
+                                ).animate(
+                                  CurvedAnimation(
+                                    parent: animation,
+                                    curve: Curves.easeOutCubic,
+                                  ),
+                                ),
+                            child: child,
                           ),
                         ),
-                        child: _buildEditor(colorScheme, controller),
+                        child:
+                            _isEditing &&
+                                !(_voiceDictationManager?.isDictationBoxOpen ??
+                                    false)
+                            ? NoteEditorToolbar(
+                                controller: controller,
+                                onMarkUnsaved: _markUnsaved,
+                                onStartVoiceDictation: () =>
+                                    _voiceDictationManager
+                                        ?.startVoiceDictation(),
+                                onPickImageFromGallery: (ctx) =>
+                                    NoteMediaHelper.pickImage(
+                                      ctx,
+                                      fromCamera: false,
+                                    ),
+                                onPickVideoFromGallery: (ctx) =>
+                                    NoteMediaHelper.pickVideo(
+                                      ctx,
+                                      fromCamera: false,
+                                    ),
+                                onTakePhoto: () async {
+                                  final path = await NoteMediaHelper.pickImage(
+                                    context,
+                                    fromCamera: true,
+                                  );
+                                  // EC-UNMOUNTED: Kopyalama bitene kadar kullanıcı çıkmış olabilir!
+                                  if (path != null && mounted) {
+                                    NoteMediaHelper.insertMedia(
+                                      controller: _controller!,
+                                      path: path,
+                                      isVideo: false,
+                                      onMediaInserted: _markUnsaved,
+                                    );
+                                  }
+                                },
+                                onRecordVideo: () async {
+                                  final path = await NoteMediaHelper.pickVideo(
+                                    context,
+                                    fromCamera: true,
+                                  );
+                                  if (path != null) {
+                                    NoteMediaHelper.insertMedia(
+                                      controller: _controller!,
+                                      path: path,
+                                      isVideo: true,
+                                      onMediaInserted: _markUnsaved,
+                                    );
+                                  }
+                                },
+                              )
+                            : const SizedBox.shrink(),
                       ),
                     ),
-                  ],
-                ),
-                // Toolbar: dinleme aktifken gizle
-                Positioned(
-                  bottom: 16,
-                  left: 16,
-                  right: 16,
-                  child: Center(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      transitionBuilder: (child, animation) => FadeTransition(
-                        opacity: animation,
-                        child: SlideTransition(
-                          position:
-                              Tween<Offset>(
-                                begin: const Offset(0, 0.5),
-                                end: Offset.zero,
-                              ).animate(
-                                CurvedAnimation(
-                                  parent: animation,
-                                  curve: Curves.easeOutCubic,
-                                ),
-                              ),
-                          child: child,
-                        ),
-                      ),
-                      child:
-                          _isEditing &&
-                              !(_voiceDictationManager?.isDictationBoxOpen ??
-                                  false)
-                          ? NoteEditorToolbar(
-                              controller: controller,
-                              onMarkUnsaved: _markUnsaved,
-                              onStartVoiceDictation: () =>
-                                  _voiceDictationManager?.startVoiceDictation(),
-                              onPickImageFromGallery: (ctx) =>
-                                  NoteMediaHelper.pickImage(
-                                    ctx,
-                                    fromCamera: false,
-                                  ),
-                              onPickVideoFromGallery: (ctx) =>
-                                  NoteMediaHelper.pickVideo(
-                                    ctx,
-                                    fromCamera: false,
-                                  ),
-                              onTakePhoto: () async {
-                                final path = await NoteMediaHelper.pickImage(
-                                  context,
-                                  fromCamera: true,
-                                );
-                                // EC-UNMOUNTED: Kopyalama bitene kadar kullanıcı çıkmış olabilir!
-                                if (path != null && mounted) {
-                                  NoteMediaHelper.insertMedia(
-                                    controller: _controller!,
-                                    path: path,
-                                    isVideo: false,
-                                    onMediaInserted: _markUnsaved,
-                                  );
-                                }
-                              },
-                              onRecordVideo: () async {
-                                final path = await NoteMediaHelper.pickVideo(
-                                  context,
-                                  fromCamera: true,
-                                );
-                                if (path != null) {
-                                  NoteMediaHelper.insertMedia(
-                                    controller: _controller!,
-                                    path: path,
-                                    isVideo: true,
-                                    onMediaInserted: _markUnsaved,
-                                  );
-                                }
-                              },
-                            )
-                          : const SizedBox.shrink(),
+                  ),
+                  // Sesli dikte aktifken gösterilen floating overlay
+                  if ((_voiceDictationManager?.isDictationBoxOpen ?? false))
+                    VoiceDictationOverlay(
+                      isListening:
+                          (_voiceDictationManager?.isListening ?? false),
+                      onToggleListening: () =>
+                          _voiceDictationManager?.toggleListening(),
                     ),
-                  ),
-                ),
-                // Sesli dikte aktifken gösterilen floating overlay
-                if ((_voiceDictationManager?.isDictationBoxOpen ?? false))
-                  VoiceDictationOverlay(
-                    isListening: (_voiceDictationManager?.isListening ?? false),
-                    onToggleListening: () =>
-                        _voiceDictationManager?.toggleListening(),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -860,5 +867,23 @@ class _LoadingScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(body: Center(child: CircularProgressIndicator()));
+  }
+}
+
+class ConditionalHero extends StatelessWidget {
+  final String? tag;
+  final Widget child;
+
+  const ConditionalHero({super.key, required this.tag, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    if (tag == null) return child;
+
+    return Hero(
+      tag: tag!,
+      // Uçuş sırasında olası hataları önlemek için material transparency kullanıyoruz
+      child: Material(type: MaterialType.transparency, child: child),
+    );
   }
 }
