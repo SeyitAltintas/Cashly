@@ -35,19 +35,19 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
 
   @override
   List<Map<String, dynamic>> getExpensesByMonth(String userId, DateTime month) {
-    final all = getExpenses(userId);
-    return all.where((h) {
-      if (h['silindi'] == true) return false;
-      final tarih = DateTime.tryParse(h['tarih'].toString());
-      if (tarih == null) return false;
-      return tarih.year == month.year && tarih.month == month.month;
-    }).toList();
+    final cacheKey = 'expenses_${userId}_${month.year}_${month.month}';
+    final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey);
+    if (cached != null) {
+      return cached.where((h) => h['silindi'] != true).toList();
+    }
+    return [];
   }
 
   Stream<List<Map<String, dynamic>>> watchExpenses(String userId) {
     return _userDoc(userId)
         .collection('expenses')
         .orderBy('tarih', descending: true)
+        .limit(100)
         .snapshots()
         .map((snapshot) {
           final expenses = snapshot.docs.map((doc) {
@@ -92,21 +92,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
             return data;
           }).toList();
 
-          // Global cache'e bu ayın verilerini merge et
-          final cacheKey = 'expenses_$userId';
-          final cached =
-              CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
-
-          // Eski bu aya ait verileri sil
-          cached.removeWhere((e) {
-            final tarih = DateTime.tryParse(e['tarih'].toString());
-            if (tarih == null) return false;
-            return tarih.year == month.year && tarih.month == month.month;
-          });
-
-          // Yeni verileri ekle
-          cached.addAll(newMonthExpenses);
-          CacheService.set(cacheKey, cached);
+          // Sadece bu aya ait verileri Time-Series Cache (Partition) olarak kaydet
+          final cacheKey = 'expenses_${userId}_${month.year}_${month.month}';
+          CacheService.set(cacheKey, newMonthExpenses);
 
           return newMonthExpenses;
         });

@@ -282,17 +282,11 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
     // OPTIMISTIC UI: Stream'in ilk veriyi atmasını beklemeden, verileri Hive Cache'den
     // senkron olarak çekip 0-kare yükleme hızını sağlıyoruz.
     try {
-      final allExpenses = expenseRepo.getExpenses(userId);
-      _tumHarcamalar = allExpenses.where((h) {
-        if (h['silindi'] == true) return false;
-        final date = DateTime.tryParse(h['tarih']?.toString() ?? '');
-        return date != null && date.year == _secilenAy.year && date.month == _secilenAy.month;
-      }).toList();
+      // OPTIMIZED: Sadece seçili aya ait önbelleğe alınmış partitionları getir.
+      _tumHarcamalar = expenseRepo.getExpensesByMonth(userId, _secilenAy);
 
-      final allIncomesRaw = incomeRepo.getIncomes(userId);
-      _tumGelirler = allIncomesRaw.map((m) => Income.fromMap(m)).where((g) {
-        return g.date.year == _secilenAy.year && g.date.month == _secilenAy.month;
-      }).toList();
+      final monthlyIncomesRaw = incomeRepo.getIncomesByMonth(userId, _secilenAy);
+      _tumGelirler = monthlyIncomesRaw.map((m) => Income.fromMap(m)).toList();
     } catch (e) {
       _tumHarcamalar = [];
       _tumGelirler = [];

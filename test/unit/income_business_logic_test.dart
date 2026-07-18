@@ -52,6 +52,9 @@ class MockIncomeRepository implements IncomeRepository {
   List<Map<String, dynamic>> getIncomes(String userId) => _incomes;
 
   @override
+  List<Map<String, dynamic>> getIncomesByMonth(String userId, DateTime month) => _incomes;
+
+  @override
   Stream<List<Map<String, dynamic>>> watchIncomesByMonth(
     String userId,
     DateTime month,

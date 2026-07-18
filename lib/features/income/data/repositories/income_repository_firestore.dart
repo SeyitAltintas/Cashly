@@ -32,6 +32,13 @@ class IncomeRepositoryFirestore implements IncomeRepository {
     return [];
   }
 
+  @override
+  List<Map<String, dynamic>> getIncomesByMonth(String userId, DateTime month) {
+    final cacheKey = 'incomes_${userId}_${month.year}_${month.month}';
+    final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey);
+    return cached ?? [];
+  }
+
   // GÜVENLİK/KARARLILIK YAMASI:
   // Firestore verisi içinde 'date' harici (örneğin 'updatedAt') dönen herhangi bir Timestamp
   // Hive tarafında desteklenmediği için çökmeye sebep olur. Hepsini bulup String'e çeviren yardımcı:
@@ -59,6 +66,7 @@ class IncomeRepositoryFirestore implements IncomeRepository {
     return _userDoc(userId)
         .collection('incomes')
         .orderBy('date', descending: true)
+        .limit(100)
         .snapshots()
         .map((snapshot) {
           final incomes = snapshot.docs
@@ -95,21 +103,9 @@ class IncomeRepositoryFirestore implements IncomeRepository {
           final newMonthIncomes =
               snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();
 
-          // Global cache'e bu ayın verilerini merge et
-          final cacheKey = 'incomes_$userId';
-          final cached =
-              CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
-
-          // Eski bu aya ait verileri sil
-          cached.removeWhere((i) {
-            final tarih = DateTime.tryParse(i['date'].toString());
-            if (tarih == null) return false;
-            return tarih.year == month.year && tarih.month == month.month;
-          });
-
-          // Yeni verileri ekle
-          cached.addAll(newMonthIncomes);
-          CacheService.set(cacheKey, cached);
+          // Sadece bu aya ait verileri Time-Series Cache (Partition) olarak kaydet
+          final cacheKey = 'incomes_${userId}_${month.year}_${month.month}';
+          CacheService.set(cacheKey, newMonthIncomes);
 
           return newMonthIncomes;
         });

@@ -6,6 +6,9 @@ abstract class IncomeRepository {
   /// Kullanıcının tüm gelirlerini getirir
   List<Map<String, dynamic>> getIncomes(String userId);
 
+  /// Seçilen aya ait gelirleri cache'den senkron olarak getirir
+  List<Map<String, dynamic>> getIncomesByMonth(String userId, DateTime month);
+
   /// Seçilen aya ait gelirleri gerçek zamanlı dinler
   Stream<List<Map<String, dynamic>>> watchIncomesByMonth(
     String userId,
