@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/features/notes/data/models/note_category_model.dart';
+import 'package:cashly/features/notes/data/models/note_model.dart';
 import 'package:cashly/features/notes/presentation/controllers/notes_list_controller.dart';
 import 'package:cashly/core/di/injection_container.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -67,137 +68,96 @@ class _NotesListViewState extends State<_NotesListView> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final controller = context.watch<NotesListController>();
+    // Sadece isSelectionMode için dinle (PopScope ve FAB için yeterli)
+    final isSelectionMode = context.select<NotesListController, bool>(
+      (c) => c.isSelectionMode,
+    );
 
     return PopScope(
-      canPop: !controller.isSelectionMode,
+      canPop: !isSelectionMode,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        if (controller.isSelectionMode) {
-          controller.clearSelection();
+        if (isSelectionMode) {
+          context.read<NotesListController>().clearSelection();
         }
       },
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
           backgroundColor: colorScheme.surface,
-          appBar: NotesAppBar(
-            isSelectionMode: controller.isSelectionMode,
-            isReady: controller.isReady,
-            selectedCount: controller.selectedNoteIds.length,
-            visibleNotes: controller.visibleNotes,
-            selectedNoteIds: controller.selectedNoteIds,
-            isGridView: controller.isGridView,
-            onClearSelection: controller.clearSelection,
-            onSelectAll: controller.selectAll,
-            onToggleGridView: controller.toggleGridView,
+          appBar: _buildAppBar(),
+          body: Selector<NotesListController, (bool, bool)>(
+            // isReady VE isSelectionMode her ikisi body rebuild'ini tetiklemeli;
+            // aksi takdirde SearchBar/FilterChips göster-gizle mantığı çalışmaz.
+            selector: (_, c) => (c.isReady, c.isSelectionMode),
+            builder: (context, data, _) {
+              final isReady = data.$1;
+              final selMode = data.$2;
+              if (!isReady) return const Center(child: CircularProgressIndicator());
+              return Stack(
+                children: [
+                  Column(
+                    children: [
+                      if (!selMode) _SearchBarSection(
+                        searchController: _searchController,
+                      ),
+                      if (!selMode) _FilterChipsSection(
+                        onShowDeleteDialog: (cat) =>
+                            _showDeleteCategoryDialog(context, cat),
+                        onShowCreateDialog: () =>
+                            _showCreateCategoryDialog(context),
+                      ),
+                      Expanded(
+                        child: _NotesBodySection(
+                          onOpenNote: (id) => _openNote(context, id),
+                        ),
+                      ),
+                    ],
+                  ),
+                  _BottomBarSection(
+                    colorScheme: colorScheme,
+                    onShowBulkAssign: () =>
+                        _showBulkAssignTagDialog(context, colorScheme),
+                    onConfirmDelete: () =>
+                        _confirmAndDeleteSelected(context),
+                  ),
+                ],
+              );
+            },
           ),
-          body: controller.isReady
-              ? Stack(
-                  children: [
-                    Column(
-                      children: [
-                        if (!controller.isSelectionMode)
-                          NotesSearchBar(
-                            controller: _searchController,
-                            searchQuery: controller.searchQuery,
-                            onChanged: controller.setSearchQuery,
-                            onClear: () {
-                              _searchController.clear();
-                              controller.setSearchQuery('');
-                            },
-                          ),
-                        if (!controller.isSelectionMode)
-                          NotesFilterChips(
-                            selectedFilterId: controller.selectedFilterId,
-                            categories: controller.allCategories,
-                            onFilterSelected: controller.setFilter,
-                            onCategoryLongPressed: (cat) =>
-                                _showDeleteCategoryDialog(context, cat),
-                            onAddCategory: () => _showCreateCategoryDialog(context),
-                          ),
-                        Expanded(child: _buildBody(context, controller)),
-                      ],
-                    ),
-                    NotesBottomActionBar(
-                      isVisible: controller.isSelectionMode,
-                      allPinned: controller.selectedNotesAreAllPinned,
-                      onHide: controller.clearSelection,
-                      onTogglePin: controller.togglePinSelected,
-                      onMoveTag: () =>
-                          _showBulkAssignTagDialog(context, colorScheme),
-                      onDelete: () => _confirmAndDeleteSelected(context),
-                    ),
-                  ],
-                )
-              : const Center(child: CircularProgressIndicator()),
-          floatingActionButton: controller.isSelectionMode
-              ? null
-              : _buildFab(context, colorScheme),
+          floatingActionButton:
+              isSelectionMode ? null : _buildFab(context, colorScheme),
         ),
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, NotesListController controller) {
-    final notes = controller.visibleNotes;
-    final isGrid = controller.isGridView;
 
-    if (notes.isEmpty) {
-      return NotesEmptyState(
-        isSearching: controller.searchQuery.isNotEmpty,
-        isFiltering: controller.selectedFilterId != null,
-        searchQuery: controller.searchQuery,
-      );
-    }
-
-    if (isGrid) {
-      return MasonryGridView.builder(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
-        gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
+  // AppBar: selection + grid toggle + seçim sayısı değişince rebuild eder
+  PreferredSizeWidget _buildAppBar() {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(kToolbarHeight),
+      child: Selector<NotesListController, (bool, bool, bool, int)>(
+        selector: (_, c) => (
+          c.isSelectionMode,
+          c.isReady,
+          c.isGridView,
+          c.selectedNoteIds.length, // seçim sayısı değişince AppBar güncellenir
         ),
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        itemCount: notes.length,
-        itemBuilder: (context, index) => NoteCard(
-          note: notes[index],
-          isGrid: true,
-          isSelected: controller.selectedNoteIds.contains(notes[index].id),
-          isSelectionMode: controller.isSelectionMode,
-          searchQuery: controller.searchQuery,
-          onTap: () {
-            if (controller.isSelectionMode) {
-              controller.toggleSelection(notes[index].id);
-            } else {
-              _openNote(context, notes[index].id);
-            }
-          },
-          onLongPress: () => controller.toggleSelection(notes[index].id),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
-      itemCount: notes.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => NoteCard(
-        note: notes[index],
-        isGrid: false,
-        isSelected: controller.selectedNoteIds.contains(notes[index].id),
-        isSelectionMode: controller.isSelectionMode,
-        searchQuery: controller.searchQuery,
-        onTap: () {
-          if (controller.isSelectionMode) {
-            controller.toggleSelection(notes[index].id);
-          } else {
-            _openNote(context, notes[index].id);
-          }
+        builder: (context, data, _) {
+          final c = context.read<NotesListController>();
+          return NotesAppBar(
+            isSelectionMode: data.$1,
+            isReady: data.$2,
+            isGridView: data.$3,
+            selectedCount: data.$4,
+            visibleNotes: c.visibleNotes,
+            selectedNoteIds: c.selectedNoteIds,
+            onClearSelection: c.clearSelection,
+            onSelectAll: c.selectAll,
+            onToggleGridView: c.toggleGridView,
+          );
         },
-        onLongPress: () => controller.toggleSelection(notes[index].id),
       ),
     );
   }
@@ -322,6 +282,195 @@ class _NotesListViewState extends State<_NotesListView> {
         hasAnyTagAssigned: hasAnyTagAssigned,
         onDone: controller.clearSelection,
       ),
+    );
+  }
+}
+
+// ─── Granular Selector Widget'ları ──────────────────────────────────────────────────────
+//
+// Her widget kendi slice'na abone olur; diğer slice değiştiğinde rebuild etmez.
+
+/// Arama kutusu: Sadece [searchQuery] değişince rebuild eder.
+class _SearchBarSection extends StatelessWidget {
+  const _SearchBarSection({required this.searchController});
+
+  final TextEditingController searchController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<NotesListController, String>(
+      selector: (_, c) => c.searchQuery,
+      builder: (context, query, _) {
+        final c = context.read<NotesListController>();
+        return NotesSearchBar(
+          controller: searchController,
+          searchQuery: query,
+          onChanged: c.setSearchQuery,
+          onClear: () {
+            searchController.clear();
+            c.setSearchQuery('');
+          },
+        );
+      },
+    );
+  }
+}
+
+/// Filtre chip'leri: Sadece [selectedFilterId] veya [allCategories] değişince rebuild eder.
+class _FilterChipsSection extends StatelessWidget {
+  const _FilterChipsSection({
+    required this.onShowDeleteDialog,
+    required this.onShowCreateDialog,
+  });
+
+  final void Function(NoteCategoryModel) onShowDeleteDialog;
+  final VoidCallback onShowCreateDialog;
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<NotesListController, (String?, List<NoteCategoryModel>)>(
+      // List referansını doğrudan al; unmodifiable() her çağrıda yeni nesne üretir
+      // ve Selector'daki == karşılaştırmasını her zaman false yapar.
+      selector: (_, c) => (c.selectedFilterId, c.allCategories),
+      builder: (context, data, _) {
+        final c = context.read<NotesListController>();
+        return NotesFilterChips(
+          selectedFilterId: data.$1,
+          categories: data.$2,
+          onFilterSelected: c.setFilter,
+          onCategoryLongPressed: onShowDeleteDialog,
+          onAddCategory: onShowCreateDialog,
+        );
+      },
+    );
+  }
+}
+
+/// Not listesi/grid: Sadece [visibleNotes], [isGridView], [searchQuery],
+/// [isSelectionMode] ve [selectedNoteIds] değişince rebuild eder.
+class _NotesBodySection extends StatelessWidget {
+  const _NotesBodySection({
+    required this.onOpenNote,
+  });
+
+  final void Function(String? id) onOpenNote;
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<NotesListController,
+        (List<NoteModel>, bool, String, bool, int)>(
+      // Set<String> equality her zaman false döner (referans); bunun yerine
+      // count (int) kullanılır. Gerçek set, builder içinde context.read ile alınır.
+      selector: (_, c) => (
+        c.visibleNotes,
+        c.isGridView,
+        c.searchQuery,
+        c.isSelectionMode,
+        c.selectedNoteIds.length,
+      ),
+      builder: (context, data, _) {
+        final notes = data.$1;
+        final isGrid = data.$2;
+        final searchQuery = data.$3;
+        final isSelectionMode = data.$4;
+        // Count değişince rebuild tetiklendi; gerçek set'i builder'da al.
+        final c = context.read<NotesListController>();
+        final selectedIds = c.selectedNoteIds;
+
+        if (notes.isEmpty) {
+          return NotesEmptyState(
+            isSearching: searchQuery.isNotEmpty,
+            isFiltering: c.selectedFilterId != null,
+            searchQuery: searchQuery,
+          );
+        }
+
+        if (isGrid) {
+          return MasonryGridView.builder(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+            gridDelegate:
+                const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+            ),
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            itemCount: notes.length,
+            itemBuilder: (context, index) => RepaintBoundary(
+              child: NoteCard(
+                note: notes[index],
+                isGrid: true,
+                isSelected: selectedIds.contains(notes[index].id),
+                isSelectionMode: isSelectionMode,
+                searchQuery: searchQuery,
+                onTap: () {
+                  if (isSelectionMode) {
+                    c.toggleSelection(notes[index].id);
+                  } else {
+                    onOpenNote(notes[index].id);
+                  }
+                },
+                onLongPress: () => c.toggleSelection(notes[index].id),
+              ),
+            ),
+          );
+        }
+
+        return ListView.separated(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+          itemCount: notes.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) => RepaintBoundary(
+            child: NoteCard(
+              note: notes[index],
+              isGrid: false,
+              isSelected: selectedIds.contains(notes[index].id),
+              isSelectionMode: isSelectionMode,
+              searchQuery: searchQuery,
+              onTap: () {
+                if (isSelectionMode) {
+                  c.toggleSelection(notes[index].id);
+                } else {
+                  onOpenNote(notes[index].id);
+                }
+              },
+              onLongPress: () => c.toggleSelection(notes[index].id),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Alt action bar: Sadece selection state değişince rebuild eder.
+class _BottomBarSection extends StatelessWidget {
+  const _BottomBarSection({
+    required this.colorScheme,
+    required this.onShowBulkAssign,
+    required this.onConfirmDelete,
+  });
+
+  final ColorScheme colorScheme;
+  final VoidCallback onShowBulkAssign;
+  final VoidCallback onConfirmDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<NotesListController, (bool, bool)>(
+      selector: (_, c) => (c.isSelectionMode, c.selectedNotesAreAllPinned),
+      builder: (context, data, _) {
+        final c = context.read<NotesListController>();
+        return NotesBottomActionBar(
+          isVisible: data.$1,
+          allPinned: data.$2,
+          onHide: c.clearSelection,
+          onTogglePin: c.togglePinSelected,
+          onMoveTag: onShowBulkAssign,
+          onDelete: onConfirmDelete,
+        );
+      },
     );
   }
 }

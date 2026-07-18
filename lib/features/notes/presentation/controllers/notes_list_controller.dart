@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:cashly/features/notes/data/models/note_model.dart';
@@ -32,12 +31,11 @@ class NotesListController extends ChangeNotifier {
   late final VoidCallback _boxListener;
   ValueListenable<Box>? _boxListenable;
 
-  // Performans optimizasyonu için in-memory arama önbelleği
-  final Map<String, String> _plainTextCache = {};
-
   // Getters
   String get searchQuery => _searchQuery;
-  Set<String> get selectedNoteIds => _selectedNoteIds;
+  // Her çağrıda yeni kopya döndür: Selector referans eşitliğine baktığı için
+  // aynı Set mutate edilirse değişimi yakalayamaz.
+  Set<String> get selectedNoteIds => Set.of(_selectedNoteIds);
   bool get isReady => _isReady;
   String? get selectedFilterId => _selectedFilterId;
   List<NoteCategoryModel> get allCategories => _allCategories;
@@ -173,16 +171,11 @@ class NotesListController extends ChangeNotifier {
     if (!_isReady) return;
     _allNotes = _repository.getAllNotes();
 
-    // Uç Durum (Edge Case): Eğer seçili bir not silinirse, seçili ID'ler listesinden otomatik olarak düşsün (Ghost Selection Koruması)
+    // Ghost Selection Koruması: Seçili not silinmişse seçimden düşür.
     if (_selectedNoteIds.isNotEmpty) {
       final allNoteIds = _allNotes.map((n) => n.id).toSet();
       _selectedNoteIds.removeWhere((id) => !allNoteIds.contains(id));
     }
-
-    // Önbellek Çöp Toplayıcı (Cache Garbage Collector): 
-    // Yalnızca güncel notların cache anahtarlarını tut, silinmiş veya düzenlenmiş (tarihi değişmiş) olanların çöpünü bellekten temizle.
-    final validCacheKeys = _allNotes.map((n) => '${n.id}_${n.updatedAt.millisecondsSinceEpoch}').toSet();
-    _plainTextCache.removeWhere((key, _) => !validCacheKeys.contains(key));
 
     _updateVisibleNotes();
   }
@@ -194,16 +187,12 @@ class NotesListController extends ChangeNotifier {
     }
     Iterable<NoteModel> notes = _allNotes;
 
-    // Bellek Sızıntısı Koruması: Önbellekteki ölü (eski) kayıtları temizle
-    if (_plainTextCache.length > notes.length + 200) {
-      final activeKeys = notes.map((n) => '${n.id}_${n.updatedAt.millisecondsSinceEpoch}').toSet();
-      _plainTextCache.removeWhere((key, _) => !activeKeys.contains(key));
-    }
-
     if (_searchQuery.isNotEmpty) {
       notes = notes.where((note) {
+        // searchableText kayıt sırasında repository tarafından hesaplanır;
+        // runtime'da JSON parse gerekmez (O(1) string.contains).
         final titleMatch = _toTurkishLowerCase(note.title).contains(_searchQuery);
-        final contentMatch = _getCachedPlainText(note).contains(_searchQuery);
+        final contentMatch = note.searchableText.contains(_searchQuery);
         return titleMatch || contentMatch;
       });
     }
@@ -217,39 +206,6 @@ class NotesListController extends ChangeNotifier {
 
   String _toTurkishLowerCase(String text) {
     return text.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase();
-  }
-
-  String _getCachedPlainText(NoteModel note) {
-    final cacheKey = '${note.id}_${note.updatedAt.millisecondsSinceEpoch}';
-    if (_plainTextCache.containsKey(cacheKey)) {
-      return _plainTextCache[cacheKey]!;
-    }
-
-    // Arama hızını artırmak ve Case-Sensitivity hatalarını önlemek için,
-    // içeriği en baştan küçük harfe çevirerek önbellekliyoruz.
-    final plainText = _toTurkishLowerCase(_extractPlainText(note.deltaJson));
-    _plainTextCache[cacheKey] = plainText;
-
-    return plainText;
-  }
-
-  String _extractPlainText(String deltaJson) {
-    if (deltaJson.isEmpty || deltaJson == '[]') return '';
-    try {
-      final List<dynamic> ops = jsonDecode(deltaJson);
-      final buffer = StringBuffer();
-      for (final op in ops) {
-        if (op is Map<String, dynamic> && op.containsKey('insert')) {
-          final insert = op['insert'];
-          if (insert is String) {
-            buffer.write(insert);
-          }
-        }
-      }
-      return _toTurkishLowerCase(buffer.toString().trim());
-    } catch (_) {
-      return _toTurkishLowerCase(deltaJson);
-    }
   }
 
   @override

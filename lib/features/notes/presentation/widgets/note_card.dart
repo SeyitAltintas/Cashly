@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/features/notes/data/models/note_model.dart';
@@ -135,7 +134,7 @@ class NoteCard extends StatelessWidget {
   Widget _buildContent(BuildContext context, ColorScheme colorScheme) {
     final title = note.title.isEmpty ? context.l10n.noteUntitled : note.title;
     final dateStr = _formatDate(context, note.updatedAt);
-    final snippet = _extractPlainText(note.deltaJson);
+    final snippet = note.snippet;
 
     final noteColor = note.color != null ? Color(note.color!) : null;
     final isDarkBackground =
@@ -310,24 +309,7 @@ class NoteCard extends StatelessWidget {
     );
   }
 
-  String _extractPlainText(String deltaJson) {
-    if (deltaJson.isEmpty || deltaJson == '[]') return '';
-    try {
-      final List<dynamic> ops = jsonDecode(deltaJson);
-      final buffer = StringBuffer();
-      for (final op in ops) {
-        if (op is Map<String, dynamic> && op.containsKey('insert')) {
-          final insert = op['insert'];
-          if (insert is String) {
-            buffer.write(insert);
-          }
-        }
-      }
-      return buffer.toString().trim();
-    } catch (_) {
-      return '';
-    }
-  }
+
 
   String _formatDate(BuildContext context, DateTime date) {
     final now = DateTime.now();

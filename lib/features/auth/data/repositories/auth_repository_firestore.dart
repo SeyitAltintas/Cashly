@@ -643,7 +643,9 @@ class AuthRepositoryFirestore implements AuthRepository {
         debugPrint('getCurrentUser CloudSync Hatasi (offline?): $e');
 
         if (kDebugMode) {
-          debugPrint('Debug modunda offline TTL kontrolleri yoksayildi (Hot restart bypass).');
+          debugPrint(
+            'Debug modunda offline TTL kontrolleri yoksayildi (Hot restart bypass).',
+          );
           return user;
         }
 

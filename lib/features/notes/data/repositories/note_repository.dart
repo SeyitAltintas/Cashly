@@ -5,36 +5,81 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/note_model.dart';
 
+// ─── Plain text extraction ────────────────────────────────────────────────────
+
+/// Delta JSON'dan Türkçe küçük harfli düz metin çıkarır.
+/// Not kaydedilirken bir kez çalışır; arama sırasında JSON parse gerekmez.
+String _extractSearchableText(String deltaJson) {
+  if (deltaJson.isEmpty || deltaJson == '[]') return '';
+  try {
+    final List<dynamic> ops = jsonDecode(deltaJson);
+    final buffer = StringBuffer();
+    for (final op in ops) {
+      if (op is Map<String, dynamic> && op.containsKey('insert')) {
+        final insert = op['insert'];
+        if (insert is String) buffer.write(insert);
+      }
+    }
+    // Controller._toTurkishLowerCase ile aynı sıra: önce replaceAll, sonra toLowerCase
+    return buffer.toString().trim()
+        .replaceAll('I', 'ı')
+        .replaceAll('İ', 'i')
+        .toLowerCase();
+  } catch (_) {
+    return '';
+  }
+}
+
+/// Delta JSON'dan liste ekranında gösterilecek kısa özet (snippet) çıkarır.
+String _extractSnippet(String deltaJson) {
+  if (deltaJson.isEmpty || deltaJson == '[]') return '';
+  try {
+    final List<dynamic> ops = jsonDecode(deltaJson);
+    final buffer = StringBuffer();
+    for (final op in ops) {
+      if (op is Map<String, dynamic> && op.containsKey('insert')) {
+        final insert = op['insert'];
+        if (insert is String) buffer.write(insert);
+      }
+    }
+    final text = buffer.toString().trim();
+    if (text.length > 200) return '${text.substring(0, 200)}...';
+    return text;
+  } catch (_) {
+    return '';
+  }
+}
+
+
 /// Hive tabanlı not deposu.
 ///
-/// Box yapısı: `'notes'` adlı tek box, her kayıt `noteId` key'i ile tutulur.
-/// Çoklu kullanıcı senaryosu için key'e `userId_` prefix'i eklenebilir.
-///
-/// Projedeki [NotificationSettingsRepository] ile aynı lazy-init pattern'i kullanır.
+/// Box yapısı: `'notes_index'` adlı normal box, her kayıt `noteId` key'i ile tutulur.
+/// Ağır deltaJson verisi ise `'notes_data'` adlı LazyBox içinde tutulur.
 class NoteRepository {
-  static const String _boxName = 'notes';
+  static const String _indexBoxName = 'notes_index';
+  static const String _lazyDataBoxName = 'notes_data';
 
-  // EC-8: Singleton — NotesListPage ve NoteEditorPage aynı instance'ı paylaşır.
-  // Hive box'u iki kez açma riski ortadan kalkar.
   static final NoteRepository _instance = NoteRepository._internal();
   factory NoteRepository() => _instance;
   NoteRepository._internal();
 
-  Box? _box;
+  Box? _indexBox;
+  LazyBox? _lazyDataBox;
 
-  /// Eş zamanlı init() çağrılarında race condition önleyici.
   Future<void>? _initFuture;
 
-  /// Box'ı açar (henüz açık değilse).
-  ///
-  /// Eş zamanlı çağrılara karşı güvenli: ikinci çağrı ilk Future'ı paylaşır.
   Future<void> init() {
-    if (_box != null && _box!.isOpen) return Future.value();
+    if (_indexBox != null && _indexBox!.isOpen && _lazyDataBox != null && _lazyDataBox!.isOpen) return Future.value();
     return _initFuture ??= _openBox_().whenComplete(() => _initFuture = null);
   }
 
   Future<void> _openBox_() async {
-    _box = await Hive.openBox(_boxName);
+    _indexBox = await Hive.openBox(_indexBoxName);
+    _lazyDataBox = await Hive.openLazyBox(_lazyDataBoxName);
+    
+    if (await Hive.boxExists('notes')) {
+      await _migrateOldBox();
+    }
     
     // iOS Sandbox Path Değişikliği Taraması (Hot Migration)
     await _fixSandboxPaths();
@@ -42,25 +87,52 @@ class NoteRepository {
     // Arka planda orphan resimleri temizle (EC-25)
     cleanOrphanImages();
   }
+  
+  /// Eski tek kutulu mimariden yeni Index/LazyBox mimarisine geçiş yapar.
+  Future<void> _migrateOldBox() async {
+    final oldBox = await Hive.openBox('notes');
+    if (oldBox.isEmpty) {
+        await oldBox.deleteFromDisk();
+        return;
+    }
+    
+    final updatesIndex = <String, dynamic>{};
+    for (final key in oldBox.keys) {
+      if (key == 'prefs_is_grid_view') {
+        _indexBox!.put(key, oldBox.get(key));
+        continue;
+      }
+      final raw = oldBox.get(key);
+      if (raw is Map) {
+        final noteMap = Map<String, dynamic>.from(raw);
+        final deltaStr = (noteMap['deltaJson'] as String?) ?? '[]';
+        
+        // Asıl veriyi LazyBox'a yaz
+        await _lazyDataBox!.put(key, deltaStr);
+        
+        // Index için veriyi kırp
+        noteMap['deltaJson'] = ''; 
+        noteMap['snippet'] = _extractSnippet(deltaStr); // Yeni snippet
+        
+        updatesIndex[key.toString()] = noteMap;
+      }
+    }
+    await _indexBox!.putAll(updatesIndex);
+    await oldBox.deleteFromDisk();
+    debugPrint('Migration completed: moved old notes to index/lazyBox.');
+  }
 
-  /// Eğer uygulama iOS'ta güncellendiyse veya Android'de başka bir cihaza klonlandıysa
-  /// `getApplicationDocumentsDirectory` yolu değişir.
-  /// Bu metod, deltaJson içindeki kırık eski yolları güncel yollarla düzeltir (Hot Fix).
   Future<void> _fixSandboxPaths() async {
     try {
       final docsDir = await getApplicationDocumentsDirectory();
       final imgDir = Directory('${docsDir.path}/note_images');
       final vidDir = Directory('${docsDir.path}/note_videos');
       
-      final updates = <String, Map<String, dynamic>>{};
+      final updates = <String, String>{};
 
-      for (final key in _box!.keys) {
+      for (final key in _lazyDataBox!.keys) {
         if (key == 'prefs_is_grid_view') continue;
-        final raw = _box!.get(key);
-        if (raw is! Map) continue;
-        
-        final noteMap = Map<String, dynamic>.from(raw);
-        final deltaStr = noteMap['deltaJson'] as String?;
+        final deltaStr = await _lazyDataBox!.get(key) as String?;
         if (deltaStr == null) continue;
 
         bool changed = false;
@@ -102,13 +174,12 @@ class NoteRepository {
         }
 
         if (changed) {
-          noteMap['deltaJson'] = jsonEncode(ops);
-          updates[key as String] = noteMap;
+          await _lazyDataBox!.put(key, jsonEncode(ops));
+          updates[key as String] = 'updated'; 
         }
       }
 
       if (updates.isNotEmpty) {
-        await _box!.putAll(updates);
         debugPrint('EC-26: ${updates.length} notun kırık medya yolları onarıldı.');
       }
     } catch (e) {
@@ -116,51 +187,43 @@ class NoteRepository {
     }
   }
 
-  /// [ValueListenableBuilder] ile kullanım için Hive Listenable döndürür.
-  /// [init] çağrıldıktan sonra kullanılabilir.
-  ValueListenable<Box> listenable() => _requireBox.listenable();
+  ValueListenable<Box> listenable() => _requireIndexBox.listenable();
 
-  Box get _requireBox {
+  Box get _requireIndexBox {
     assert(
-      _box != null && _box!.isOpen,
+      _indexBox != null && _indexBox!.isOpen,
       'NoteRepository.init() must be called first',
     );
-    return _box!;
+    return _indexBox!;
   }
 
   // ─── Kullanıcı Tercihleri ────────────────────────────────────────────────
 
   bool get isGridView {
-    if (_box == null || !_box!.isOpen) return false;
-    return _box!.get('prefs_is_grid_view', defaultValue: false) as bool;
+    if (_indexBox == null || !_indexBox!.isOpen) return false;
+    return _indexBox!.get('prefs_is_grid_view', defaultValue: false) as bool;
   }
 
   Future<void> setGridView(bool value) async {
     await init();
-    await _requireBox.put('prefs_is_grid_view', value);
+    await _requireIndexBox.put('prefs_is_grid_view', value);
   }
 
   // ─── Okuma ───────────────────────────────────────────────────────────────
 
-  /// Tüm notları güncelleme tarihine göre sıralı döndürür.
-  ///
-  /// Bozuk girdiler sessizce atlanır — tek bir hata tüm listeyi patlatmaz.
   List<NoteModel> getAllNotes() {
-    if (_box == null || !_box!.isOpen) return [];
+    if (_indexBox == null || !_indexBox!.isOpen) return [];
 
     final result = <NoteModel>[];
-    for (final raw in _box!.values) {
+    for (final raw in _indexBox!.values) {
       try {
         if (raw is! Map) continue;
         final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
-        if (note.id.isEmpty) continue; // EC-16: bozuk id, atla
-        // Özel key'leri filtrele
+        if (note.id.isEmpty) continue; 
         if (note.id == 'prefs_is_grid_view') continue;
 
         result.add(note);
-      } catch (_) {
-        // Bozuk Hive girdisi — atla, listeyi bozmaya bırakma.
-      }
+      } catch (_) {}
     }
     result.sort((a, b) {
       if (a.isPinned && !b.isPinned) return -1;
@@ -170,12 +233,11 @@ class NoteRepository {
     return result;
   }
 
-  /// ID'ye göre tek not getirir. Bulunamazsa veya bozuksa null döner.
   NoteModel? getNoteById(String id) {
-    if (_box == null || !_box!.isOpen) return null;
+    if (_indexBox == null || !_indexBox!.isOpen) return null;
 
     try {
-      final raw = _box!.get(id); // EC-11: _requireBox yerine tutarlı _box!
+      final raw = _indexBox!.get(id);
       if (raw == null || raw is! Map) return null;
       return NoteModel.fromMap(Map<String, dynamic>.from(raw));
     } catch (_) {
@@ -183,23 +245,33 @@ class NoteRepository {
     }
   }
 
-  // ─── Yazma ───────────────────────────────────────────────────────────────
-
-  /// Notu kaydeder. Yoksa oluşturur, varsa günceller (upsert).
-  Future<void> saveNote(NoteModel note) async {
+  Future<String> getNoteDeltaJson(String id) async {
     await init();
-    await _requireBox.put(note.id, note.toMap());
+    final data = await _lazyDataBox!.get(id);
+    return data as String? ?? '[]';
   }
 
-  /// Notun sabitlenme durumunu değiştirir.
+  // ─── Yazma ───────────────────────────────────────────────────────────────
+
+  Future<void> saveNote(NoteModel note) async {
+    await init();
+    
+    // Güvenlik: Eğer deltaJson boş gelirse (çok nadir de olsa), LazyBox içindeki 
+    // eski veriyi silmek veya boş string atamak gerekir.
+    await _lazyDataBox!.put(note.id, note.deltaJson.isNotEmpty ? note.deltaJson : '[]');
+    
+    final indexNote = note.copyWith(deltaJson: '');
+    await _requireIndexBox.put(note.id, indexNote.toMap());
+  }
+
   Future<void> togglePin(String id) async {
     final note = getNoteById(id);
     if (note != null) {
-      await saveNote(note.copyWith(isPinned: !note.isPinned));
+      final deltaStr = await getNoteDeltaJson(id);
+      await saveNote(note.copyWith(isPinned: !note.isPinned, deltaJson: deltaStr));
     }
   }
 
-  /// Çoklu not sabitleme/kaldırma.
   Future<void> setPinStateForNotes(List<String> ids, bool isPinned) async {
     await init();
     final updates = <String, Map<String, dynamic>>{};
@@ -207,16 +279,15 @@ class NoteRepository {
     for (final id in ids) {
       final note = getNoteById(id);
       if (note != null) {
-        updates[id] = note.copyWith(isPinned: isPinned).toMap();
+        updates[id] = note.copyWith(isPinned: isPinned).toMap(); // index update doesn't need delta
       }
     }
 
     if (updates.isNotEmpty) {
-      await _requireBox.putAll(updates);
+      await _requireIndexBox.putAll(updates);
     }
   }
 
-  /// Çoklu notlara kategori atama veya kaldırma (categoryId null ise kaldırır).
   Future<void> setCategoryForNotes(List<String> ids, String? categoryId) async {
     await init();
     final updates = <String, Map<String, dynamic>>{};
@@ -233,18 +304,17 @@ class NoteRepository {
     }
 
     if (updates.isNotEmpty) {
-      await _requireBox.putAll(updates);
+      await _requireIndexBox.putAll(updates);
     }
   }
 
-  /// Removes a specific category from all notes that have it.
   Future<void> removeCategoryFromNotes(String categoryId) async {
     await init();
     final updates = <String, Map<String, dynamic>>{};
     
-    for (final key in _requireBox.keys) {
+    for (final key in _requireIndexBox.keys) {
       if (key == 'prefs_is_grid_view') continue;
-      final raw = _requireBox.get(key);
+      final raw = _requireIndexBox.get(key);
       if (raw is Map) {
         final noteMap = Map<String, dynamic>.from(raw);
         if (noteMap['categoryId'] == categoryId) {
@@ -255,14 +325,10 @@ class NoteRepository {
     }
     
     if (updates.isNotEmpty) {
-      await _requireBox.putAll(updates);
+      await _requireIndexBox.putAll(updates);
     }
   }
 
-  /// Sadece delta ve başlık günceller; createdAt değişmez.
-  ///
-  /// [originalCreatedAt]: Editor'den iletilir. Not dışardan silinmişse
-  /// yeniden oluşturulurken orijinal tarih korunur (EC-16).
   Future<NoteModel> updateNote({
     required String id,
     required String deltaJson,
@@ -275,30 +341,30 @@ class NoteRepository {
   }) async {
     await init();
 
-    // NoteModel.empty() yeni bir ID üretir — bunun yerine sabit ID ile fallback.
     var note = getNoteById(id) ??
         NoteModel(
           id: id,
           title: '',
-          deltaJson: deltaJson,
+          deltaJson: '',
           createdAt: originalCreatedAt ?? DateTime.now(),
           updatedAt: DateTime.now(),
           categoryId: null,
         );
 
+    final computed = _extractSearchableText(deltaJson);
+    final snippet = _extractSnippet(deltaJson);
+
     note = note.copyWith(
       deltaJson: deltaJson,
       title: title,
+      snippet: snippet,
+      searchableText: computed,
       updatedAt: DateTime.now(),
-      color: clearColor ? null : color,
-      categoryId: clearCategory ? null : categoryId,
+      color: color,
+      clearColor: clearColor,
+      categoryId: categoryId,
+      clearCategory: clearCategory,
     );
-    if (clearCategory) {
-      note = note.copyWith(clearCategory: true);
-    }
-    if (clearColor) {
-      note = note.copyWith(clearColor: true);
-    }
 
     await saveNote(note);
     return note;
@@ -306,37 +372,34 @@ class NoteRepository {
 
   // ─── Silme ───────────────────────────────────────────────────────────────
 
-  /// Notu siler. Bulunamazsa sessizce geçer.
-  /// EC-18: Not içindeki yerel resim dosyalarını da temizler (orphan önleme).
   Future<void> deleteNote(String id) async {
     await init();
-    // Silmeden önce delta'yı oku, yerel path'leri topla.
-    final note = getNoteById(id);
-    await _requireBox.delete(id);
-    if (note != null) {
-      _deleteLocalImages(note.deltaJson); // fire-and-forget, hata fırlatsın
+    final deltaStr = await getNoteDeltaJson(id);
+    await _requireIndexBox.delete(id);
+    await _lazyDataBox!.delete(id);
+    if (deltaStr.isNotEmpty && deltaStr != '[]') {
+      _deleteLocalImages(deltaStr);
     }
   }
 
-  /// Çoklu not silme.
   Future<void> deleteNotes(List<String> ids) async {
     await init();
     final keysToDelete = <String>[];
 
     for (final id in ids) {
-      final note = getNoteById(id);
-      if (note != null) {
-        await _deleteLocalImages(note.deltaJson);
-        keysToDelete.add(id);
+      final deltaStr = await getNoteDeltaJson(id);
+      if (deltaStr.isNotEmpty && deltaStr != '[]') {
+        await _deleteLocalImages(deltaStr);
       }
+      keysToDelete.add(id);
     }
 
     if (keysToDelete.isNotEmpty) {
-      await _requireBox.deleteAll(keysToDelete);
+      await _requireIndexBox.deleteAll(keysToDelete);
+      await _lazyDataBox!.deleteAll(keysToDelete);
     }
   }
 
-  /// Delta JSON içinden yerel resim ve video path'lerini bulup siler.
   static Future<void> _deleteLocalImages(String deltaJson) async {
     try {
       final ops = jsonDecode(deltaJson) as List<dynamic>;
@@ -346,7 +409,7 @@ class NoteRepository {
         if (insert is! Map) continue;
         final mediaPath = insert['image'] ?? insert['video'];
         if (mediaPath is! String) continue;
-        if (mediaPath.startsWith('http')) continue; // uzak URL, atla
+        if (mediaPath.startsWith('http')) continue;
         final file = File(mediaPath);
         if (await file.exists()) {
           await file.delete();
@@ -355,15 +418,13 @@ class NoteRepository {
       }
     } catch (e) {
       debugPrint('EC-18: Medya temizleme hatası: $e');
-      // Sessizce geç — silme başarısız olsa bile not silindi.
     }
   }
 
-  /// Tüm notları siler.
-  /// EC-24: Ayrıca tüm not resimlerini ve videolarını da siler.
   Future<void> clearAll() async {
     await init();
-    await _requireBox.clear();
+    await _requireIndexBox.clear();
+    await _lazyDataBox!.clear();
 
     try {
       final docsDir = await getApplicationDocumentsDirectory();
@@ -383,29 +444,24 @@ class NoteRepository {
     }
   }
 
-  /// Sistemdeki ancak Hive'daki hiçbir notta kullanılmayan
-  /// yetim (orphan) medyaları bulup siler. (EC-25)
   Future<void> cleanOrphanImages() async {
     try {
       final docsDir = await getApplicationDocumentsDirectory();
       final imgDir = Directory('${docsDir.path}/note_images');
       final vidDir = Directory('${docsDir.path}/note_videos');
 
-      // 1. Hive'daki tüm notların deltaJson'larından aktif medya dosya adlarını topla
       final activeFileNames = <String>{};
-      final notes = getAllNotes();
-      for (final note in notes) {
+      for (final key in _lazyDataBox!.keys) {
         try {
-          final ops = jsonDecode(note.deltaJson) as List<dynamic>;
+          final deltaStr = await _lazyDataBox!.get(key) as String?;
+          if (deltaStr == null) continue;
+          final ops = jsonDecode(deltaStr) as List<dynamic>;
           for (final op in ops) {
             if (op is! Map) continue;
             final insert = op['insert'];
             if (insert is! Map) continue;
             final mediaPath = insert['image'] ?? insert['video'];
             if (mediaPath is String && !mediaPath.startsWith('http')) {
-              // SADECE DOSYA ADINI AL: 
-              // iOS'ta uygulama güncellendiğinde Sandbox GUID değişir ve absolute path'ler geçersiz olur.
-              // Mutlak yol karşılaştırması yaparsak aktif resimler "yetim" sanılıp silinir (Data Loss)!
               final fileName = mediaPath.split('/').last.split('\\').last;
               activeFileNames.add(fileName);
             }
@@ -413,7 +469,6 @@ class NoteRepository {
         } catch (_) {}
       }
 
-      // 2. Klasörlerdeki tüm dosyaları gez, aktif dosya adı listesinde olmayanları sil
       if (await imgDir.exists()) {
         final files = imgDir.listSync();
         for (final entity in files) {
@@ -447,9 +502,9 @@ class NoteRepository {
   // ─── İstatistik ──────────────────────────────────────────────────────────
 
   int get noteCount {
-    if (_box == null || !_box!.isOpen) return 0;
-    int count = _requireBox.length;
-    if (_requireBox.containsKey('prefs_is_grid_view')) {
+    if (_indexBox == null || !_indexBox!.isOpen) return 0;
+    int count = _requireIndexBox.length;
+    if (_requireIndexBox.containsKey('prefs_is_grid_view')) {
       count -= 1;
     }
     return count;

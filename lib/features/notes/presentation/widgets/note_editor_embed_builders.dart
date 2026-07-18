@@ -11,7 +11,8 @@ class NoteEditorEmbedBuilders {
         imageEmbedConfig: QuillEditorImageEmbedConfig(
           imageProviderBuilder: (context, imageUrl) {
             if (!imageUrl.startsWith('http')) {
-              return FileImage(File(imageUrl));
+              // Caching image decode size to reduce RAM usage for large images
+              return ResizeImage(FileImage(File(imageUrl)), width: 1280);
             }
             return NetworkImage(imageUrl);
           },

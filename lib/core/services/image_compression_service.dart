@@ -1,12 +1,12 @@
 import 'dart:io';
-import 'dart:ui' as ui;
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
-import 'package:image/image.dart' as img;
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Image Compression Service
 /// Profil resmi ve varlık görselleri için sıkıştırma ve boyutlandırma servisi.
-/// Yükleme öncesi resimleri optimize ederek depolama alanından tasarruf sağlar.
+/// Yükleme öncesi resimleri native C++ (flutter_image_compress) ile optimize ederek
+/// RAM ve CPU dostu yüksek performanslı sıkıştırma sağlar.
 class ImageCompressionService {
   // Varsayılan değerler
   static const int defaultMaxWidth = 800;
@@ -15,8 +15,7 @@ class ImageCompressionService {
   static const int thumbnailSize = 150;
 
   // Singleton pattern
-  static final ImageCompressionService _instance =
-      ImageCompressionService._internal();
+  static final ImageCompressionService _instance = ImageCompressionService._internal();
   factory ImageCompressionService() => _instance;
   ImageCompressionService._internal();
 
@@ -24,28 +23,25 @@ class ImageCompressionService {
   ///
   /// [file] dosyasını sıkıştırıp [File] olarak döndürür.
   /// Hata durumunda orijinal dosyayı güvenle döndürür.
-  ///
-  /// EC-10: Intermediate dosya system temp dizinine yazılır;
-  /// orijinal klasör kirletilmez.
   static Future<File> compress(
     File file, {
     int maxWidth = defaultMaxWidth,
     int quality = defaultQuality,
   }) async {
     final service = ImageCompressionService();
-    final compressed = await service.compressImage(
+    final compressedBytes = await service.compressImage(
       file,
       maxWidth: maxWidth,
+      maxHeight: maxWidth, // Constraint mantığı için eşit verebiliriz, kütüphane aspect ratio korur.
       quality: quality,
     );
-    if (compressed == null) return file;
+    if (compressedBytes == null) return file;
 
     try {
-      // EC-10: Orijinal klasör yerine sistem temp dizinine yaz.
       final tmpDir = await getTemporaryDirectory();
       final ts = DateTime.now().millisecondsSinceEpoch;
       final out = File('${tmpDir.path}/note_img_$ts.jpg');
-      await out.writeAsBytes(compressed);
+      await out.writeAsBytes(compressedBytes);
       return out;
     } catch (_) {
       return file;
@@ -53,13 +49,6 @@ class ImageCompressionService {
   }
 
   /// Resmi sıkıştır ve boyutlandır
-  ///
-  /// [imageFile] - Sıkıştırılacak resim dosyası
-  /// [maxWidth] - Maksimum genişlik (varsayılan: 800)
-  /// [maxHeight] - Maksimum yükseklik (varsayılan: 800)
-  /// [quality] - JPEG kalitesi 0-100 (varsayılan: 85)
-  ///
-  /// Döndürür: Sıkıştırılmış resmin byte verileri
   Future<Uint8List?> compressImage(
     File imageFile, {
     int maxWidth = defaultMaxWidth,
@@ -67,45 +56,42 @@ class ImageCompressionService {
     int quality = defaultQuality,
   }) async {
     try {
-      // Dosya var mı kontrol et
       if (!await imageFile.exists()) {
         debugPrint('ImageCompressionService: Dosya bulunamadı');
         return null;
       }
 
-      // Orijinal dosyayı oku
       final bytes = await imageFile.readAsBytes();
 
       // Boyut kontrolü - 100KB'dan küçükse sıkıştırma gereksiz
       if (bytes.length < 100 * 1024) {
-        debugPrint(
-          'ImageCompressionService: Dosya zaten küçük, sıkıştırma atlandı',
-        );
+        debugPrint('ImageCompressionService: Dosya zaten küçük, atlandı');
         return bytes;
       }
 
-      // Isolate (Arka plan iş parçacığı) kullanarak UI'yi dondurmadan resmi JPEG olarak sıkıştır
-      final compressedBytes = await compute(_compressWithImagePackage, {
-        'bytes': bytes,
-        'width': maxWidth,
-        'quality': quality,
-      });
+      // flutter_image_compress doğrudan native katmanda çalışır
+      final result = await FlutterImageCompress.compressWithFile(
+        imageFile.absolute.path,
+        minWidth: maxWidth,
+        minHeight: maxHeight,
+        quality: quality,
+        format: CompressFormat.jpeg,
+      );
 
-      if (compressedBytes == null) {
+      if (result == null) {
         debugPrint('ImageCompressionService: Resim encode edilemedi');
-        return bytes; // Orijinali döndür
+        return bytes;
       }
 
       debugPrint(
-        'ImageCompressionService: Sıkıştırma tamamlandı - '
+        'ImageCompressionService: Sıkıştırma - '
         'Orijinal: ${_formatBytes(bytes.length)}, '
-        'Sıkıştırılmış: ${_formatBytes(compressedBytes.length)}',
+        'Sıkıştırılmış: ${_formatBytes(result.length)}',
       );
 
-      return compressedBytes;
+      return result;
     } catch (e, s) {
       debugPrint('ImageCompressionService hata: $e\n$s');
-      // Hata durumunda orijinal dosyayı oku ve döndür
       try {
         return await imageFile.readAsBytes();
       } catch (_) {
@@ -115,13 +101,7 @@ class ImageCompressionService {
   }
 
   /// Thumbnail oluştur
-  ///
-  /// [imageFile] - Thumbnail oluşturulacak resim dosyası
-  /// [size] - Thumbnail boyutu (kare, varsayılan: 150)
-  Future<Uint8List?> createThumbnail(
-    File imageFile, {
-    int size = thumbnailSize,
-  }) async {
+  Future<Uint8List?> createThumbnail(File imageFile, {int size = thumbnailSize}) async {
     return compressImage(
       imageFile,
       maxWidth: size,
@@ -131,7 +111,6 @@ class ImageCompressionService {
   }
 
   /// Profil resmi için optimize et
-  /// JPEG sıkıştırma kullanıldığı için çözünürlüğü yüksek (800x800) tutarak 1MB limitini BAZ ALIR
   Future<Uint8List?> optimizeProfileImage(File imageFile) async {
     return compressImage(imageFile, maxWidth: 800, maxHeight: 800, quality: 75);
   }
@@ -142,18 +121,15 @@ class ImageCompressionService {
   }
 
   /// Profil resmini optimize et ve dosyaya kaydet
-  /// Sıkıştırılmış dosyanın yolunu döndürür
   Future<String?> optimizeAndSaveProfileImage(File imageFile) async {
     try {
       final compressedBytes = await optimizeProfileImage(imageFile);
       if (compressedBytes == null) return null;
 
-      // Yeni dosya yolu oluştur
       final directory = imageFile.parent;
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final newPath = '${directory.path}/profile_$timestamp.png';
 
-      // Sıkıştırılmış resmi kaydet
       final newFile = File(newPath);
       await newFile.writeAsBytes(compressedBytes);
 
@@ -172,53 +148,11 @@ class ImageCompressionService {
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
-  /// Dosya boyutunu kontrol et
   Future<int> getFileSize(File file) async {
     if (await file.exists()) {
       return await file.length();
     }
     return 0;
-  }
-
-  /// Resmin boyutlarını al
-  Future<Size?> getImageDimensions(File imageFile) async {
-    try {
-      final bytes = await imageFile.readAsBytes();
-      final codec = await ui.instantiateImageCodec(bytes);
-      final frame = await codec.getNextFrame();
-      return Size(frame.image.width.toDouble(), frame.image.height.toDouble());
-    } catch (e) {
-      debugPrint('ImageCompressionService: Boyut alınamadı - $e');
-      return null;
-    }
-  }
-
-  /// Sıkıştırma gerekli mi kontrol et
-  Future<bool> needsCompression(
-    File imageFile, {
-    int maxSizeKB = 500,
-    int maxDimension = 1000,
-  }) async {
-    try {
-      // Dosya boyutu kontrolü
-      final fileSize = await getFileSize(imageFile);
-      if (fileSize > maxSizeKB * 1024) {
-        return true;
-      }
-
-      // Boyut kontrolü
-      final dimensions = await getImageDimensions(imageFile);
-      if (dimensions != null) {
-        if (dimensions.width > maxDimension ||
-            dimensions.height > maxDimension) {
-          return true;
-        }
-      }
-
-      return false;
-    } catch (e) {
-      return false;
-    }
   }
 
   Future<bool> deleteDirectoryIfExists(Directory dir) async {
@@ -229,45 +163,7 @@ class ImageCompressionService {
       }
       return false;
     } catch (e) {
-      debugPrint('Klasör silme hatası: $e');
       return false;
     }
   }
-}
-
-/// En dişarıya eklenen Top-Level Fonksiyon (Isolate'te çalışmak zorundadır)
-/// Verilen raw byte dizisini 'image' paketini kullanarak JPEG olarak kodlar.
-Uint8List? _compressWithImagePackage(Map<String, dynamic> args) {
-  try {
-    final Uint8List bytes = args['bytes'];
-    final int width = args['width'];
-    final int quality = args['quality'];
-
-    final img.Image? original = img.decodeImage(bytes);
-    if (original == null) return null;
-
-    final img.Image resized = img.copyResize(
-      original,
-      width: width,
-      maintainAspect: true,
-    );
-    // Resmi hızlı ve kayıplı JPEG formatına dönüştürüyoruz, böylece 1MB sınırına ASLA yaklaşmaz:
-    final List<int> jpegBytes = img.encodeJpg(resized, quality: quality);
-
-    return Uint8List.fromList(jpegBytes);
-  } catch (e) {
-    debugPrint('Isolate sıkıştırma hatası: $e');
-    return null;
-  }
-}
-
-/// Boyut sınıfı (dart:ui'den bağımsız)
-class Size {
-  final double width;
-  final double height;
-
-  const Size(this.width, this.height);
-
-  @override
-  String toString() => 'Size($width, $height)';
 }

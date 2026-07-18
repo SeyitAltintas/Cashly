@@ -19,28 +19,4 @@ void main() {
     });
   });
 
-  group('Size Model', () {
-    test('width ve height doğru set edilir', () {
-      const size = Size(1920, 1080);
-      expect(size.width, equals(1920));
-      expect(size.height, equals(1080));
-    });
-
-    test('sıfır boyut', () {
-      const size = Size(0, 0);
-      expect(size.width, equals(0));
-      expect(size.height, equals(0));
-    });
-
-    test('ondalıklı boyut', () {
-      const size = Size(100.5, 200.75);
-      expect(size.width, equals(100.5));
-      expect(size.height, equals(200.75));
-    });
-
-    test('toString doğru format', () {
-      const size = Size(800.0, 600.0);
-      expect(size.toString(), equals('Size(800.0, 600.0)'));
-    });
-  });
 }

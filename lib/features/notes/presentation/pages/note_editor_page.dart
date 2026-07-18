@@ -152,7 +152,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
     // Edge case: noteId verildi ama Hive'da kayıt yok (silinmiş olabilir).
     // NoteModel.empty() yerine noteId'yi sabit tutan model oluşturulur.
-    final NoteModel note;
+    NoteModel note;
+    String deltaJson = '[]';
     if (widget.noteId != null) {
       note =
           _repository.getNoteById(widget.noteId!) ??
@@ -162,11 +163,14 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),
           );
+      deltaJson = await _repository.getNoteDeltaJson(widget.noteId!);
+      // UI state'i için asıl datayı modele kopyalayalım
+      note = note.copyWith(deltaJson: deltaJson);
     } else {
       note = NoteModel.empty();
     }
 
-    final controller = _buildController(note.deltaJson);
+    final controller = _buildController(deltaJson);
     _docSubscription = controller.document.changes.listen((_) {
       if (_isLoading) return;
       _markUnsaved();
