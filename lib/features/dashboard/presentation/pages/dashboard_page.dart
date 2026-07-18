@@ -134,35 +134,37 @@ class _DashboardPageState extends State<DashboardPage>
           ),
           children: [
             // Hoş Geldin Bölümü
-            const _GreetingSection(),
+            const RepaintBoundary(child: _GreetingSection()),
             const SizedBox(height: 24),
 
             // Toplam Bakiye Kartı
-            const _BalanceSection(),
+            const RepaintBoundary(child: _BalanceSection()),
             const SizedBox(height: 12),
 
             // Varlık Özeti ve Kredi Kartı Borcu (Yan yana)
-            Builder(builder: (context) {
-              final debt = context.select((DashboardController c) => c.totalCreditDebt);
-              if (debt <= 0) {
-                return _AssetSummarySection(onTap: widget.onAssetsPressed);
-              }
-              return Row(
-                children: [
-                  Expanded(child: _AssetSummarySection(onTap: widget.onAssetsPressed)),
-                  const SizedBox(width: 12),
-                  const Expanded(child: _CreditDebtSection()),
-                ],
-              );
-            }),
+            RepaintBoundary(
+              child: Builder(builder: (context) {
+                final debt = context.select((DashboardController c) => c.totalCreditDebt);
+                if (debt <= 0) {
+                  return _AssetSummarySection(onTap: widget.onAssetsPressed);
+                }
+                return Row(
+                  children: [
+                    Expanded(child: _AssetSummarySection(onTap: widget.onAssetsPressed)),
+                    const SizedBox(width: 12),
+                    const Expanded(child: _CreditDebtSection()),
+                  ],
+                );
+              }),
+            ),
             const SizedBox(height: 12),
 
             // Bu Ay Özeti ve Bütçe Durumu (Birleşik)
-            const _ThisMonthSection(),
+            const RepaintBoundary(child: _ThisMonthSection()),
             const SizedBox(height: 12),
 
             // Son İşlemler
-            const _RecentTransactionsSection(),
+            const RepaintBoundary(child: _RecentTransactionsSection()),
             const SizedBox(height: 20),
           ],
         ),

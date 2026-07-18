@@ -177,9 +177,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                   controller: _tabController,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    _buildExpenseAnalysis(),
-                    _buildIncomeAnalysis(),
-                    _buildAssetAnalysis(),
+                    RepaintBoundary(child: _buildExpenseAnalysis()),
+                    RepaintBoundary(child: _buildIncomeAnalysis()),
+                    RepaintBoundary(child: _buildAssetAnalysis()),
                   ],
                 );
               },
