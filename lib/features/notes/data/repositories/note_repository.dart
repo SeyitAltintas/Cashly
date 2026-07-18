@@ -188,6 +188,7 @@ class NoteRepository {
   }
 
   ValueListenable<Box> listenable() => _requireIndexBox.listenable();
+  Stream<BoxEvent> watch() => _requireIndexBox.watch();
 
   Box get _requireIndexBox {
     assert(

@@ -28,8 +28,7 @@ class NotesListController extends ChangeNotifier {
 
   Timer? _debounceTimer;
 
-  late final VoidCallback _boxListener;
-  ValueListenable<Box>? _boxListenable;
+  StreamSubscription<BoxEvent>? _boxSubscription;
 
   // Getters
   String get searchQuery => _searchQuery;
@@ -62,12 +61,7 @@ class NotesListController extends ChangeNotifier {
         debugPrint('cleanOldTrashNotes error: $e');
       });
 
-      _boxListener = () {
-        _fetchAndCacheAllNotes();
-        notifyListeners();
-      };
-      _boxListenable = _repository.listenable();
-      _boxListenable!.addListener(_boxListener);
+      _boxSubscription = _repository.watch().listen(_onBoxEvent);
     } catch (e) {
       // DB yüklenirken hata çıkarsa ekranda sonsuz loading dönmesini engelle
       debugPrint('NotesListController init error: $e');
@@ -172,6 +166,45 @@ class NotesListController extends ChangeNotifier {
     return selectedNotes.isNotEmpty && selectedNotes.every((n) => n.isPinned);
   }
 
+  void _onBoxEvent(BoxEvent event) {
+    if (!_isReady) return;
+    if (event.key == 'prefs_is_grid_view') return;
+    
+    final id = event.key as String;
+    
+    if (event.deleted) {
+      _allNotes.removeWhere((n) => n.id == id);
+      _selectedNoteIds.remove(id);
+    } else {
+      final raw = event.value;
+      if (raw is Map) {
+        try {
+          final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
+          if (note.deletedAt != null) {
+            _allNotes.removeWhere((n) => n.id == id);
+            _selectedNoteIds.remove(id);
+          } else {
+            final index = _allNotes.indexWhere((n) => n.id == id);
+            if (index != -1) {
+              _allNotes[index] = note;
+            } else {
+              _allNotes.add(note);
+            }
+          }
+        } catch (_) {}
+      }
+    }
+    
+    _allNotes.sort((a, b) {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return b.updatedAt.compareTo(a.updatedAt);
+    });
+
+    _updateVisibleNotes();
+    notifyListeners();
+  }
+
   void _fetchAndCacheAllNotes() {
     if (!_isReady) return;
     _allNotes = _repository.getAllNotes();
@@ -224,7 +257,7 @@ class NotesListController extends ChangeNotifier {
   void dispose() {
     _isDisposed = true;
     _debounceTimer?.cancel();
-    _boxListenable?.removeListener(_boxListener);
+    _boxSubscription?.cancel();
     super.dispose();
   }
 }
