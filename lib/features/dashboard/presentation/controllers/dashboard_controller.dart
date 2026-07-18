@@ -498,7 +498,12 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
     _recalculateData();
   }
 
+  // Devam eden compute'u iptal etmek için kullanılan sayaç (Race condition önleme)
+  int _computeGeneration = 0;
+
   Future<void> _recalculateData() async {
+    final generation = ++_computeGeneration;
+
     final service = getIt<CurrencyService>();
     final payload = DashboardComputePayload(
       harcamalar: _harcamalar,
@@ -514,32 +519,36 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
     final int totalItems = _harcamalar.length + _gelirler.length + _varliklar.length + _transferler.length;
 
     // Performans Optimizasyonu: Hybrid Isolate Stratejisi
-    // Veri seti küçükse (<= 500) ana thread üzerinde senkron hesapla (0-frame delay).
-    // Veri seti büyükse UI donmasını (Jank) önlemek için arka plan Isolate kullan.
     if (totalItems > 500) {
       if (!_disposed) {
         _isLoading = true;
         notifyListeners();
       }
       try {
-        _result = await compute(_calculateDashboardWorker, payload);
+        final result = await compute(_calculateDashboardWorker, payload);
+        if (_disposed || generation != _computeGeneration) return;
+        _result = result;
       } catch (e) {
         debugPrint('DashboardController: Compute hatası - $e');
-        // Fallback: Hata olursa senkron hesaplamayı dene
+        if (_disposed || generation != _computeGeneration) return;
         _result = _calculateDashboardWorker(payload);
       } finally {
-        if (!_disposed) {
+        if (!_disposed && generation == _computeGeneration) {
           _isLoading = false;
+          notifyListeners();
         }
       }
     } else {
       try {
-        _result = _calculateDashboardWorker(payload);
+        final result = _calculateDashboardWorker(payload);
+        if (_disposed || generation != _computeGeneration) return;
+        _result = result;
       } catch (e) {
         debugPrint('DashboardController: Senkron hesaplama hatası - $e');
       }
+      if (!_disposed && generation == _computeGeneration) {
+        notifyListeners();
+      }
     }
-
-    if (!_disposed) notifyListeners();
   }
 }
