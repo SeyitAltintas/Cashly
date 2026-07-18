@@ -156,6 +156,7 @@ class NotesListController extends ChangeNotifier {
 
   void toggleGridView() {
     _repository.setGridView(!_repository.isGridView);
+    notifyListeners();
   }
 
   bool get selectedNotesAreAllPinned {
