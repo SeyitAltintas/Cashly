@@ -777,7 +777,8 @@ class NoteRepository {
     }
   }
 
-  Future<void> closeSecureNotes() async {
+  Future<void> closeSecureNotes({bool force = false}) async {
+    if (_isMigratingPin && !force) return;
     if (_secureIndexBox?.isOpen == true) await _secureIndexBox!.close();
     _secureIndexBox = null;
     if (_secureLazyDataBox?.isOpen == true) await _secureLazyDataBox!.close();
@@ -790,7 +791,7 @@ class NoteRepository {
   /// asla geri getirilemez. Bu durumda sistemi tekrar kullanabilmesi için
   /// kilitli kutuların diskten fiziksel olarak silinmesi gerekir (Hard Wipe).
   Future<void> resetSecureKasa() async {
-    await closeSecureNotes();
+    await closeSecureNotes(force: true);
     
     await Hive.deleteBoxFromDisk('secure_notes_index');
     await Hive.deleteBoxFromDisk('secure_notes_data');
@@ -804,9 +805,13 @@ class NoteRepository {
 
   // ─── PIN Migration (Şifre Değiştirme) ─────────────────────────────────────
 
+  bool _isMigratingPin = false;
+  bool get isMigratingPin => _isMigratingPin;
+
   Future<bool> changeSecurePin(String currentPin, String newPin) async {
     if (!isSecureNotesUnlocked) return false;
 
+    _isMigratingPin = true;
     try {
       // 1. Yeni şifrenin AES Key'ini manuel olarak oluştur
       final newSalt = await compute(_generateSaltSync, null);
@@ -881,6 +886,8 @@ class NoteRepository {
         await Hive.deleteBoxFromDisk('temp_new_media');
       } catch (_) {}
       return false;
+    } finally {
+      _isMigratingPin = false;
     }
   }
 
