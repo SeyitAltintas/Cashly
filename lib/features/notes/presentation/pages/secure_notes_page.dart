@@ -26,6 +26,7 @@ class _SecureNotesPageState extends State<SecureNotesPage>
   bool _isConfirmingPin = false;
   bool _isPinError = false;
   bool _isLoading = false;
+  bool _isInitializing = true;
 
   final Set<String> _selectedNoteIds = {};
   StreamSubscription<BoxEvent>? _subscription;
@@ -58,8 +59,13 @@ class _SecureNotesPageState extends State<SecureNotesPage>
         if (_isAutoUnlock) {
           _authenticateWithAuto();
         } else if (_isBiometricEnabled) {
+          setState(() => _isInitializing = false);
           _authenticateWithBiometric();
+        } else {
+          setState(() => _isInitializing = false);
         }
+      } else {
+        setState(() => _isInitializing = false);
       }
     }
   }
@@ -73,11 +79,15 @@ class _SecureNotesPageState extends State<SecureNotesPage>
         setState(() {
           _isUnlocked = true;
           _isLoading = false;
+          _isInitializing = false;
           _pin = '';
         });
         _startWatchingSecureNotes();
       } else {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _isInitializing = false;
+        });
       }
     }
   }
@@ -376,6 +386,21 @@ class _SecureNotesPageState extends State<SecureNotesPage>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
+    if (_isInitializing) {
+      return Scaffold(
+        backgroundColor: colorScheme.surface,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
+      );
+    }
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (!_isUnlocked) {

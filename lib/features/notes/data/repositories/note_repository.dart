@@ -759,6 +759,10 @@ class NoteRepository {
     final salt = await compute(_generateSaltSync, null);
     await _requireIndexBox.put('secure_pin_salt', salt);
 
+    final key = await compute(_deriveKeySync, {'pin': pin, 'salt': salt});
+    final verifyHash = sha256.convert(key).toString();
+    await _requireIndexBox.put('secure_pin_hash', verifyHash);
+
     final success = await unlockSecureNotes(pin);
     if (success) {
       await _requireIndexBox.put('has_secure_pin', true);
@@ -840,6 +844,7 @@ class NoteRepository {
     
     await _requireIndexBox.delete('has_secure_pin');
     await _requireIndexBox.delete('secure_pin_salt');
+    await _requireIndexBox.delete('secure_pin_hash');
     await disableBiometric(); // Biyometrik çipi temizle
     await disableAutoUnlock(); // Otomatik giriş çipini temizle
   }
@@ -888,6 +893,8 @@ class NoteRepository {
 
       // 6. Yeni PIN'i sisteme kaydet (Bu, boş secure_... kutularını açar)
       await _requireIndexBox.put('secure_pin_salt', newSalt);
+      final newHash = sha256.convert(newKey).toString();
+      await _requireIndexBox.put('secure_pin_hash', newHash);
       final success = await unlockSecureNotes(newPin); // Kutuları newKey ile açar
       if (!success) throw Exception('Yeni kasa açılamadı.');
       await _requireIndexBox.put('has_secure_pin', true);
