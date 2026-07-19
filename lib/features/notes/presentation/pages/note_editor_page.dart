@@ -146,6 +146,16 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       if (_hasUnsavedChanges) {
         _saveNote();
       }
+      
+      // EDGE CASE: Gizli kasa kilitleneceği için acil tahliye (Sayfadan zorla çıkar)
+      // Eğer medya seçilmiyorsa veya PIN taşınmıyorsa kesin kilitlenecektir.
+      if (widget.isSecure && 
+          !_repository.isMediaPicking && 
+          !_repository.isMigratingPin) {
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      }
     }
   }
 
