@@ -5,6 +5,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:crypto/crypto.dart';
 import 'package:bcrypt/bcrypt.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/note_model.dart';
 
 // ─── Plain text extraction ────────────────────────────────────────────────────
@@ -71,6 +73,9 @@ class NoteRepository {
   Box? _secureIndexBox;
   LazyBox? _secureLazyDataBox;
   LazyBox? _secureMediaBox;
+
+  final LocalAuthentication _auth = LocalAuthentication();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   Future<void>? _initFuture;
   
@@ -793,6 +798,55 @@ class NoteRepository {
     
     await _requireIndexBox.delete('has_secure_pin');
     await _requireIndexBox.delete('secure_pin_salt');
+    await disableBiometric(); // Biyometrik çipi de temizle
+  }
+
+  // ─── Biometrics ───────────────────────────────────────────────────────────
+
+  Future<bool> canUseBiometrics() async {
+    final canAuthenticateWithBiometrics = await _auth.canCheckBiometrics;
+    final canAuthenticate = canAuthenticateWithBiometrics || await _auth.isDeviceSupported();
+    return canAuthenticate;
+  }
+
+  Future<bool> get isBiometricEnabled async {
+    final pin = await _secureStorage.read(key: 'secure_vault_pin');
+    return pin != null && pin.isNotEmpty;
+  }
+
+  Future<void> enableBiometric(String currentPin) async {
+    if (!hasSecurePin) throw StateError('Secure PIN is not set.');
+    await _secureStorage.write(key: 'secure_vault_pin', value: currentPin);
+  }
+
+  Future<void> disableBiometric() async {
+    await _secureStorage.delete(key: 'secure_vault_pin');
+  }
+
+  Future<bool> unlockWithBiometric(String localizedReason) async {
+    final canAuthenticate = await canUseBiometrics();
+    if (!canAuthenticate) return false;
+
+    try {
+      final authenticated = await _auth.authenticate(
+        localizedReason: localizedReason,
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true, // Sadece parmak izi/yüz tanıma (cihaz PIN'i değil)
+        ),
+      );
+
+      if (authenticated) {
+        final pin = await _secureStorage.read(key: 'secure_vault_pin');
+        if (pin != null) {
+          return await unlockSecureNotes(pin);
+        }
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Biometric unlock error: $e');
+      return false;
+    }
   }
 
   bool get isSecureNotesUnlocked => _secureIndexBox != null && _secureIndexBox!.isOpen;

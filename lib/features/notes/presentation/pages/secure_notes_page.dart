@@ -29,11 +29,47 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
   final Set<String> _selectedNoteIds = {};
   StreamSubscription<BoxEvent>? _subscription;
 
+  bool _isBiometricEnabled = false;
+  bool _canUseBiometrics = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _isCreatingPin = !_repository.hasSecurePin;
+    _checkBiometricStatus();
+  }
+
+  Future<void> _checkBiometricStatus() async {
+    final canUse = await _repository.canUseBiometrics();
+    final isEnabled = await _repository.isBiometricEnabled;
+    if (mounted) {
+      setState(() {
+        _canUseBiometrics = canUse;
+        _isBiometricEnabled = isEnabled;
+      });
+      if (!_isCreatingPin && _isBiometricEnabled && !_isUnlocked) {
+        _authenticateWithBiometric();
+      }
+    }
+  }
+
+  Future<void> _authenticateWithBiometric() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+    final success = await _repository.unlockWithBiometric('Gizli kasanızın kilidini açın');
+    if (mounted) {
+      if (success) {
+        setState(() {
+          _isUnlocked = true;
+          _isLoading = false;
+          _pin = '';
+        });
+        _startWatchingSecureNotes();
+      } else {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -140,11 +176,38 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
       } else {
         if (_pin == _firstPin) {
           await _repository.setSecurePin(_pin);
+          
+          if (mounted && _canUseBiometrics) {
+            final wantBiometric = await showDialog<bool>(
+              context: context,
+              barrierDismissible: false,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Biyometrik Giriş'),
+                content: const Text('Gizli kasanıza daha hızlı erişmek için yüz tanıma veya parmak izi kullanmak ister misiniz?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    child: const Text('Hayır'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    child: const Text('Evet, Kullan'),
+                  ),
+                ],
+              ),
+            );
+            if (wantBiometric == true) {
+              await _repository.enableBiometric(_pin);
+              _isBiometricEnabled = true;
+            }
+          }
+
           if (mounted) {
             setState(() {
               _isCreatingPin = false;
               _isUnlocked = true;
               _isLoading = false;
+              _pin = '';
             });
             _startWatchingSecureNotes();
             AppSnackBar.success(context, 'Güvenlik PIN\'i başarıyla oluşturuldu.');
@@ -168,6 +231,7 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
           setState(() {
             _isUnlocked = true;
             _isLoading = false;
+            _pin = '';
           });
           _startWatchingSecureNotes();
         } else {
@@ -386,7 +450,9 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        const SizedBox(width: 64, height: 64),
+                        _isBiometricEnabled && !_isCreatingPin
+                            ? _buildKey('biometric', isIcon: true)
+                            : const SizedBox(width: 64, height: 64),
                         _buildKey('0'),
                         _buildKey('back', isIcon: true),
                       ],
@@ -460,12 +526,34 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
               },
             )
           else
-            IconButton(
-              icon: const Icon(Icons.lock_rounded),
-              onPressed: () {
-                _repository.closeSecureNotes();
-                Navigator.of(context).pop();
-              },
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_canUseBiometrics)
+                  IconButton(
+                    icon: Icon(_isBiometricEnabled ? Icons.fingerprint_rounded : Icons.fingerprint),
+                    color: _isBiometricEnabled ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.5),
+                    tooltip: 'Biyometrik Giriş',
+                    onPressed: () async {
+                      if (_isBiometricEnabled) {
+                        await _repository.disableBiometric();
+                        if (!context.mounted) return;
+                        setState(() => _isBiometricEnabled = false);
+                        AppSnackBar.success(context, 'Biyometrik giriş kapatıldı.');
+                      } else {
+                        if (!context.mounted) return;
+                        AppSnackBar.error(context, 'Açmak için kasayı sıfırlayıp yeniden kurmalısınız.');
+                      }
+                    },
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.lock_rounded),
+                  onPressed: () {
+                    _repository.closeSecureNotes();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
         ],
       ),
@@ -619,7 +707,13 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => _onKeyPress(val),
+        onTap: () {
+          if (val == 'biometric') {
+            _authenticateWithBiometric();
+          } else {
+            _onKeyPress(val);
+          }
+        },
         borderRadius: BorderRadius.circular(32),
         child: Container(
           width: 64,
@@ -633,9 +727,9 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
           child: Center(
             child: isIcon
                 ? Icon(
-                    Icons.backspace_outlined,
+                    val == 'biometric' ? Icons.fingerprint_rounded : Icons.backspace_outlined,
                     color: Theme.of(context).colorScheme.onSurface,
-                    size: 20,
+                    size: val == 'biometric' ? 28 : 20,
                   )
                 : Text(
                     val,
