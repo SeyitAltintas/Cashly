@@ -825,6 +825,13 @@ class NoteRepository {
         // Fallback for existing PINs created before the security update
         key = sha256.convert(utf8.encode(pin)).bytes;
       }
+      
+      // PRE-FLIGHT KEY VERIFICATION (Saves data from Hive truncation)
+      final storedHash = _requireIndexBox.get('secure_pin_hash') as String?;
+      if (storedHash != null) {
+        final computedHash = sha256.convert(key).toString();
+        if (computedHash != storedHash) return false; // Yanlış şifre, Hive'a dokunma!
+      }
 
       if (_secureIndexBox?.isOpen == true) await _secureIndexBox!.close();
       if (_secureLazyDataBox?.isOpen == true) await _secureLazyDataBox!.close();
@@ -834,15 +841,51 @@ class NoteRepository {
       _secureIndexBox = await Hive.openBox(
         'secure_notes_index',
         encryptionCipher: HiveAesCipher(key),
+        crashRecovery: false,
       );
       _secureLazyDataBox = await Hive.openLazyBox(
         'secure_notes_data',
         encryptionCipher: HiveAesCipher(key),
+        crashRecovery: false,
       );
       _secureMediaBox = await Hive.openLazyBox(
         'secure_media_box',
         encryptionCipher: HiveAesCipher(key),
+        crashRecovery: false,
       );
+
+      // --- ATOMIC MIGRATION RECOVERY ---
+      final isPendingMigration = _requireIndexBox.get('pending_migration', defaultValue: false) as bool;
+      if (isPendingMigration) {
+        final tempIndexBox = await Hive.openBox('temp_new_index', encryptionCipher: HiveAesCipher(key));
+        final tempLazyBox = await Hive.openLazyBox('temp_new_data', encryptionCipher: HiveAesCipher(key));
+        final tempMediaBox = await Hive.openLazyBox('temp_new_media', encryptionCipher: HiveAesCipher(key));
+        
+        await _secureIndexBox!.putAll(tempIndexBox.toMap());
+        for (var k in tempLazyBox.keys) {
+          final val = await tempLazyBox.get(k);
+          if (val != null) await _secureLazyDataBox!.put(k, val);
+        }
+        for (var k in tempMediaBox.keys) {
+          final val = await tempMediaBox.get(k);
+          if (val != null) await _secureMediaBox!.put(k, val);
+        }
+        
+        await tempIndexBox.close();
+        await tempLazyBox.close();
+        await tempMediaBox.close();
+        
+        await Hive.deleteBoxFromDisk('temp_new_index');
+        await Hive.deleteBoxFromDisk('temp_new_data');
+        await Hive.deleteBoxFromDisk('temp_new_media');
+        
+        await _requireIndexBox.put('pending_migration', false);
+      }
+      // ----------------------------------
+
+      if (storedHash == null) {
+        await _requireIndexBox.put('secure_pin_hash', sha256.convert(key).toString());
+      }
 
       if (_secureIndexBox!.isEmpty) {
         await _secureIndexBox!.put('pin_verify', 'verified');
@@ -944,62 +987,32 @@ class NoteRepository {
 
       // --- BURAYA KADAR HİÇBİR VERİ SİLİNMEDİ, ÇÖKSE BİLE GÜVENDE ---
 
-      // 5. Artık eski kasayı tamamen Yok Et (Biyometrik vs dahil)
-      await resetSecureKasa();
-
-      // 6. Yeni PIN'i sisteme kaydet (Bu, boş secure_... kutularını açar)
+      // 5. MIGRATION STATE'İ KAYDET (Atomic Checkpoint)
       await _requireIndexBox.put('secure_pin_salt', newSalt);
       final newHash = sha256.convert(newKey).toString();
       await _requireIndexBox.put('secure_pin_hash', newHash);
-      final success = await unlockSecureNotes(
-        newPin,
-      ); // Kutuları newKey ile açar
+      await _requireIndexBox.put('pending_migration', true);
+
+      // 6. Eski kasayı tamamen Yok Et (Biyometrik vs dahil)
+      await resetSecureKasa();
+
+      // 7. Yeni PIN'i sisteme kaydet (Bu, yeni kutuları açar ve pending_migration'ı görüp verileri aktarır)
+      final success = await unlockSecureNotes(newPin);
       if (!success) throw Exception('Yeni kasa açılamadı.');
       await _requireIndexBox.put('has_secure_pin', true);
-
-      // 7. Verileri geçici (Backup) kutularından kalıcı kutulara aktar
-      final tempIndexBox2 = await Hive.openBox(
-        'temp_new_index',
-        encryptionCipher: HiveAesCipher(newKey),
-      );
-      final tempLazyBox2 = await Hive.openLazyBox(
-        'temp_new_data',
-        encryptionCipher: HiveAesCipher(newKey),
-      );
-      final tempMediaBox2 = await Hive.openLazyBox(
-        'temp_new_media',
-        encryptionCipher: HiveAesCipher(newKey),
-      );
-
-      await _secureIndexBox!.putAll(tempIndexBox2.toMap());
-
-      for (var k in tempLazyBox2.keys) {
-        final val = await tempLazyBox2.get(k);
-        if (val != null) await _secureLazyDataBox!.put(k, val);
-      }
-      for (var k in tempMediaBox2.keys) {
-        final val = await tempMediaBox2.get(k);
-        if (val != null) await _secureMediaBox!.put(k, val);
-      }
-
-      // 8. Temp kutularını sonsuza dek sil
-      await tempIndexBox2.close();
-      await tempLazyBox2.close();
-      await tempMediaBox2.close();
-
-      await Hive.deleteBoxFromDisk('temp_new_index');
-      await Hive.deleteBoxFromDisk('temp_new_data');
-      await Hive.deleteBoxFromDisk('temp_new_media');
 
       return true;
     } catch (e) {
       debugPrint('PIN Migration failed: $e');
-      // Hata durumunda kalan geçici çöpleri temizlemeye çalış
-      try {
-        await Hive.deleteBoxFromDisk('temp_new_index');
-        await Hive.deleteBoxFromDisk('temp_new_data');
-        await Hive.deleteBoxFromDisk('temp_new_media');
-      } catch (_) {}
+      final isPending = _requireIndexBox.get('pending_migration', defaultValue: false) as bool;
+      if (!isPending) {
+        // Eski kasa hala duruyor, geçici çöpleri güvenle silebiliriz
+        try {
+          await Hive.deleteBoxFromDisk('temp_new_index');
+          await Hive.deleteBoxFromDisk('temp_new_data');
+          await Hive.deleteBoxFromDisk('temp_new_media');
+        } catch (_) {}
+      }
       return false;
     } finally {
       _isMigratingPin = false;
