@@ -13,6 +13,7 @@ class NoteModel {
     this.searchableText = '',
     this.color,
     this.isPinned = false,
+    this.isSecure = false,
     this.categoryId,
     required this.createdAt,
     required this.updatedAt,
@@ -37,6 +38,7 @@ class NoteModel {
   final int? color;
 
   final bool isPinned;
+  final bool isSecure;
 
   final String? categoryId;
 
@@ -52,6 +54,7 @@ class NoteModel {
     int? color,
     bool clearColor = false,
     bool? isPinned,
+    bool? isSecure,
     String? categoryId,
     bool clearCategory = false,
     DateTime? updatedAt,
@@ -66,6 +69,7 @@ class NoteModel {
       searchableText: searchableText ?? this.searchableText,
       color: clearColor ? null : (color ?? this.color),
       isPinned: isPinned ?? this.isPinned,
+      isSecure: isSecure ?? this.isSecure,
       categoryId: clearCategory ? null : (categoryId ?? this.categoryId),
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -81,6 +85,7 @@ class NoteModel {
         'searchableText': searchableText,
         'color': color,
         'isPinned': isPinned,
+        'isSecure': isSecure,
         'categoryId': categoryId,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
@@ -96,6 +101,7 @@ class NoteModel {
         searchableText: (map['searchableText'] as String?) ?? '',
         color: map['color'] as int?,
         isPinned: (map['isPinned'] as bool?) ?? false,
+        isSecure: (map['isSecure'] as bool?) ?? false,
         categoryId: map['categoryId'] as String? ??
             ((map['categoryIds'] as List<dynamic>?)?.isNotEmpty == true
                 ? (map['categoryIds'] as List<dynamic>).first.toString()
@@ -120,6 +126,7 @@ class NoteModel {
       snippet: '',
       color: null,
       isPinned: false,
+      isSecure: false,
       categoryId: null,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),

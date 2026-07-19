@@ -116,7 +116,7 @@ class AppSnackBar {
     BuildContext context,
     String message, {
     VoidCallback? onUndo,
-    Duration duration = const Duration(milliseconds: 1500),
+    Duration duration = const Duration(milliseconds: 3000),
   }) {
     if (!context.mounted) return;
 

@@ -2980,7 +2980,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notepad => 'Notepad';
 
   @override
-  String get notepadSubtitle => 'Rich text notes';
+  String get notepadSubtitle => 'Save your financial notes';
 
   @override
   String get noteEditor => 'Note Editor';

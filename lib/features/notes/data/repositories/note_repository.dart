@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:crypto/crypto.dart';
+import 'package:bcrypt/bcrypt.dart';
 import '../models/note_model.dart';
 
 // ─── Plain text extraction ────────────────────────────────────────────────────
@@ -66,7 +68,16 @@ class NoteRepository {
   Box? _indexBox;
   LazyBox? _lazyDataBox;
 
+  Box? _secureIndexBox;
+  LazyBox? _secureLazyDataBox;
+  LazyBox? _secureMediaBox;
+
   Future<void>? _initFuture;
+  
+  /// GÜVENLİK (EDGE CASE): Kamera veya Galeri açıldığında işletim sistemi
+  /// uygulamayı arka plana (paused) atar. Bu durumda uygulamanın kendini
+  /// otomatik kilitlemesini engellemek için bu flag kullanılır.
+  bool isMediaPicking = false;
 
   Future<void> init() {
     if (_indexBox != null && _indexBox!.isOpen && _lazyDataBox != null && _lazyDataBox!.isOpen) return Future.value();
@@ -361,8 +372,40 @@ class NoteRepository {
     String? categoryId,
     bool clearCategory = false,
     DateTime? originalCreatedAt,
+    bool isSecure = false,
   }) async {
     await init();
+
+    if (isSecure || (isSecureNotesUnlocked && getSecureNoteById(id) != null)) {
+      var note = getSecureNoteById(id) ??
+          NoteModel(
+            id: id,
+            title: '',
+            deltaJson: '',
+            isSecure: true,
+            createdAt: originalCreatedAt ?? DateTime.now(),
+            updatedAt: DateTime.now(),
+            categoryId: null,
+          );
+
+      final computed = _extractSearchableText(deltaJson);
+      final snippet = _extractSnippet(deltaJson);
+
+      note = note.copyWith(
+        deltaJson: deltaJson,
+        title: title,
+        snippet: snippet,
+        searchableText: computed,
+        updatedAt: DateTime.now(),
+        color: color,
+        clearColor: clearColor,
+        categoryId: categoryId,
+        clearCategory: clearCategory,
+      );
+
+      await saveSecureNote(note);
+      return note;
+    }
 
     var note = getNoteById(id) ??
         NoteModel(
@@ -541,6 +584,12 @@ class NoteRepository {
     await _requireIndexBox.clear();
     await _lazyDataBox!.clear();
 
+    // Close and securely delete encrypted secure boxes from disk
+    await closeSecureNotes();
+    await Hive.deleteBoxFromDisk('secure_notes_index');
+    await Hive.deleteBoxFromDisk('secure_notes_data');
+    await Hive.deleteBoxFromDisk('secure_media_box');
+
     try {
       final docsDir = await getApplicationDocumentsDirectory();
       final noteImgDir = Directory('${docsDir.path}/note_images');
@@ -621,4 +670,287 @@ class NoteRepository {
   int get noteCount {
     return getAllNotes().length;
   }
+
+  // ─── Güvenli Notlar (Secure Notes) ──────────────────────────────────────────
+
+  bool get hasSecurePin => _requireIndexBox.get('has_secure_pin', defaultValue: false) as bool;
+
+  Future<void> setSecurePin(String pin) async {
+    // Generate salt asynchronously on a background isolate
+    final salt = await compute(_generateSaltSync, null);
+    await _requireIndexBox.put('secure_pin_salt', salt);
+
+    final success = await unlockSecureNotes(pin);
+    if (success) {
+      await _requireIndexBox.put('has_secure_pin', true);
+    }
+  }
+
+  Future<bool> unlockSecureNotes(String pin) async {
+    try {
+      final salt = _requireIndexBox.get('secure_pin_salt') as String?;
+      List<int> key;
+
+      if (salt != null) {
+        // PBKDF2/Bcrypt key stretching
+        key = await compute(_deriveKeySync, {'pin': pin, 'salt': salt});
+      } else {
+        // Fallback for existing PINs created before the security update
+        key = sha256.convert(utf8.encode(pin)).bytes;
+      }
+      
+      if (_secureIndexBox?.isOpen == true) await _secureIndexBox!.close();
+      if (_secureLazyDataBox?.isOpen == true) await _secureLazyDataBox!.close();
+
+      if (_secureMediaBox?.isOpen == true) await _secureMediaBox!.close();
+
+      _secureIndexBox = await Hive.openBox(
+        'secure_notes_index',
+        encryptionCipher: HiveAesCipher(key),
+      );
+      _secureLazyDataBox = await Hive.openLazyBox(
+        'secure_notes_data',
+        encryptionCipher: HiveAesCipher(key),
+      );
+      _secureMediaBox = await Hive.openLazyBox(
+        'secure_media_box',
+        encryptionCipher: HiveAesCipher(key),
+      );
+
+      if (_secureIndexBox!.isEmpty) {
+        await _secureIndexBox!.put('pin_verify', 'verified');
+      } else {
+        final verifyValue = _secureIndexBox!.get('pin_verify');
+        if (verifyValue != 'verified') {
+          await closeSecureNotes();
+          return false;
+        }
+      }
+      return true;
+    } catch (e) {
+      debugPrint('Unlock secure notes error: $e');
+      await closeSecureNotes();
+      return false;
+    }
+  }
+
+  Future<void> closeSecureNotes() async {
+    if (_secureIndexBox?.isOpen == true) {
+      await _secureIndexBox!.close();
+    }
+    if (_secureLazyDataBox?.isOpen == true) {
+      await _secureLazyDataBox!.close();
+    }
+    if (_secureMediaBox?.isOpen == true) {
+      await _secureMediaBox!.close();
+    }
+    _secureIndexBox = null;
+    _secureLazyDataBox = null;
+    _secureMediaBox = null;
+  }
+
+  bool get isSecureNotesUnlocked => _secureIndexBox?.isOpen == true && _secureLazyDataBox?.isOpen == true;
+
+  Future<String> saveSecureMedia(Uint8List bytes, String extension) async {
+    if (!isSecureNotesUnlocked) throw Exception('Secure notes locked');
+    final id = 'secure_media_${DateTime.now().millisecondsSinceEpoch}.$extension';
+    await _secureMediaBox!.put(id, bytes);
+    return 'secure-media://$id';
+  }
+
+  Future<Uint8List?> getSecureMedia(String id) async {
+    if (!isSecureNotesUnlocked) return null;
+    return await _secureMediaBox!.get(id) as Uint8List?;
+  }
+
+  Stream<BoxEvent>? watchSecure() => _secureIndexBox?.watch();
+
+  List<NoteModel> getSecureNotes() {
+    if (!isSecureNotesUnlocked) return [];
+    final result = <NoteModel>[];
+    for (final raw in _secureIndexBox!.values) {
+      try {
+        if (raw is! Map) continue;
+        final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
+        if (note.id.isEmpty) continue;
+        if (note.id == 'pin_verify') continue;
+        if (note.deletedAt != null) continue;
+        result.add(note);
+      } catch (_) {}
+    }
+    result.sort((a, b) {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return b.updatedAt.compareTo(a.updatedAt);
+    });
+    return result;
+  }
+
+  NoteModel? getSecureNoteById(String id) {
+    if (!isSecureNotesUnlocked) return null;
+    try {
+      final raw = _secureIndexBox!.get(id);
+      if (raw == null || raw is! Map) return null;
+      return NoteModel.fromMap(Map<String, dynamic>.from(raw));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<String> getSecureNoteDeltaJson(String id) async {
+    if (!isSecureNotesUnlocked) return '[]';
+    final data = await _secureLazyDataBox!.get(id);
+    return data as String? ?? '[]';
+  }
+
+  Future<void> saveSecureNote(NoteModel note) async {
+    if (!isSecureNotesUnlocked) throw StateError('Secure notes are locked.');
+    await _secureLazyDataBox!.put(note.id, note.deltaJson.isNotEmpty ? note.deltaJson : '[]');
+    final indexNote = note.copyWith(deltaJson: '');
+    await _secureIndexBox!.put(note.id, indexNote.toMap());
+  }
+
+  Future<void> secureNotes(List<String> ids) async {
+    if (!isSecureNotesUnlocked) throw StateError('Secure notes are locked.');
+    for (final id in ids) {
+      final note = getNoteById(id);
+      if (note != null) {
+        var deltaJson = await getNoteDeltaJson(id);
+        deltaJson = await _migrateMediaToSecure(deltaJson);
+        final secureNote = note.copyWith(isSecure: true, deltaJson: deltaJson);
+        await _secureLazyDataBox!.put(secureNote.id, secureNote.deltaJson.isNotEmpty ? secureNote.deltaJson : '[]');
+        await _secureIndexBox!.put(secureNote.id, secureNote.copyWith(deltaJson: '').toMap());
+        await _requireIndexBox.delete(id);
+        await _lazyDataBox!.delete(id);
+      }
+    }
+  }
+
+  Future<void> unsecureNotes(List<String> ids) async {
+    if (!isSecureNotesUnlocked) throw StateError('Secure notes are locked.');
+    for (final id in ids) {
+      final note = getSecureNoteById(id);
+      if (note != null) {
+        var deltaJson = await getSecureNoteDeltaJson(id);
+        deltaJson = await _migrateMediaToPublic(deltaJson);
+        final publicNote = note.copyWith(isSecure: false, deltaJson: deltaJson);
+        await _lazyDataBox!.put(publicNote.id, publicNote.deltaJson.isNotEmpty ? publicNote.deltaJson : '[]');
+        await _requireIndexBox.put(publicNote.id, publicNote.copyWith(deltaJson: '').toMap());
+        await _secureIndexBox!.delete(id);
+        await _secureLazyDataBox!.delete(id);
+      }
+    }
+  }
+
+  Future<void> deleteSecureNotes(List<String> ids) async {
+    if (!isSecureNotesUnlocked) return;
+    await permanentlyDeleteSecureNotes(ids);
+  }
+
+  Future<void> permanentlyDeleteSecureNotes(List<String> ids) async {
+    if (!isSecureNotesUnlocked) return;
+    final deltaJsons = <String>[];
+    for (final id in ids) {
+      final deltaStr = await getSecureNoteDeltaJson(id);
+      deltaJsons.add(deltaStr);
+    }
+    await _secureIndexBox!.deleteAll(ids);
+    await _secureLazyDataBox!.deleteAll(ids);
+    for (final deltaStr in deltaJsons) {
+      if (deltaStr.isNotEmpty && deltaStr != '[]') {
+        await _deleteSecureMediaFromDelta(deltaStr);
+        await _deleteLocalImages(deltaStr);
+      }
+    }
+  }
+
+  Future<void> _deleteSecureMediaFromDelta(String deltaJson) async {
+    if (!isSecureNotesUnlocked) return;
+    try {
+      final ops = jsonDecode(deltaJson) as List<dynamic>;
+      for (final op in ops) {
+        if (op is! Map) continue;
+        final insert = op['insert'];
+        if (insert is! Map) continue;
+        final mediaPath = insert['image'] ?? insert['video'];
+        if (mediaPath is String && mediaPath.startsWith('secure-media://')) {
+          final mediaId = mediaPath.replaceFirst('secure-media://', '');
+          await _secureMediaBox!.delete(mediaId);
+          debugPrint('EC-18: Secure medya silindi → $mediaId');
+        }
+      }
+    } catch (e) {
+      debugPrint('EC-18: Secure medya silinirken hata: $e');
+    }
+  }
+
+  Future<String> _migrateMediaToSecure(String deltaJson) async {
+    if (deltaJson.isEmpty || deltaJson == '[]') return deltaJson;
+    String newJson = deltaJson;
+    try {
+      final ops = jsonDecode(deltaJson) as List<dynamic>;
+      for (final op in ops) {
+        if (op is! Map) continue;
+        final insert = op['insert'];
+        if (insert is! Map) continue;
+        final mediaPath = insert['image'] ?? insert['video'];
+        if (mediaPath is String && !mediaPath.startsWith('http') && !mediaPath.startsWith('secure-media://')) {
+          final file = File(mediaPath);
+          if (await file.exists()) {
+            final bytes = await file.readAsBytes();
+            final ext = mediaPath.split('.').last;
+            final secureUrl = await saveSecureMedia(bytes, ext);
+            newJson = newJson.replaceAll('"$mediaPath"', '"$secureUrl"');
+            await file.delete(); 
+          }
+        }
+      }
+    } catch (_) {}
+    return newJson;
+  }
+
+  Future<String> _migrateMediaToPublic(String deltaJson) async {
+    if (deltaJson.isEmpty || deltaJson == '[]') return deltaJson;
+    String newJson = deltaJson;
+    try {
+      final ops = jsonDecode(deltaJson) as List<dynamic>;
+      for (final op in ops) {
+        if (op is! Map) continue;
+        final insert = op['insert'];
+        if (insert is! Map) continue;
+        final mediaPath = insert['image'] ?? insert['video'];
+        if (mediaPath is String && mediaPath.startsWith('secure-media://')) {
+          final mediaId = mediaPath.replaceFirst('secure-media://', '');
+          final bytes = await getSecureMedia(mediaId);
+          if (bytes != null) {
+            final docsDir = await getApplicationDocumentsDirectory();
+            final ext = mediaId.split('.').last;
+            final isVideo = ext == 'mp4';
+            final folderName = isVideo ? 'note_videos' : 'note_images';
+            final dir = Directory('${docsDir.path}/$folderName');
+            if (!await dir.exists()) await dir.create(recursive: true);
+            
+            final publicPath = '${dir.path}/${DateTime.now().microsecondsSinceEpoch}.$ext';
+            await File(publicPath).writeAsBytes(bytes);
+            newJson = newJson.replaceAll('"$mediaPath"', '"$publicPath"');
+            await _secureMediaBox!.delete(mediaId); 
+          }
+        }
+      }
+    } catch (_) {}
+    return newJson;
+  }
+}
+
+// ─── Arka Plan (Isolate) Şifreleme Metotları ───────────────────────────────
+
+String _generateSaltSync(dynamic _) {
+  return BCrypt.gensalt();
+}
+
+List<int> _deriveKeySync(Map<String, String> args) {
+  final pin = args['pin']!;
+  final salt = args['salt']!;
+  final hashedPin = BCrypt.hashpw(pin, salt);
+  return sha256.convert(utf8.encode(hashedPin)).bytes;
 }

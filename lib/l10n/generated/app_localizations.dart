@@ -5585,7 +5585,7 @@ abstract class AppLocalizations {
   /// No description provided for @notepadSubtitle.
   ///
   /// In tr, this message translates to:
-  /// **'Zengin metin notları'**
+  /// **'Finansal notlarınızı kaydedin'**
   String get notepadSubtitle;
 
   /// No description provided for @noteEditor.

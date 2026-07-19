@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/features/notes/utils/secure_media_image_provider.dart';
 
 class NoteEditorEmbedBuilders {
   static List<EmbedBuilder> build(BuildContext context) {
@@ -10,6 +11,10 @@ class NoteEditorEmbedBuilders {
       ...FlutterQuillEmbeds.editorBuilders(
         imageEmbedConfig: QuillEditorImageEmbedConfig(
           imageProviderBuilder: (context, imageUrl) {
+            if (imageUrl.startsWith('secure-media://')) {
+              final mediaId = imageUrl.replaceFirst('secure-media://', '');
+              return ResizeImage(SecureMediaImageProvider(mediaId), width: 1280);
+            }
             if (!imageUrl.startsWith('http')) {
               // Caching image decode size to reduce RAM usage for large images
               return ResizeImage(FileImage(File(imageUrl)), width: 1280);

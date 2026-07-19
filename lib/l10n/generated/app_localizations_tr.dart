@@ -2981,7 +2981,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get notepad => 'Not Defteri';
 
   @override
-  String get notepadSubtitle => 'Zengin metin notları';
+  String get notepadSubtitle => 'Finansal notlarınızı kaydedin';
 
   @override
   String get noteEditor => 'Not Editörü';

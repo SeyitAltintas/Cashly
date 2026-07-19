@@ -11,6 +11,7 @@ import 'package:collection/collection.dart';
 
 import 'note_editor_page.dart';
 import 'trash_notes_page.dart';
+import 'secure_notes_page.dart';
 import '../widgets/note_card.dart';
 import '../widgets/notes_empty_state.dart';
 import '../widgets/notes_search_bar.dart';
@@ -20,6 +21,7 @@ import '../widgets/note_bulk_assign_dialog.dart';
 import '../widgets/notes_filter_chips.dart';
 import '../widgets/notes_bottom_action_bar.dart';
 import '../widgets/notes_app_bar.dart';
+import '../widgets/pin_input_dialog.dart';
 
 /// Kayıtlı notların listelendiği sayfa.
 ///
@@ -46,6 +48,8 @@ class _NotesListView extends StatefulWidget {
 
 class _NotesListViewState extends State<_NotesListView> {
   final TextEditingController _searchController = TextEditingController();
+  double _overscroll = 0.0;
+  bool _hasTriggered = false;
 
   @override
   void dispose() {
@@ -77,6 +81,137 @@ class _NotesListViewState extends State<_NotesListView> {
       // _fetchAndCacheAllNotes() already called via _boxListener but let's notify listeners if needed
       controller.refreshCategories();
     }
+  }
+
+  Future<void> _openSecureNotes(BuildContext context) async {
+    final controller = context.read<NotesListController>();
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const SecureNotesPage(),
+      ),
+    );
+    if (mounted) {
+      controller.refreshCategories();
+    }
+  }
+
+  Future<void> _onSecureSelectedPressed(BuildContext context) async {
+    final controller = context.read<NotesListController>();
+    if (controller.hasSecurePin) {
+      final pin = await showDialog<String>(
+        context: context,
+        builder: (ctx) => PinInputDialog(
+          onVerify: (enteredPin) async {
+            final isCorrect = await controller.repository.unlockSecureNotes(enteredPin);
+            if (isCorrect) {
+              await controller.repository.closeSecureNotes();
+            }
+            return isCorrect;
+          },
+        ),
+      );
+      if (pin != null && context.mounted) {
+        final success = await controller.secureSelected(pin);
+        if (success && context.mounted) {
+          AppSnackBar.success(context, 'Seçilen notlar başarıyla gizlendi.');
+        }
+      }
+    } else {
+      final newPin = await showDialog<String>(
+        context: context,
+        builder: (ctx) => const PinInputDialog(
+          isCreating: true,
+          title: 'Yeni PIN Oluştur',
+        ),
+      );
+      if (newPin != null && context.mounted) {
+        await controller.createSecurePinAndSecureSelected(newPin);
+        if (context.mounted) {
+          AppSnackBar.success(context, 'Güvenlik PIN\'i oluşturuldu ve notlar gizlendi.');
+        }
+      }
+    }
+  }
+
+  bool _handleScrollNotification(ScrollNotification notification) {
+    if (notification.metrics.axis != Axis.vertical) return false;
+
+    final pixels = notification.metrics.pixels;
+    if (pixels < 0) {
+      final currentOverscroll = -pixels;
+      setState(() {
+        _overscroll = currentOverscroll;
+      });
+      // Only change trigger state if the user is actively dragging
+      if (notification is ScrollUpdateNotification && notification.dragDetails != null) {
+        if (currentOverscroll >= 100.0) {
+          _hasTriggered = true;
+        } else if (currentOverscroll < 30.0) {
+          _hasTriggered = false;
+        }
+      }
+    } else {
+      if (_overscroll != 0.0) {
+        setState(() {
+          _overscroll = 0.0;
+        });
+      }
+      // If user drags list back to normal scrolling area, cancel trigger
+      if (notification is ScrollUpdateNotification && notification.dragDetails != null) {
+        _hasTriggered = false;
+      }
+    }
+
+    if (notification is ScrollEndNotification) {
+      if (_hasTriggered) {
+        _hasTriggered = false;
+        _overscroll = 0.0;
+        _openSecureNotes(context);
+      }
+    }
+
+    return false;
+  }
+
+  Widget _buildLockIndicator() {
+    const threshold = 100.0;
+    final progress = (_overscroll / threshold).clamp(0.0, 1.0);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return ClipRect(
+      child: Opacity(
+        opacity: progress,
+        child: Container(
+          height: _overscroll.clamp(0.0, 120.0),
+          alignment: Alignment.center,
+          child: OverflowBox(
+            minHeight: 0,
+            maxHeight: 120,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  progress >= 1.0 ? Icons.lock_open_rounded : Icons.lock_outline_rounded,
+                  color: progress >= 1.0 ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.4),
+                  size: 28 + (progress * 8),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  progress >= 1.0 ? 'Gizli Notları Açmak İçin Bırakın' : 'Güvenli Kilit İçin Çekin',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: progress >= 1.0 ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.4),
+                    fontFamily: 'Inter',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -124,8 +259,23 @@ class _NotesListViewState extends State<_NotesListView> {
                               _showCreateCategoryDialog(context),
                         ),
                       Expanded(
-                        child: _NotesBodySection(
-                          onOpenNote: (id) => _openNote(context, id),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            NotificationListener<ScrollNotification>(
+                              onNotification: _handleScrollNotification,
+                              child: _NotesBodySection(
+                                onOpenNote: (id) => _openNote(context, id),
+                              ),
+                            ),
+                            if (_overscroll > 0)
+                              Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                child: _buildLockIndicator(),
+                              ),
+                          ],
                         ),
                       ),
                     ],
@@ -135,6 +285,7 @@ class _NotesListViewState extends State<_NotesListView> {
                     onShowBulkAssign: () =>
                         _showBulkAssignTagDialog(context, colorScheme),
                     onConfirmDelete: () => _confirmAndDeleteSelected(context),
+                    onSecure: () => _onSecureSelectedPressed(context),
                   ),
                 ],
               );
@@ -375,10 +526,10 @@ class _NotesBodySection extends StatelessWidget {
       ),
       shouldRebuild: (prev, next) {
         return prev.$1 != next.$1 ||
-               prev.$2 != next.$2 ||
-               prev.$3 != next.$3 ||
-               prev.$4 != next.$4 ||
-               !const SetEquality().equals(prev.$5, next.$5);
+            prev.$2 != next.$2 ||
+            prev.$3 != next.$3 ||
+            prev.$4 != next.$4 ||
+            !const SetEquality().equals(prev.$5, next.$5);
       },
       builder: (context, data, _) {
         final notes = data.$1;
@@ -401,6 +552,9 @@ class _NotesBodySection extends StatelessWidget {
           child = MasonryGridView.builder(
             key: const ValueKey('grid_view'),
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
             gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
@@ -430,6 +584,9 @@ class _NotesBodySection extends StatelessWidget {
           child = ListView.separated(
             key: const ValueKey('list_view'),
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
             itemCount: notes.length,
             separatorBuilder: (context, index) => const SizedBox(height: 12),
@@ -454,9 +611,18 @@ class _NotesBodySection extends StatelessWidget {
         }
 
         return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          switchInCurve: Curves.easeInOut,
-          switchOutCurve: Curves.easeInOut,
+          duration: const Duration(milliseconds: 350),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.95, end: 1.0).animate(animation),
+                child: child,
+              ),
+            );
+          },
           child: child,
         );
       },
@@ -470,11 +636,13 @@ class _BottomBarSection extends StatelessWidget {
     required this.colorScheme,
     required this.onShowBulkAssign,
     required this.onConfirmDelete,
+    required this.onSecure,
   });
 
   final ColorScheme colorScheme;
   final VoidCallback onShowBulkAssign;
   final VoidCallback onConfirmDelete;
+  final VoidCallback onSecure;
 
   @override
   Widget build(BuildContext context) {
@@ -485,7 +653,7 @@ class _BottomBarSection extends StatelessWidget {
         return NotesBottomActionBar(
           isVisible: data.$1,
           allPinned: data.$2,
-          onHide: c.clearSelection,
+          onHide: onSecure,
           onTogglePin: c.togglePinSelected,
           onMoveTag: onShowBulkAssign,
           onDelete: onConfirmDelete,

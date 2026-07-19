@@ -14,6 +14,7 @@ class NoteCard extends StatelessWidget {
   final String searchQuery;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
+  final Widget? bottomTrailing;
 
   const NoteCard({
     super.key,
@@ -24,6 +25,7 @@ class NoteCard extends StatelessWidget {
     this.searchQuery = '',
     required this.onTap,
     required this.onLongPress,
+    this.bottomTrailing,
   });
 
   @override
@@ -60,19 +62,9 @@ class NoteCard extends StatelessWidget {
                           : Colors.black.withValues(alpha: 0.08)),
                 width: borderWidth,
               ),
-              boxShadow: [
-                if (!isDark)
-                  BoxShadow(
-                    color: note.color != null
-                        ? Color(note.color!).withValues(alpha: 0.35)
-                        : colorScheme.shadow.withValues(alpha: 0.06),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-              ],
             ),
             child: Stack(
-              children: [
+                children: [
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: horizontalPadding,
@@ -214,7 +206,6 @@ class NoteCard extends StatelessWidget {
         if (isGrid) const SizedBox(height: 14),
         if (!isGrid) const SizedBox(height: 10),
         Row(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(Icons.schedule_rounded, size: 13, color: dateColor),
@@ -234,6 +225,13 @@ class NoteCard extends StatelessWidget {
             ),
           ],
         ),
+        if (bottomTrailing != null) ...[
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: bottomTrailing!,
+          ),
+        ],
       ],
     );
   }

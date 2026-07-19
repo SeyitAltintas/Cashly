@@ -82,7 +82,10 @@ class _TrashNotesViewState extends State<_TrashNotesView> {
                 ),
               )
             : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: MasonryGridView.count(
                   crossAxisCount: 2,
                   mainAxisSpacing: 12,
@@ -90,40 +93,47 @@ class _TrashNotesViewState extends State<_TrashNotesView> {
                   itemCount: notes.length,
                   itemBuilder: (context, index) {
                     final note = notes[index];
-                    final isSelected = controller.selectedNoteIds.contains(note.id);
-                    
-                    // Kalan gün hesabı
-                    final daysLeft = 30 - DateTime.now().difference(note.deletedAt ?? DateTime.now()).inDays;
+                    final isSelected = controller.selectedNoteIds.contains(
+                      note.id,
+                    );
 
-                    return Stack(
-                      children: [
-                        NoteCard(
-                          note: note,
-                          isSelected: isSelected,
-                          onTap: () {
-                            if (isSelectionMode) {
-                              controller.toggleSelection(note.id);
-                            } else {
-                              AppSnackBar.info(context, context.l10n.restoreToView);
-                            }
-                          },
-                          onLongPress: () {
-                            controller.toggleSelection(note.id);
-                          },
-                        ),
-                        // Son X Gün Uyarısı
-                        if (!isSelected)
-                          Positioned(
-                            bottom: 8,
-                            right: 8,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    // Kalan gün hesabı
+                    final daysLeft =
+                        30 -
+                        DateTime.now()
+                            .difference(note.deletedAt ?? DateTime.now())
+                            .inDays;
+
+                    return NoteCard(
+                      note: note,
+                      isGrid: true,
+                      isSelected: isSelected,
+                      onTap: () {
+                        if (isSelectionMode) {
+                          controller.toggleSelection(note.id);
+                        } else {
+                          AppSnackBar.info(context, context.l10n.restoreToView);
+                        }
+                      },
+                      onLongPress: () {
+                        controller.toggleSelection(note.id);
+                      },
+                      bottomTrailing: !isSelected
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: colorScheme.errorContainer.withValues(alpha: 0.9),
+                                color: colorScheme.errorContainer.withValues(
+                                  alpha: 0.9,
+                                ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                context.l10n.daysLeft(daysLeft > 0 ? daysLeft : 0),
+                                context.l10n.daysLeft(
+                                  daysLeft > 0 ? daysLeft : 0,
+                                ),
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
@@ -131,9 +141,8 @@ class _TrashNotesViewState extends State<_TrashNotesView> {
                                   fontFamily: 'Inter',
                                 ),
                               ),
-                            ),
-                          ),
-                      ],
+                            )
+                          : null,
                     );
                   },
                 ),
@@ -145,10 +154,17 @@ class _TrashNotesViewState extends State<_TrashNotesView> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, TrashNotesController controller, ColorScheme colorScheme) {
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context,
+    TrashNotesController controller,
+    ColorScheme colorScheme,
+  ) {
     if (controller.isSelectionMode) {
-      final allSelected = controller.trashNotes.isNotEmpty && 
-          controller.trashNotes.every((n) => controller.selectedNoteIds.contains(n.id));
+      final allSelected =
+          controller.trashNotes.isNotEmpty &&
+          controller.trashNotes.every(
+            (n) => controller.selectedNoteIds.contains(n.id),
+          );
 
       return AppBar(
         backgroundColor: colorScheme.surface,
@@ -159,7 +175,9 @@ class _TrashNotesViewState extends State<_TrashNotesView> {
           onPressed: controller.clearSelection,
         ),
         title: Text(
-          context.l10n.notesSelectedCount(controller.selectedNoteIds.length.toString()),
+          context.l10n.notesSelectedCount(
+            controller.selectedNoteIds.length.toString(),
+          ),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -206,7 +224,10 @@ class _TrashNotesViewState extends State<_TrashNotesView> {
             onPressed: () => _confirmEmptyTrash(context, controller),
             child: Text(
               context.l10n.emptyTrash,
-              style: TextStyle(color: colorScheme.error, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: colorScheme.error,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         const SizedBox(width: 8),
@@ -214,7 +235,11 @@ class _TrashNotesViewState extends State<_TrashNotesView> {
     );
   }
 
-  Widget _buildBottomBar(BuildContext context, TrashNotesController controller, ColorScheme colorScheme) {
+  Widget _buildBottomBar(
+    BuildContext context,
+    TrashNotesController controller,
+    ColorScheme colorScheme,
+  ) {
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.paddingOf(context).bottom + 12,
@@ -257,7 +282,10 @@ class _TrashNotesViewState extends State<_TrashNotesView> {
     );
   }
 
-  Future<void> _confirmDeleteSelected(BuildContext context, TrashNotesController controller) async {
+  Future<void> _confirmDeleteSelected(
+    BuildContext context,
+    TrashNotesController controller,
+  ) async {
     // Dialog açılmadan önce count'u sabitle — async gap'te clearSelection çağrılırsa 0 olabilir
     final count = controller.selectedNoteIds.length;
     if (count == 0) return;
@@ -289,7 +317,10 @@ class _TrashNotesViewState extends State<_TrashNotesView> {
     }
   }
 
-  Future<void> _confirmEmptyTrash(BuildContext context, TrashNotesController controller) async {
+  Future<void> _confirmEmptyTrash(
+    BuildContext context,
+    TrashNotesController controller,
+  ) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(

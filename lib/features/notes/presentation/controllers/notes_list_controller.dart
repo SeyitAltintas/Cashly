@@ -154,6 +154,29 @@ class NotesListController extends ChangeNotifier {
     await _repository.deleteNotes(ids);
   }
 
+  bool get hasSecurePin => _repository.hasSecurePin;
+
+  Future<bool> secureSelected(String pin) async {
+    final ids = _selectedNoteIds.toList();
+    final unlocked = await _repository.unlockSecureNotes(pin);
+    if (!unlocked) return false;
+    
+    await _repository.secureNotes(ids);
+    clearSelection();
+    await _repository.closeSecureNotes();
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> createSecurePinAndSecureSelected(String pin) async {
+    await _repository.setSecurePin(pin);
+    final ids = _selectedNoteIds.toList();
+    await _repository.secureNotes(ids);
+    clearSelection();
+    await _repository.closeSecureNotes();
+    notifyListeners();
+  }
+
   void toggleGridView() {
     _repository.setGridView(!_repository.isGridView);
     notifyListeners();

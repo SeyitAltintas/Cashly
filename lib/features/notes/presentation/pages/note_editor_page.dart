@@ -33,12 +33,14 @@ class NoteEditorPage extends StatefulWidget {
   final String? noteId;
   final String? title;
   final String heroTag;
+  final bool isSecure;
 
   const NoteEditorPage({
     super.key,
     this.noteId,
     this.title,
     required this.heroTag,
+    this.isSecure = false,
   });
 
   @override
@@ -156,7 +158,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     NoteModel note;
     String deltaJson = '[]';
     if (widget.noteId != null) {
-      note =
+      note = _repository.getSecureNoteById(widget.noteId!) ??
           _repository.getNoteById(widget.noteId!) ??
           NoteModel(
             id: widget.noteId!,
@@ -164,11 +166,15 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),
           );
-      deltaJson = await _repository.getNoteDeltaJson(widget.noteId!);
-      // UI state'i için asıl datayı modele kopyalayalım
+
+      if (_repository.isSecureNotesUnlocked && _repository.getSecureNoteById(widget.noteId!) != null) {
+        deltaJson = await _repository.getSecureNoteDeltaJson(widget.noteId!);
+      } else {
+        deltaJson = await _repository.getNoteDeltaJson(widget.noteId!);
+      }
       note = note.copyWith(deltaJson: deltaJson);
     } else {
-      note = NoteModel.empty();
+      note = NoteModel.empty().copyWith(isSecure: widget.isSecure);
     }
 
     final controller = _buildController(deltaJson);
@@ -266,7 +272,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       // UX Edge Case: Yeni not (widget.noteId == null) olsa dahi auto-save
       // çalışmış ve veritabanına yazılmış olabilir! Bu yüzden şartı kaldırdık.
       if (note.id.isNotEmpty) {
-        await _repository.deleteNotes([note.id]);
+        if (note.isSecure) {
+          await _repository.deleteSecureNotes([note.id]);
+        } else {
+          await _repository.deleteNotes([note.id]);
+        }
       }
 
       // Rebuild'i beklemek için bir frame atla, böylece PopScope canPop: true olur
@@ -292,6 +302,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         categoryId: _note?.categoryId,
         clearCategory: _note?.categoryId == null,
         originalCreatedAt: note.createdAt, // EC-16: orijinal tarihi koru
+        isSecure: note.isSecure,
       );
       if (mounted) {
         setState(() {
@@ -500,16 +511,19 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                                     NoteMediaHelper.pickImage(
                                       ctx,
                                       fromCamera: false,
+                                      isSecure: widget.isSecure,
                                     ),
                                 onPickVideoFromGallery: (ctx) =>
                                     NoteMediaHelper.pickVideo(
                                       ctx,
                                       fromCamera: false,
+                                      isSecure: widget.isSecure,
                                     ),
                                 onTakePhoto: () async {
                                   final path = await NoteMediaHelper.pickImage(
                                     context,
                                     fromCamera: true,
+                                    isSecure: widget.isSecure,
                                   );
                                   // EC-UNMOUNTED: Kopyalama bitene kadar kullanıcı çıkmış olabilir!
                                   if (path != null && mounted) {
@@ -525,6 +539,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                                   final path = await NoteMediaHelper.pickVideo(
                                     context,
                                     fromCamera: true,
+                                    isSecure: widget.isSecure,
                                   );
                                   if (path != null) {
                                     NoteMediaHelper.insertMedia(

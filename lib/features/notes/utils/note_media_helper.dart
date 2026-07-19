@@ -7,26 +7,43 @@ import 'package:path_provider/path_provider.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/services/image_compression_service.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
+import 'package:cashly/core/di/injection_container.dart';
+import 'package:cashly/features/notes/data/repositories/note_repository.dart';
 
 class NoteMediaHelper {
   static final ImagePicker _imagePicker = ImagePicker();
   static const int _kImageMaxWidth = 1280;
   static const int _kImageQuality = 78;
 
-  static Future<String?> pickVideo(BuildContext context, {required bool fromCamera}) async {
+  static Future<String?> pickVideo(BuildContext context, {required bool fromCamera, bool isSecure = false}) async {
+    final repo = getIt<NoteRepository>();
+    repo.isMediaPicking = true;
     try {
       final XFile? picked = await _imagePicker.pickVideo(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
       );
       if (picked == null) return null;
 
+      final parts = picked.path.split('.');
+      final ext = parts.length > 1 ? parts.last : 'mp4';
+
+      if (isSecure) {
+        final originalFile = File(picked.path);
+        final bytes = await originalFile.readAsBytes();
+        final secureUrl = await repo.saveSecureMedia(bytes, ext);
+        
+        // Remove the original unencrypted camera cache file
+        if (fromCamera && await originalFile.exists()) {
+          await originalFile.delete();
+        }
+        return secureUrl;
+      }
+
       final appDir = await getApplicationDocumentsDirectory();
       final notesVidDir = Directory('${appDir.path}/note_videos');
       if (!await notesVidDir.exists()) {
         await notesVidDir.create(recursive: true);
       }
-      final parts = picked.path.split('.');
-      final ext = parts.length > 1 ? parts.last : 'mp4';
       final fileName = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesVidDir.path}/$fileName');
       await File(picked.path).copy(dest.path);
@@ -37,10 +54,14 @@ class NoteMediaHelper {
       }
       debugPrint('Video pick error: $e');
       return null;
+    } finally {
+      repo.isMediaPicking = false;
     }
   }
 
-  static Future<String?> pickImage(BuildContext context, {required bool fromCamera}) async {
+  static Future<String?> pickImage(BuildContext context, {bool fromCamera = false, bool isSecure = false}) async {
+    final repo = getIt<NoteRepository>();
+    repo.isMediaPicking = true;
     try {
       final XFile? picked = await _imagePicker.pickImage(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
@@ -54,12 +75,30 @@ class NoteMediaHelper {
         quality: _kImageQuality,
       );
 
+      final parts = compressed.path.split('.');
+      final ext = parts.length > 1 ? parts.last : 'jpg';
+
+      if (isSecure) {
+        final bytes = await compressed.readAsBytes();
+        final secureUrl = await repo.saveSecureMedia(bytes, ext);
+        
+        // Remove temporary compressed file to leave no trace
+        if (await compressed.exists()) {
+          await compressed.delete();
+        }
+        
+        // Remove the original unencrypted camera cache file
+        final originalFile = File(picked.path);
+        if (fromCamera && await originalFile.exists()) {
+          await originalFile.delete();
+        }
+        return secureUrl;
+      }
+
       final docsDir = await getApplicationDocumentsDirectory();
       final notesImgDir = Directory('${docsDir.path}/note_images');
       if (!notesImgDir.existsSync()) notesImgDir.createSync(recursive: true);
 
-      final parts = compressed.path.split('.');
-      final ext = parts.length > 1 ? parts.last : 'jpg';
       final fileName = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesImgDir.path}/$fileName');
       await compressed.copy(dest.path);
@@ -69,11 +108,13 @@ class NoteMediaHelper {
       await Future.delayed(const Duration(milliseconds: 250));
 
       return dest.path;
-    } catch (_) {
+    } catch (e) {
       if (context.mounted) {
         AppSnackBar.error(context, context.l10n.imageLoadError);
       }
       return null;
+    } finally {
+      repo.isMediaPicking = false;
     }
   }
 
