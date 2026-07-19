@@ -65,6 +65,47 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
     }
   }
 
+  Future<void> _showResetDialog() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Gizli Kasayı Sıfırla'),
+        content: const Text(
+          'Şifrenizi (PIN) unuttuysanız, gizli kasanızı sıfırlayabilirsiniz.\n\n'
+          'DİKKAT: Bu işlem içerideki tüm gizli notlarınızı ve medyalarınızı KALICI OLARAK SİLER. '
+          'Bunu onaylıyor musunuz?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('İptal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Evet, Her Şeyi Sil'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() => _isLoading = true);
+      await _repository.resetSecureKasa();
+      if (mounted) {
+        setState(() {
+          _isUnlocked = false;
+          _isCreatingPin = true;
+          _pin = '';
+          _firstPin = '';
+          _isConfirmingPin = false;
+          _isLoading = false;
+        });
+        AppSnackBar.success(context, 'Kasa sıfırlandı. Lütfen yeni bir PIN oluşturun.');
+      }
+    }
+  }
+
   void _onKeyPress(String key) {
     if (_isLoading) return;
     HapticFeedback.lightImpact();
@@ -352,6 +393,19 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
                     ),
                   ],
                 ),
+                const SizedBox(height: 32),
+                if (!_isCreatingPin)
+                  TextButton(
+                    onPressed: _showResetDialog,
+                    child: Text(
+                      'Şifremi Unuttum',
+                      style: TextStyle(
+                        color: colorScheme.error,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

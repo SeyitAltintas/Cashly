@@ -735,21 +735,29 @@ class NoteRepository {
   }
 
   Future<void> closeSecureNotes() async {
-    if (_secureIndexBox?.isOpen == true) {
-      await _secureIndexBox!.close();
-    }
-    if (_secureLazyDataBox?.isOpen == true) {
-      await _secureLazyDataBox!.close();
-    }
-    if (_secureMediaBox?.isOpen == true) {
-      await _secureMediaBox!.close();
-    }
+    if (_secureIndexBox?.isOpen == true) await _secureIndexBox!.close();
     _secureIndexBox = null;
+    if (_secureLazyDataBox?.isOpen == true) await _secureLazyDataBox!.close();
     _secureLazyDataBox = null;
+    if (_secureMediaBox?.isOpen == true) await _secureMediaBox!.close();
     _secureMediaBox = null;
   }
 
-  bool get isSecureNotesUnlocked => _secureIndexBox?.isOpen == true && _secureLazyDataBox?.isOpen == true;
+  /// GÜVENLİK (EDGE CASE): Kullanıcı PIN'ini unutursa, şifreli veriler
+  /// asla geri getirilemez. Bu durumda sistemi tekrar kullanabilmesi için
+  /// kilitli kutuların diskten fiziksel olarak silinmesi gerekir (Hard Wipe).
+  Future<void> resetSecureKasa() async {
+    await closeSecureNotes();
+    
+    await Hive.deleteBoxFromDisk('secure_notes_index');
+    await Hive.deleteBoxFromDisk('secure_notes_data');
+    await Hive.deleteBoxFromDisk('secure_media_box');
+    
+    await _requireIndexBox.delete('has_secure_pin');
+    await _requireIndexBox.delete('secure_pin_salt');
+  }
+
+  bool get isSecureNotesUnlocked => _secureIndexBox != null && _secureIndexBox!.isOpen;
 
   Future<String> saveSecureMedia(Uint8List bytes, String extension) async {
     if (!isSecureNotesUnlocked) throw Exception('Secure notes locked');
