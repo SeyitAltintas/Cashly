@@ -446,89 +446,130 @@ class NoteRepository {
 
   Future<void> deleteNote(String id) async {
     await init();
-    // LazyBox okunmaz — sadece index güncellenir (deleteNotes batch ile tutarlı)
-    final note = getNoteById(id);
-    if (note != null) {
-      await _requireIndexBox.put(id, note.copyWith(deletedAt: DateTime.now()).toMap());
+    
+    // Güvenli kasadaysa doğrudan kalıcı olarak sil (Çöp kutusuna sızmasını engelle)
+    if (isSecureNotesUnlocked && (_secureIndexBox?.containsKey(id) ?? false)) {
+      await permanentlyDeleteNote(id, isSecure: true);
+      return;
+    }
+
+    // Aksi halde (Genel not ise) çöpe at (Soft delete)
+    if (_requireIndexBox.containsKey(id)) {
+      final raw = _requireIndexBox.get(id);
+      if (raw != null) {
+        final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
+        await _requireIndexBox.put(id, note.copyWith(deletedAt: DateTime.now()).toMap());
+      }
     }
   }
 
   Future<void> deleteNotes(List<String> ids) async {
     await init();
-    final updates = <String, Map<String, dynamic>>{};
+    final publicUpdates = <String, Map<String, dynamic>>{};
+    final secureIdsToDelete = <String>[];
     final now = DateTime.now();
 
     for (final id in ids) {
-      final note = getNoteById(id);
-      if (note != null) {
-        updates[id] = note.copyWith(deletedAt: now).toMap();
+      if (isSecureNotesUnlocked && (_secureIndexBox?.containsKey(id) ?? false)) {
+        secureIdsToDelete.add(id);
+      } else if (_requireIndexBox.containsKey(id)) {
+        final raw = _requireIndexBox.get(id);
+        if (raw != null) {
+          final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
+          publicUpdates[id] = note.copyWith(deletedAt: now).toMap();
+        }
       }
     }
 
-    if (updates.isNotEmpty) {
-      await _requireIndexBox.putAll(updates);
+    if (publicUpdates.isNotEmpty) {
+      await _requireIndexBox.putAll(publicUpdates);
+    }
+    if (secureIdsToDelete.isNotEmpty) {
+      await permanentlyDeleteNotes(secureIdsToDelete, isSecure: true);
     }
   }
 
   Future<void> restoreNote(String id) async {
     await init();
-    // Sadece index güncellenir — restoreNotes batch ile tutarlı
-    final note = getNoteById(id);
-    if (note != null) {
-      await _requireIndexBox.put(id, note.copyWith(clearDeletedAt: true).toMap());
+    if (_requireIndexBox.containsKey(id)) {
+      final raw = _requireIndexBox.get(id);
+      if (raw != null) {
+        final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
+        await _requireIndexBox.put(id, note.copyWith(clearDeletedAt: true).toMap());
+      }
     }
   }
 
   Future<void> restoreNotes(List<String> ids) async {
     await init();
-    final updates = <String, Map<String, dynamic>>{};
+    final publicUpdates = <String, Map<String, dynamic>>{};
 
     for (final id in ids) {
-      final note = getNoteById(id);
-      if (note != null) {
-        updates[id] = note.copyWith(clearDeletedAt: true).toMap();
+      if (_requireIndexBox.containsKey(id)) {
+        final raw = _requireIndexBox.get(id);
+        if (raw != null) {
+          final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
+          publicUpdates[id] = note.copyWith(clearDeletedAt: true).toMap();
+        }
       }
     }
 
-    if (updates.isNotEmpty) {
-      await _requireIndexBox.putAll(updates);
+    if (publicUpdates.isNotEmpty) {
+      await _requireIndexBox.putAll(publicUpdates);
     }
   }
 
-  Future<void> permanentlyDeleteNote(String id) async {
+  Future<void> permanentlyDeleteNote(String id, {bool isSecure = false}) async {
     await init();
-    // 1. LazyBox'tan delta oku (silinmeden önce)
-    final deltaStr = await getNoteDeltaJson(id);
-    // 2. DB'den önce sil
-    await _requireIndexBox.delete(id);
-    await _lazyDataBox!.delete(id);
-    // 3. Dosyaları sonra sil
-    if (deltaStr.isNotEmpty && deltaStr != '[]') {
-      await _deleteLocalImages(deltaStr);
+    
+    if (isSecure) {
+      if (!isSecureNotesUnlocked) return;
+      final deltaStr = await _secureLazyDataBox?.get(id) as String? ?? '';
+      await _secureIndexBox?.delete(id);
+      await _secureLazyDataBox?.delete(id);
+      if (deltaStr.isNotEmpty && deltaStr != '[]') {
+        await _deleteSecureMediaFromDelta(deltaStr);
+      }
+    } else {
+      final deltaStr = await getNoteDeltaJson(id); // Genel DB'den okur
+      await _requireIndexBox.delete(id);
+      await _lazyDataBox!.delete(id);
+      if (deltaStr.isNotEmpty && deltaStr != '[]') {
+        await _deleteLocalImages(deltaStr);
+      }
     }
   }
 
-  Future<void> permanentlyDeleteNotes(List<String> ids) async {
+  Future<void> permanentlyDeleteNotes(List<String> ids, {bool isSecure = false}) async {
     await init();
     if (ids.isEmpty) return;
 
-    // 1. Delta JSON'ları önceden topla (LazyBox silinmeden önce okunmalı)
-    final deltaJsons = <String>[];
-    for (final id in ids) {
-      final deltaStr = await getNoteDeltaJson(id);
-      deltaJsons.add(deltaStr);
-    }
-
-    // 2. Önce DB'den sil (kaynak gerçeği temizle)
-    //    Crash olursa dosyalar orphan kalır → cleanOrphanImages() temizler.
-    //    Ters sırada crash → DB'de kayıt var ama dosya yok (daha kötü).
-    await _requireIndexBox.deleteAll(ids);
-    await _lazyDataBox!.deleteAll(ids);
-
-    // 3. Sonra yerel medya dosyalarını sil
-    for (final deltaStr in deltaJsons) {
-      if (deltaStr.isNotEmpty && deltaStr != '[]') {
-        await _deleteLocalImages(deltaStr);
+    if (isSecure) {
+      if (!isSecureNotesUnlocked) return;
+      final deltaJsons = <String>[];
+      for (final id in ids) {
+        final deltaStr = await _secureLazyDataBox?.get(id) as String? ?? '';
+        deltaJsons.add(deltaStr);
+      }
+      await _secureIndexBox?.deleteAll(ids);
+      await _secureLazyDataBox?.deleteAll(ids);
+      for (final deltaStr in deltaJsons) {
+        if (deltaStr.isNotEmpty && deltaStr != '[]') {
+          await _deleteSecureMediaFromDelta(deltaStr);
+        }
+      }
+    } else {
+      final deltaJsons = <String>[];
+      for (final id in ids) {
+        final deltaStr = await getNoteDeltaJson(id);
+        deltaJsons.add(deltaStr);
+      }
+      await _requireIndexBox.deleteAll(ids);
+      await _lazyDataBox!.deleteAll(ids);
+      for (final deltaStr in deltaJsons) {
+        if (deltaStr.isNotEmpty && deltaStr != '[]') {
+          await _deleteLocalImages(deltaStr);
+        }
       }
     }
   }
@@ -967,7 +1008,7 @@ class NoteRepository {
 
   Future<String> saveSecureMedia(Uint8List bytes, String extension) async {
     if (!isSecureNotesUnlocked) throw Exception('Secure notes locked');
-    final id = 'secure_media_${DateTime.now().millisecondsSinceEpoch}.$extension';
+    final id = 'secure_media_${DateTime.now().microsecondsSinceEpoch}.$extension';
     await _secureMediaBox!.put(id, bytes);
     return 'secure-media://$id';
   }
