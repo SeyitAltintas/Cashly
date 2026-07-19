@@ -848,6 +848,12 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
     if (val) {
       final pin = await _askForPin('Biyometrik Girişi Aç');
       if (pin != null) {
+        // EDGE CASE FIX: Doğru şifre girilmezse kabul etme
+        final isValid = await widget.repository.unlockSecureNotes(pin);
+        if (!isValid) {
+          if (mounted) AppSnackBar.error(context, 'Hatalı şifre.');
+          return;
+        }
         await widget.repository.enableBiometric(pin);
         setState(() => _biometric = true);
         widget.onSettingsChanged();
@@ -863,6 +869,12 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
     if (val) {
       final pin = await _askForPin('Şifresiz Girişi Aç');
       if (pin != null) {
+        // EDGE CASE FIX: Doğru şifre girilmezse kabul etme
+        final isValid = await widget.repository.unlockSecureNotes(pin);
+        if (!isValid) {
+          if (mounted) AppSnackBar.error(context, 'Hatalı şifre.');
+          return;
+        }
         await widget.repository.enableAutoUnlock(pin);
         setState(() => _autoUnlock = true);
         widget.onSettingsChanged();

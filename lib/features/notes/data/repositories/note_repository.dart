@@ -808,47 +808,78 @@ class NoteRepository {
     if (!isSecureNotesUnlocked) return false;
 
     try {
-      // 1. Yazılı metinleri ve indeksleri RAM'e al (Metinler az yer kaplar)
-      final allIndex = _secureIndexBox!.toMap();
-      final allDataKeys = _secureLazyDataBox!.keys.toList();
-      final Map<dynamic, dynamic> allData = {};
-      for (var k in allDataKeys) {
-        allData[k] = await _secureLazyDataBox!.get(k);
+      // 1. Yeni şifrenin AES Key'ini manuel olarak oluştur
+      final newSalt = await compute(_generateSaltSync, null);
+      final newKey = await compute(_deriveKeySync, {'pin': newPin, 'salt': newSalt});
+
+      // 2. Yeni şifreli geçici kutuları (Backup) aç
+      final tempIndexBox = await Hive.openBox('temp_new_index', encryptionCipher: HiveAesCipher(newKey));
+      final tempLazyBox = await Hive.openLazyBox('temp_new_data', encryptionCipher: HiveAesCipher(newKey));
+      final tempMediaBox = await Hive.openLazyBox('temp_new_media', encryptionCipher: HiveAesCipher(newKey));
+
+      // 3. Mevcut kasadaki tüm verileri bu geçici kutulara kopyala
+      await tempIndexBox.putAll(_secureIndexBox!.toMap());
+      
+      for (var k in _secureLazyDataBox!.keys) {
+         final val = await _secureLazyDataBox!.get(k);
+         if (val != null) await tempLazyBox.put(k, val);
+      }
+      
+      for (var k in _secureMediaBox!.keys) {
+         final val = await _secureMediaBox!.get(k);
+         if (val != null) await tempMediaBox.put(k, val);
       }
 
-      // 2. Medyaları RAM'de tutmak OOM (Out Of Memory) yaratabilir.
-      // Bu yüzden geçici bir AES kutusu açıp oraya kopyalıyoruz.
-      final tempMediaKey = Hive.generateSecureKey();
-      final tempMediaBox = await Hive.openLazyBox('temp_secure_media', encryptionCipher: HiveAesCipher(tempMediaKey));
-      final allMediaKeys = _secureMediaBox!.keys.toList();
-      for (var k in allMediaKeys) {
-        final mediaData = await _secureMediaBox!.get(k);
-        if (mediaData != null) await tempMediaBox.put(k, mediaData);
-      }
+      // 4. Geçici kutuları güvenle kapat (Diske mühürlendi)
+      await tempIndexBox.close();
+      await tempLazyBox.close();
+      await tempMediaBox.close();
 
-      // 3. Mevcut kasayı tamamen Yok Et (Reset). Biyometrik vs. de sıfırlanır.
+      // --- BURAYA KADAR HİÇBİR VERİ SİLİNMEDİ, ÇÖKSE BİLE GÜVENDE ---
+      
+      // 5. Artık eski kasayı tamamen Yok Et (Biyometrik vs dahil)
       await resetSecureKasa();
 
-      // 4. Yeni PIN ile kasayı baştan yarat (Kutular otomatik yeni şifreyle açılır)
-      await setSecurePin(newPin);
+      // 6. Yeni PIN'i sisteme kaydet (Bu, boş secure_... kutularını açar)
+      await _requireIndexBox.put('secure_pin_salt', newSalt);
+      final success = await unlockSecureNotes(newPin); // Kutuları newKey ile açar
+      if (!success) throw Exception('Yeni kasa açılamadı.');
+      await _requireIndexBox.put('has_secure_pin', true);
 
-      // 5. Verileri eski sistemden / geçici sistemden yeni kasaya aktar
-      await _secureIndexBox!.putAll(allIndex);
-      for (var entry in allData.entries) {
-        await _secureLazyDataBox!.put(entry.key, entry.value);
+      // 7. Verileri geçici (Backup) kutularından kalıcı kutulara aktar
+      final tempIndexBox2 = await Hive.openBox('temp_new_index', encryptionCipher: HiveAesCipher(newKey));
+      final tempLazyBox2 = await Hive.openLazyBox('temp_new_data', encryptionCipher: HiveAesCipher(newKey));
+      final tempMediaBox2 = await Hive.openLazyBox('temp_new_media', encryptionCipher: HiveAesCipher(newKey));
+
+      await _secureIndexBox!.putAll(tempIndexBox2.toMap());
+      
+      for (var k in tempLazyBox2.keys) {
+         final val = await tempLazyBox2.get(k);
+         if (val != null) await _secureLazyDataBox!.put(k, val);
       }
-      for (var k in allMediaKeys) {
-        final mediaData = await tempMediaBox.get(k);
-        if (mediaData != null) await _secureMediaBox!.put(k, mediaData);
+      for (var k in tempMediaBox2.keys) {
+         final val = await tempMediaBox2.get(k);
+         if (val != null) await _secureMediaBox!.put(k, val);
       }
 
-      // 6. Geçici kutuyu sil
-      await tempMediaBox.close();
-      await Hive.deleteBoxFromDisk('temp_secure_media');
+      // 8. Temp kutularını sonsuza dek sil
+      await tempIndexBox2.close();
+      await tempLazyBox2.close();
+      await tempMediaBox2.close();
+      
+      await Hive.deleteBoxFromDisk('temp_new_index');
+      await Hive.deleteBoxFromDisk('temp_new_data');
+      await Hive.deleteBoxFromDisk('temp_new_media');
 
       return true;
     } catch (e) {
       debugPrint('PIN Migration failed: $e');
+      // Hata durumunda kalan geçici çöpleri temizlemeye çalış
+      try {
+        await Hive.deleteBoxFromDisk('temp_new_index');
+        await Hive.deleteBoxFromDisk('temp_new_data');
+        await Hive.deleteBoxFromDisk('temp_new_media');
+      } catch (_) {}
       return false;
     }
   }
