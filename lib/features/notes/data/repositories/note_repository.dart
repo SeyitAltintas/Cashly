@@ -1071,12 +1071,22 @@ class NoteRepository {
       final note = getNoteById(id);
       if (note != null) {
         var deltaJson = await getNoteDeltaJson(id);
-        deltaJson = await _migrateMediaToSecure(deltaJson);
+        final filesToDelete = <File>[];
+        deltaJson = await _migrateMediaToSecure(deltaJson, filesToDelete);
+        
         final secureNote = note.copyWith(isSecure: true, deltaJson: deltaJson);
+        // 1. Veritabanını güvenle güncelle
         await _secureLazyDataBox!.put(secureNote.id, secureNote.deltaJson.isNotEmpty ? secureNote.deltaJson : '[]');
         await _secureIndexBox!.put(secureNote.id, secureNote.copyWith(deltaJson: '').toMap());
         await _requireIndexBox.delete(id);
         await _lazyDataBox!.delete(id);
+        
+        // 2. Veritabanı başarıyla güncellendikten SONRA orijinal medyaları sil (Atomic Transaction)
+        for (final file in filesToDelete) {
+          if (await file.exists()) {
+            await file.delete();
+          }
+        }
       }
     }
   }
@@ -1087,12 +1097,20 @@ class NoteRepository {
       final note = getSecureNoteById(id);
       if (note != null) {
         var deltaJson = await getSecureNoteDeltaJson(id);
-        deltaJson = await _migrateMediaToPublic(deltaJson);
+        final secureIdsToDelete = <String>[];
+        deltaJson = await _migrateMediaToPublic(deltaJson, secureIdsToDelete);
+        
         final publicNote = note.copyWith(isSecure: false, deltaJson: deltaJson);
+        // 1. Veritabanını güvenle güncelle
         await _lazyDataBox!.put(publicNote.id, publicNote.deltaJson.isNotEmpty ? publicNote.deltaJson : '[]');
         await _requireIndexBox.put(publicNote.id, publicNote.copyWith(deltaJson: '').toMap());
         await _secureIndexBox!.delete(id);
         await _secureLazyDataBox!.delete(id);
+        
+        // 2. Veritabanı başarıyla güncellendikten SONRA şifreli medyaları sil (Atomic Transaction)
+        for (final mediaId in secureIdsToDelete) {
+          await _secureMediaBox!.delete(mediaId);
+        }
       }
     }
   }
@@ -1139,7 +1157,7 @@ class NoteRepository {
     }
   }
 
-  Future<String> _migrateMediaToSecure(String deltaJson) async {
+  Future<String> _migrateMediaToSecure(String deltaJson, List<File> filesToDelete) async {
     if (deltaJson.isEmpty || deltaJson == '[]') return deltaJson;
     String newJson = deltaJson;
     try {
@@ -1156,7 +1174,7 @@ class NoteRepository {
             final ext = mediaPath.split('.').last;
             final secureUrl = await saveSecureMedia(bytes, ext);
             newJson = newJson.replaceAll('"$mediaPath"', '"$secureUrl"');
-            await file.delete(); 
+            filesToDelete.add(file); // Silmek yerine listeye ekle
           }
         }
       }
@@ -1164,7 +1182,7 @@ class NoteRepository {
     return newJson;
   }
 
-  Future<String> _migrateMediaToPublic(String deltaJson) async {
+  Future<String> _migrateMediaToPublic(String deltaJson, List<String> secureIdsToDelete) async {
     if (deltaJson.isEmpty || deltaJson == '[]') return deltaJson;
     String newJson = deltaJson;
     try {
@@ -1188,7 +1206,7 @@ class NoteRepository {
             final publicPath = '${dir.path}/${DateTime.now().microsecondsSinceEpoch}.$ext';
             await File(publicPath).writeAsBytes(bytes);
             newJson = newJson.replaceAll('"$mediaPath"', '"$publicPath"');
-            await _secureMediaBox!.delete(mediaId); 
+            secureIdsToDelete.add(mediaId); // Silmek yerine listeye ekle
           }
         }
       }
