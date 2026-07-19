@@ -919,9 +919,10 @@ class NoteRepository {
     if (_secureMediaBox?.isOpen == true) await _secureMediaBox!.close();
     _secureMediaBox = null;
 
-    // Pano Sızıntısını Önle: Gizli Kasa kapandığında telefonun panosunu boşalt
+    // Pano Sızıntısını Önle: Gizli Kasa kapandığında telefonun panosunu tamamen imha et (Native Android Wipe)
     try {
-      await Clipboard.setData(const ClipboardData(text: ''));
+      const platform = MethodChannel('com.seyitaltintas.cashly/security');
+      await platform.invokeMethod('clearClipboard');
     } catch (_) {}
   }
 

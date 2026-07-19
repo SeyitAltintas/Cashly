@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:screen_protector/screen_protector.dart';
+import 'package:flutter/services.dart';
 import 'package:cashly/features/notes/utils/note_media_helper.dart';
 
 import 'package:cashly/features/notes/presentation/widgets/note_editor_styles.dart';
@@ -56,6 +56,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   NoteModel? _note;
   int? _selectedColor;
 
+  static const platform = MethodChannel('com.seyitaltintas.cashly/security');
+
   Timer? _autoSaveTimer;
   final TextEditingController _titleController = TextEditingController();
 
@@ -88,8 +90,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     WidgetsBinding.instance.addObserver(this);
     
     if (widget.isSecure) {
-      ScreenProtector.preventScreenshotOn();
-      ScreenProtector.protectDataLeakageOn();
+      try {
+        platform.invokeMethod('secureScreenOn');
+      } catch (_) {}
     }
     
     _repository = getIt<NoteRepository>();
@@ -127,8 +130,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   @override
   void dispose() {
     if (widget.isSecure) {
-      ScreenProtector.preventScreenshotOff();
-      ScreenProtector.protectDataLeakageOff();
+      try {
+        platform.invokeMethod('secureScreenOff');
+      } catch (_) {}
     }
     WidgetsBinding.instance.removeObserver(this);
     _autoSaveTimer?.cancel();
