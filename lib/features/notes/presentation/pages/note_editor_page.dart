@@ -88,12 +88,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    
-    if (widget.isSecure) {
-      try {
-        platform.invokeMethod('secureScreenOn');
-      } catch (_) {}
-    }
+    // Güvenlik Kalkanı (FLAG_SECURE) SecureNotesPage tarafından açıldığı için 
+    // burada tekrar açıp kapatmaya gerek yok. Çakışmayı önlemek için kaldırıldı.
     
     _repository = getIt<NoteRepository>();
     _categoryRepository = getIt<NoteCategoryRepository>();
@@ -129,11 +125,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   @override
   void dispose() {
-    if (widget.isSecure) {
-      try {
-        platform.invokeMethod('secureScreenOff');
-      } catch (_) {}
-    }
     WidgetsBinding.instance.removeObserver(this);
     _autoSaveTimer?.cancel();
 
