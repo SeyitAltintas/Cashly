@@ -65,9 +65,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   final ScrollController _editorScrollController = ScrollController();
 
   bool _isEditing = false;
-  final NoteRepository _repository = getIt<NoteRepository>();
-  final NoteCategoryRepository _categoryRepository =
-      getIt<NoteCategoryRepository>();
+  late final NoteRepository _repository;
+  late final NoteCategoryRepository _categoryRepository;
   List<NoteCategoryModel> _allCategories = [];
 
   // Speech-to-text
@@ -86,6 +85,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _repository = getIt<NoteRepository>();
+    _categoryRepository = getIt<NoteCategoryRepository>();
     _editorFocusNode.addListener(_onFocusChange);
     _titleFocusNode.addListener(_onFocusChange);
     _loadNote();
