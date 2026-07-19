@@ -25,7 +25,9 @@ String _extractSearchableText(String deltaJson) {
       }
     }
     // Controller._toTurkishLowerCase ile aynı sıra: önce replaceAll, sonra toLowerCase
-    return buffer.toString().trim()
+    return buffer
+        .toString()
+        .trim()
         .replaceAll('I', 'ı')
         .replaceAll('İ', 'i')
         .toLowerCase();
@@ -54,7 +56,6 @@ String _extractSnippet(String deltaJson) {
   }
 }
 
-
 /// Hive tabanlı not deposu.
 ///
 /// Box yapısı: `'notes_index'` adlı normal box, her kayıt `noteId` key'i ile tutulur.
@@ -78,40 +79,45 @@ class NoteRepository {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   Future<void>? _initFuture;
-  
+
   /// GÜVENLİK (EDGE CASE): Kamera veya Galeri açıldığında işletim sistemi
   /// uygulamayı arka plana (paused) atar. Bu durumda uygulamanın kendini
   /// otomatik kilitlemesini engellemek için bu flag kullanılır.
   bool isMediaPicking = false;
 
   Future<void> init() {
-    if (_indexBox != null && _indexBox!.isOpen && _lazyDataBox != null && _lazyDataBox!.isOpen) return Future.value();
+    if (_indexBox != null &&
+        _indexBox!.isOpen &&
+        _lazyDataBox != null &&
+        _lazyDataBox!.isOpen) {
+      return Future.value();
+    }
     return _initFuture ??= _openBox_().whenComplete(() => _initFuture = null);
   }
 
   Future<void> _openBox_() async {
     _indexBox = await Hive.openBox(_indexBoxName);
     _lazyDataBox = await Hive.openLazyBox(_lazyDataBoxName);
-    
+
     if (await Hive.boxExists('notes')) {
       await _migrateOldBox();
     }
-    
+
     // iOS Sandbox Path Değişikliği Taraması (Hot Migration)
     await _fixSandboxPaths();
 
     // Arka planda orphan resimleri temizle (EC-25)
     cleanOrphanImages();
   }
-  
+
   /// Eski tek kutulu mimariden yeni Index/LazyBox mimarisine geçiş yapar.
   Future<void> _migrateOldBox() async {
     final oldBox = await Hive.openBox('notes');
     if (oldBox.isEmpty) {
-        await oldBox.deleteFromDisk();
-        return;
+      await oldBox.deleteFromDisk();
+      return;
     }
-    
+
     final updatesIndex = <String, dynamic>{};
     for (final key in oldBox.keys) {
       if (key == 'prefs_is_grid_view') {
@@ -122,14 +128,14 @@ class NoteRepository {
       if (raw is Map) {
         final noteMap = Map<String, dynamic>.from(raw);
         final deltaStr = (noteMap['deltaJson'] as String?) ?? '[]';
-        
+
         // Asıl veriyi LazyBox'a yaz
         await _lazyDataBox!.put(key, deltaStr);
-        
+
         // Index için veriyi kırp
-        noteMap['deltaJson'] = ''; 
+        noteMap['deltaJson'] = '';
         noteMap['snippet'] = _extractSnippet(deltaStr); // Yeni snippet
-        
+
         updatesIndex[key.toString()] = noteMap;
       }
     }
@@ -143,7 +149,7 @@ class NoteRepository {
       final docsDir = await getApplicationDocumentsDirectory();
       final imgDir = Directory('${docsDir.path}/note_images');
       final vidDir = Directory('${docsDir.path}/note_videos');
-      
+
       final updates = <String, String>{};
 
       for (final key in _lazyDataBox!.keys) {
@@ -163,7 +169,7 @@ class NoteRepository {
           if (op is! Map) continue;
           final insert = op['insert'];
           if (insert is! Map) continue;
-          
+
           if (insert.containsKey('image')) {
             final mediaPath = insert['image'];
             if (mediaPath is String && !mediaPath.startsWith('http')) {
@@ -175,7 +181,7 @@ class NoteRepository {
               }
             }
           }
-          
+
           if (insert.containsKey('video')) {
             final mediaPath = insert['video'];
             if (mediaPath is String && !mediaPath.startsWith('http')) {
@@ -191,12 +197,14 @@ class NoteRepository {
 
         if (changed) {
           await _lazyDataBox!.put(key, jsonEncode(ops));
-          updates[key as String] = 'updated'; 
+          updates[key as String] = 'updated';
         }
       }
 
       if (updates.isNotEmpty) {
-        debugPrint('EC-26: ${updates.length} notun kırık medya yolları onarıldı.');
+        debugPrint(
+          'EC-26: ${updates.length} notun kırık medya yolları onarıldı.',
+        );
       }
     } catch (e) {
       debugPrint('Path migration error: $e');
@@ -236,7 +244,7 @@ class NoteRepository {
       try {
         if (raw is! Map) continue;
         final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
-        if (note.id.isEmpty) continue; 
+        if (note.id.isEmpty) continue;
         if (note.id == 'prefs_is_grid_view') continue;
         if (note.deletedAt != null) continue; // Çöp kutusundakileri atla
 
@@ -259,7 +267,7 @@ class NoteRepository {
       try {
         if (raw is! Map) continue;
         final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
-        if (note.id.isEmpty) continue; 
+        if (note.id.isEmpty) continue;
         if (note.id == 'prefs_is_grid_view') continue;
         if (note.deletedAt == null) continue; // Sadece çöp kutusundakiler
 
@@ -293,11 +301,14 @@ class NoteRepository {
 
   Future<void> saveNote(NoteModel note) async {
     await init();
-    
-    // Güvenlik: Eğer deltaJson boş gelirse (çok nadir de olsa), LazyBox içindeki 
+
+    // Güvenlik: Eğer deltaJson boş gelirse (çok nadir de olsa), LazyBox içindeki
     // eski veriyi silmek veya boş string atamak gerekir.
-    await _lazyDataBox!.put(note.id, note.deltaJson.isNotEmpty ? note.deltaJson : '[]');
-    
+    await _lazyDataBox!.put(
+      note.id,
+      note.deltaJson.isNotEmpty ? note.deltaJson : '[]',
+    );
+
     final indexNote = note.copyWith(deltaJson: '');
     await _requireIndexBox.put(note.id, indexNote.toMap());
   }
@@ -307,7 +318,10 @@ class NoteRepository {
     // Sadece index güncellenir — setPinStateForNotes batch ile tutarlı
     final note = getNoteById(id);
     if (note != null) {
-      await _requireIndexBox.put(id, note.copyWith(isPinned: !note.isPinned).toMap());
+      await _requireIndexBox.put(
+        id,
+        note.copyWith(isPinned: !note.isPinned).toMap(),
+      );
     }
   }
 
@@ -318,7 +332,9 @@ class NoteRepository {
     for (final id in ids) {
       final note = getNoteById(id);
       if (note != null) {
-        updates[id] = note.copyWith(isPinned: isPinned).toMap(); // index update doesn't need delta
+        updates[id] = note
+            .copyWith(isPinned: isPinned)
+            .toMap(); // index update doesn't need delta
       }
     }
 
@@ -334,11 +350,13 @@ class NoteRepository {
     for (final id in ids) {
       final note = getNoteById(id);
       if (note != null && note.categoryId != categoryId) {
-        updates[id] = note.copyWith(
-          categoryId: categoryId,
-          clearCategory: categoryId == null,
-          updatedAt: DateTime.now(),
-        ).toMap();
+        updates[id] = note
+            .copyWith(
+              categoryId: categoryId,
+              clearCategory: categoryId == null,
+              updatedAt: DateTime.now(),
+            )
+            .toMap();
       }
     }
 
@@ -350,7 +368,7 @@ class NoteRepository {
   Future<void> removeCategoryFromNotes(String categoryId) async {
     await init();
     final updates = <String, Map<String, dynamic>>{};
-    
+
     for (final key in _requireIndexBox.keys) {
       if (key == 'prefs_is_grid_view') continue;
       final raw = _requireIndexBox.get(key);
@@ -362,7 +380,7 @@ class NoteRepository {
         }
       }
     }
-    
+
     if (updates.isNotEmpty) {
       await _requireIndexBox.putAll(updates);
     }
@@ -382,7 +400,8 @@ class NoteRepository {
     await init();
 
     if (isSecure || (isSecureNotesUnlocked && getSecureNoteById(id) != null)) {
-      var note = getSecureNoteById(id) ??
+      var note =
+          getSecureNoteById(id) ??
           NoteModel(
             id: id,
             title: '',
@@ -412,7 +431,8 @@ class NoteRepository {
       return note;
     }
 
-    var note = getNoteById(id) ??
+    var note =
+        getNoteById(id) ??
         NoteModel(
           id: id,
           title: '',
@@ -446,7 +466,7 @@ class NoteRepository {
 
   Future<void> deleteNote(String id) async {
     await init();
-    
+
     // Güvenli kasadaysa doğrudan kalıcı olarak sil (Çöp kutusuna sızmasını engelle)
     if (isSecureNotesUnlocked && (_secureIndexBox?.containsKey(id) ?? false)) {
       await permanentlyDeleteNote(id, isSecure: true);
@@ -458,7 +478,10 @@ class NoteRepository {
       final raw = _requireIndexBox.get(id);
       if (raw != null) {
         final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
-        await _requireIndexBox.put(id, note.copyWith(deletedAt: DateTime.now()).toMap());
+        await _requireIndexBox.put(
+          id,
+          note.copyWith(deletedAt: DateTime.now()).toMap(),
+        );
       }
     }
   }
@@ -470,7 +493,8 @@ class NoteRepository {
     final now = DateTime.now();
 
     for (final id in ids) {
-      if (isSecureNotesUnlocked && (_secureIndexBox?.containsKey(id) ?? false)) {
+      if (isSecureNotesUnlocked &&
+          (_secureIndexBox?.containsKey(id) ?? false)) {
         secureIdsToDelete.add(id);
       } else if (_requireIndexBox.containsKey(id)) {
         final raw = _requireIndexBox.get(id);
@@ -495,7 +519,10 @@ class NoteRepository {
       final raw = _requireIndexBox.get(id);
       if (raw != null) {
         final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
-        await _requireIndexBox.put(id, note.copyWith(clearDeletedAt: true).toMap());
+        await _requireIndexBox.put(
+          id,
+          note.copyWith(clearDeletedAt: true).toMap(),
+        );
       }
     }
   }
@@ -521,7 +548,7 @@ class NoteRepository {
 
   Future<void> permanentlyDeleteNote(String id, {bool isSecure = false}) async {
     await init();
-    
+
     if (isSecure) {
       if (!isSecureNotesUnlocked) return;
       final deltaStr = await _secureLazyDataBox?.get(id) as String? ?? '';
@@ -540,7 +567,10 @@ class NoteRepository {
     }
   }
 
-  Future<void> permanentlyDeleteNotes(List<String> ids, {bool isSecure = false}) async {
+  Future<void> permanentlyDeleteNotes(
+    List<String> ids, {
+    bool isSecure = false,
+  }) async {
     await init();
     if (ids.isEmpty) return;
 
@@ -578,7 +608,7 @@ class NoteRepository {
     await init(); // Box'un açık olduğundan emin ol
     final trashNotes = getTrashNotes();
     if (trashNotes.isEmpty) return;
-    
+
     final ids = trashNotes.map((n) => n.id).toList();
     await permanentlyDeleteNotes(ids);
   }
@@ -600,7 +630,9 @@ class NoteRepository {
 
     if (idsToDelete.isNotEmpty) {
       await permanentlyDeleteNotes(idsToDelete);
-      debugPrint('EC-TRASH: $days günden eski ${idsToDelete.length} not kalıcı olarak silindi.');
+      debugPrint(
+        'EC-TRASH: $days günden eski ${idsToDelete.length} not kalıcı olarak silindi.',
+      );
     }
   }
 
@@ -643,7 +675,7 @@ class NoteRepository {
         await noteImgDir.delete(recursive: true);
         debugPrint('EC-24: Tüm not resimleri silindi.');
       }
-      
+
       final noteVidDir = Directory('${docsDir.path}/note_videos');
       if (await noteVidDir.exists()) {
         await noteVidDir.delete(recursive: true);
@@ -693,7 +725,7 @@ class NoteRepository {
           }
         }
       }
-      
+
       if (await vidDir.exists()) {
         final files = vidDir.listSync();
         for (final entity in files) {
@@ -737,6 +769,17 @@ class NoteRepository {
       final allKeys = _secureMediaBox!.keys.toList();
       for (final key in allKeys) {
         if (!activeMediaIds.contains(key)) {
+          // GÜVENLİK (EDGE CASE): Yeni oluşturulan şifreli medyaların not kaydedilmeden
+          // silinmesini önlemek için 5 dakikalık (Grace Period) tolerans süresi tanınır.
+          final timestampStr = key.toString().replaceFirst('secure_media_', '').split('.').first;
+          final timestamp = int.tryParse(timestampStr);
+          if (timestamp != null) {
+            final now = DateTime.now().microsecondsSinceEpoch;
+            if (now - timestamp < 5 * 60 * 1000000) {
+              continue; // 5 dakikadan yeniyse SİLME, atla.
+            }
+          }
+          
           await _secureMediaBox!.delete(key);
           debugPrint('EC-26: Orphan şifreli medya temizlendi → $key');
         }
@@ -752,7 +795,8 @@ class NoteRepository {
 
   // ─── Güvenli Notlar (Secure Notes) ──────────────────────────────────────────
 
-  bool get hasSecurePin => _requireIndexBox.get('has_secure_pin', defaultValue: false) as bool;
+  bool get hasSecurePin =>
+      _requireIndexBox.get('has_secure_pin', defaultValue: false) as bool;
 
   Future<void> setSecurePin(String pin) async {
     // Generate salt asynchronously on a background isolate
@@ -781,7 +825,7 @@ class NoteRepository {
         // Fallback for existing PINs created before the security update
         key = sha256.convert(utf8.encode(pin)).bytes;
       }
-      
+
       if (_secureIndexBox?.isOpen == true) await _secureIndexBox!.close();
       if (_secureLazyDataBox?.isOpen == true) await _secureLazyDataBox!.close();
 
@@ -809,11 +853,11 @@ class NoteRepository {
           return false;
         }
       }
-      
+
       // EC-26: Kasa başarıyla açıldığında, arka planda (kullanıcıyı bekletmeden)
       // yetim/çöp şifreli medyaları temizle.
       cleanOrphanSecureMedia();
-      
+
       return true;
     } catch (e) {
       debugPrint('Unlock secure notes error: $e');
@@ -837,11 +881,11 @@ class NoteRepository {
   /// kilitli kutuların diskten fiziksel olarak silinmesi gerekir (Hard Wipe).
   Future<void> resetSecureKasa() async {
     await closeSecureNotes(force: true);
-    
+
     await Hive.deleteBoxFromDisk('secure_notes_index');
     await Hive.deleteBoxFromDisk('secure_notes_data');
     await Hive.deleteBoxFromDisk('secure_media_box');
-    
+
     await _requireIndexBox.delete('has_secure_pin');
     await _requireIndexBox.delete('secure_pin_salt');
     await _requireIndexBox.delete('secure_pin_hash');
@@ -861,24 +905,36 @@ class NoteRepository {
     try {
       // 1. Yeni şifrenin AES Key'ini manuel olarak oluştur
       final newSalt = await compute(_generateSaltSync, null);
-      final newKey = await compute(_deriveKeySync, {'pin': newPin, 'salt': newSalt});
+      final newKey = await compute(_deriveKeySync, {
+        'pin': newPin,
+        'salt': newSalt,
+      });
 
       // 2. Yeni şifreli geçici kutuları (Backup) aç
-      final tempIndexBox = await Hive.openBox('temp_new_index', encryptionCipher: HiveAesCipher(newKey));
-      final tempLazyBox = await Hive.openLazyBox('temp_new_data', encryptionCipher: HiveAesCipher(newKey));
-      final tempMediaBox = await Hive.openLazyBox('temp_new_media', encryptionCipher: HiveAesCipher(newKey));
+      final tempIndexBox = await Hive.openBox(
+        'temp_new_index',
+        encryptionCipher: HiveAesCipher(newKey),
+      );
+      final tempLazyBox = await Hive.openLazyBox(
+        'temp_new_data',
+        encryptionCipher: HiveAesCipher(newKey),
+      );
+      final tempMediaBox = await Hive.openLazyBox(
+        'temp_new_media',
+        encryptionCipher: HiveAesCipher(newKey),
+      );
 
       // 3. Mevcut kasadaki tüm verileri bu geçici kutulara kopyala
       await tempIndexBox.putAll(_secureIndexBox!.toMap());
-      
+
       for (var k in _secureLazyDataBox!.keys) {
-         final val = await _secureLazyDataBox!.get(k);
-         if (val != null) await tempLazyBox.put(k, val);
+        final val = await _secureLazyDataBox!.get(k);
+        if (val != null) await tempLazyBox.put(k, val);
       }
-      
+
       for (var k in _secureMediaBox!.keys) {
-         final val = await _secureMediaBox!.get(k);
-         if (val != null) await tempMediaBox.put(k, val);
+        final val = await _secureMediaBox!.get(k);
+        if (val != null) await tempMediaBox.put(k, val);
       }
 
       // 4. Geçici kutuları güvenle kapat (Diske mühürlendi)
@@ -887,7 +943,7 @@ class NoteRepository {
       await tempMediaBox.close();
 
       // --- BURAYA KADAR HİÇBİR VERİ SİLİNMEDİ, ÇÖKSE BİLE GÜVENDE ---
-      
+
       // 5. Artık eski kasayı tamamen Yok Et (Biyometrik vs dahil)
       await resetSecureKasa();
 
@@ -895,31 +951,42 @@ class NoteRepository {
       await _requireIndexBox.put('secure_pin_salt', newSalt);
       final newHash = sha256.convert(newKey).toString();
       await _requireIndexBox.put('secure_pin_hash', newHash);
-      final success = await unlockSecureNotes(newPin); // Kutuları newKey ile açar
+      final success = await unlockSecureNotes(
+        newPin,
+      ); // Kutuları newKey ile açar
       if (!success) throw Exception('Yeni kasa açılamadı.');
       await _requireIndexBox.put('has_secure_pin', true);
 
       // 7. Verileri geçici (Backup) kutularından kalıcı kutulara aktar
-      final tempIndexBox2 = await Hive.openBox('temp_new_index', encryptionCipher: HiveAesCipher(newKey));
-      final tempLazyBox2 = await Hive.openLazyBox('temp_new_data', encryptionCipher: HiveAesCipher(newKey));
-      final tempMediaBox2 = await Hive.openLazyBox('temp_new_media', encryptionCipher: HiveAesCipher(newKey));
+      final tempIndexBox2 = await Hive.openBox(
+        'temp_new_index',
+        encryptionCipher: HiveAesCipher(newKey),
+      );
+      final tempLazyBox2 = await Hive.openLazyBox(
+        'temp_new_data',
+        encryptionCipher: HiveAesCipher(newKey),
+      );
+      final tempMediaBox2 = await Hive.openLazyBox(
+        'temp_new_media',
+        encryptionCipher: HiveAesCipher(newKey),
+      );
 
       await _secureIndexBox!.putAll(tempIndexBox2.toMap());
-      
+
       for (var k in tempLazyBox2.keys) {
-         final val = await tempLazyBox2.get(k);
-         if (val != null) await _secureLazyDataBox!.put(k, val);
+        final val = await tempLazyBox2.get(k);
+        if (val != null) await _secureLazyDataBox!.put(k, val);
       }
       for (var k in tempMediaBox2.keys) {
-         final val = await tempMediaBox2.get(k);
-         if (val != null) await _secureMediaBox!.put(k, val);
+        final val = await tempMediaBox2.get(k);
+        if (val != null) await _secureMediaBox!.put(k, val);
       }
 
       // 8. Temp kutularını sonsuza dek sil
       await tempIndexBox2.close();
       await tempLazyBox2.close();
       await tempMediaBox2.close();
-      
+
       await Hive.deleteBoxFromDisk('temp_new_index');
       await Hive.deleteBoxFromDisk('temp_new_data');
       await Hive.deleteBoxFromDisk('temp_new_media');
@@ -967,7 +1034,8 @@ class NoteRepository {
 
   Future<bool> canUseBiometrics() async {
     final canAuthenticateWithBiometrics = await _auth.canCheckBiometrics;
-    final canAuthenticate = canAuthenticateWithBiometrics || await _auth.isDeviceSupported();
+    final canAuthenticate =
+        canAuthenticateWithBiometrics || await _auth.isDeviceSupported();
     return canAuthenticate;
   }
 
@@ -994,7 +1062,8 @@ class NoteRepository {
         localizedReason: localizedReason,
         options: const AuthenticationOptions(
           stickyAuth: true,
-          biometricOnly: true, // Sadece parmak izi/yüz tanıma (cihaz PIN'i değil)
+          biometricOnly:
+              true, // Sadece parmak izi/yüz tanıma (cihaz PIN'i değil)
         ),
       );
 
@@ -1011,11 +1080,13 @@ class NoteRepository {
     }
   }
 
-  bool get isSecureNotesUnlocked => _secureIndexBox != null && _secureIndexBox!.isOpen;
+  bool get isSecureNotesUnlocked =>
+      _secureIndexBox != null && _secureIndexBox!.isOpen;
 
   Future<String> saveSecureMedia(Uint8List bytes, String extension) async {
     if (!isSecureNotesUnlocked) throw Exception('Secure notes locked');
-    final id = 'secure_media_${DateTime.now().microsecondsSinceEpoch}.$extension';
+    final id =
+        'secure_media_${DateTime.now().microsecondsSinceEpoch}.$extension';
     await _secureMediaBox!.put(id, bytes);
     return 'secure-media://$id';
   }
@@ -1067,7 +1138,10 @@ class NoteRepository {
 
   Future<void> saveSecureNote(NoteModel note) async {
     if (!isSecureNotesUnlocked) throw StateError('Secure notes are locked.');
-    await _secureLazyDataBox!.put(note.id, note.deltaJson.isNotEmpty ? note.deltaJson : '[]');
+    await _secureLazyDataBox!.put(
+      note.id,
+      note.deltaJson.isNotEmpty ? note.deltaJson : '[]',
+    );
     final indexNote = note.copyWith(deltaJson: '');
     await _secureIndexBox!.put(note.id, indexNote.toMap());
   }
@@ -1080,14 +1154,20 @@ class NoteRepository {
         var deltaJson = await getNoteDeltaJson(id);
         final filesToDelete = <File>[];
         deltaJson = await _migrateMediaToSecure(deltaJson, filesToDelete);
-        
+
         final secureNote = note.copyWith(isSecure: true, deltaJson: deltaJson);
         // 1. Veritabanını güvenle güncelle
-        await _secureLazyDataBox!.put(secureNote.id, secureNote.deltaJson.isNotEmpty ? secureNote.deltaJson : '[]');
-        await _secureIndexBox!.put(secureNote.id, secureNote.copyWith(deltaJson: '').toMap());
+        await _secureLazyDataBox!.put(
+          secureNote.id,
+          secureNote.deltaJson.isNotEmpty ? secureNote.deltaJson : '[]',
+        );
+        await _secureIndexBox!.put(
+          secureNote.id,
+          secureNote.copyWith(deltaJson: '').toMap(),
+        );
         await _requireIndexBox.delete(id);
         await _lazyDataBox!.delete(id);
-        
+
         // 2. Veritabanı başarıyla güncellendikten SONRA orijinal medyaları sil (Atomic Transaction)
         for (final file in filesToDelete) {
           if (await file.exists()) {
@@ -1106,14 +1186,20 @@ class NoteRepository {
         var deltaJson = await getSecureNoteDeltaJson(id);
         final secureIdsToDelete = <String>[];
         deltaJson = await _migrateMediaToPublic(deltaJson, secureIdsToDelete);
-        
+
         final publicNote = note.copyWith(isSecure: false, deltaJson: deltaJson);
         // 1. Veritabanını güvenle güncelle
-        await _lazyDataBox!.put(publicNote.id, publicNote.deltaJson.isNotEmpty ? publicNote.deltaJson : '[]');
-        await _requireIndexBox.put(publicNote.id, publicNote.copyWith(deltaJson: '').toMap());
+        await _lazyDataBox!.put(
+          publicNote.id,
+          publicNote.deltaJson.isNotEmpty ? publicNote.deltaJson : '[]',
+        );
+        await _requireIndexBox.put(
+          publicNote.id,
+          publicNote.copyWith(deltaJson: '').toMap(),
+        );
         await _secureIndexBox!.delete(id);
         await _secureLazyDataBox!.delete(id);
-        
+
         // 2. Veritabanı başarıyla güncellendikten SONRA şifreli medyaları sil (Atomic Transaction)
         for (final mediaId in secureIdsToDelete) {
           await _secureMediaBox!.delete(mediaId);
@@ -1164,7 +1250,10 @@ class NoteRepository {
     }
   }
 
-  Future<String> _migrateMediaToSecure(String deltaJson, List<File> filesToDelete) async {
+  Future<String> _migrateMediaToSecure(
+    String deltaJson,
+    List<File> filesToDelete,
+  ) async {
     if (deltaJson.isEmpty || deltaJson == '[]') return deltaJson;
     String newJson = deltaJson;
     try {
@@ -1174,7 +1263,9 @@ class NoteRepository {
         final insert = op['insert'];
         if (insert is! Map) continue;
         final mediaPath = insert['image'] ?? insert['video'];
-        if (mediaPath is String && !mediaPath.startsWith('http') && !mediaPath.startsWith('secure-media://')) {
+        if (mediaPath is String &&
+            !mediaPath.startsWith('http') &&
+            !mediaPath.startsWith('secure-media://')) {
           final file = File(mediaPath);
           if (await file.exists()) {
             final bytes = await file.readAsBytes();
@@ -1189,7 +1280,10 @@ class NoteRepository {
     return newJson;
   }
 
-  Future<String> _migrateMediaToPublic(String deltaJson, List<String> secureIdsToDelete) async {
+  Future<String> _migrateMediaToPublic(
+    String deltaJson,
+    List<String> secureIdsToDelete,
+  ) async {
     if (deltaJson.isEmpty || deltaJson == '[]') return deltaJson;
     String newJson = deltaJson;
     try {
@@ -1209,8 +1303,9 @@ class NoteRepository {
             final folderName = isVideo ? 'note_videos' : 'note_images';
             final dir = Directory('${docsDir.path}/$folderName');
             if (!await dir.exists()) await dir.create(recursive: true);
-            
-            final publicPath = '${dir.path}/${DateTime.now().microsecondsSinceEpoch}.$ext';
+
+            final publicPath =
+                '${dir.path}/${DateTime.now().microsecondsSinceEpoch}.$ext';
             await File(publicPath).writeAsBytes(bytes);
             newJson = newJson.replaceAll('"$mediaPath"', '"$publicPath"');
             secureIdsToDelete.add(mediaId); // Silmek yerine listeye ekle
