@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:screen_protector/screen_protector.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/features/notes/data/repositories/note_repository.dart';
 import 'package:cashly/core/di/injection_container.dart';
@@ -39,6 +41,10 @@ class _SecureNotesPageState extends State<SecureNotesPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    
+    ScreenProtector.preventScreenshotOn();
+    ScreenProtector.protectDataLeakageOn();
+    
     _isCreatingPin = !_repository.hasSecurePin;
     _checkBiometricStatus();
   }
@@ -114,6 +120,9 @@ class _SecureNotesPageState extends State<SecureNotesPage>
 
   @override
   void dispose() {
+    ScreenProtector.preventScreenshotOff();
+    ScreenProtector.protectDataLeakageOff();
+    
     _subscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _repository.closeSecureNotes();

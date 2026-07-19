@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:screen_protector/screen_protector.dart';
 import 'package:cashly/features/notes/utils/note_media_helper.dart';
 
 import 'package:cashly/features/notes/presentation/widgets/note_editor_styles.dart';
@@ -85,6 +86,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    
+    if (widget.isSecure) {
+      ScreenProtector.preventScreenshotOn();
+      ScreenProtector.protectDataLeakageOn();
+    }
+    
     _repository = getIt<NoteRepository>();
     _categoryRepository = getIt<NoteCategoryRepository>();
     _editorFocusNode.addListener(_onFocusChange);
@@ -119,6 +126,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   @override
   void dispose() {
+    if (widget.isSecure) {
+      ScreenProtector.preventScreenshotOff();
+      ScreenProtector.protectDataLeakageOff();
+    }
     WidgetsBinding.instance.removeObserver(this);
     _autoSaveTimer?.cancel();
 

@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/services.dart';
 import '../models/note_model.dart';
 
 // ─── Plain text extraction ────────────────────────────────────────────────────
@@ -917,6 +918,11 @@ class NoteRepository {
     _secureLazyDataBox = null;
     if (_secureMediaBox?.isOpen == true) await _secureMediaBox!.close();
     _secureMediaBox = null;
+
+    // Pano Sızıntısını Önle: Gizli Kasa kapandığında telefonun panosunu boşalt
+    try {
+      await Clipboard.setData(const ClipboardData(text: ''));
+    } catch (_) {}
   }
 
   /// GÜVENLİK (EDGE CASE): Kullanıcı PIN'ini unutursa, şifreli veriler
