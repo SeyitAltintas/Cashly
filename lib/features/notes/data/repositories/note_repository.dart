@@ -798,7 +798,83 @@ class NoteRepository {
     
     await _requireIndexBox.delete('has_secure_pin');
     await _requireIndexBox.delete('secure_pin_salt');
-    await disableBiometric(); // Biyometrik çipi de temizle
+    await disableBiometric(); // Biyometrik çipi temizle
+    await disableAutoUnlock(); // Otomatik giriş çipini temizle
+  }
+
+  // ─── PIN Migration (Şifre Değiştirme) ─────────────────────────────────────
+
+  Future<bool> changeSecurePin(String currentPin, String newPin) async {
+    if (!isSecureNotesUnlocked) return false;
+
+    try {
+      // 1. Yazılı metinleri ve indeksleri RAM'e al (Metinler az yer kaplar)
+      final allIndex = _secureIndexBox!.toMap();
+      final allDataKeys = _secureLazyDataBox!.keys.toList();
+      final Map<dynamic, dynamic> allData = {};
+      for (var k in allDataKeys) {
+        allData[k] = await _secureLazyDataBox!.get(k);
+      }
+
+      // 2. Medyaları RAM'de tutmak OOM (Out Of Memory) yaratabilir.
+      // Bu yüzden geçici bir AES kutusu açıp oraya kopyalıyoruz.
+      final tempMediaKey = Hive.generateSecureKey();
+      final tempMediaBox = await Hive.openLazyBox('temp_secure_media', encryptionCipher: HiveAesCipher(tempMediaKey));
+      final allMediaKeys = _secureMediaBox!.keys.toList();
+      for (var k in allMediaKeys) {
+        final mediaData = await _secureMediaBox!.get(k);
+        if (mediaData != null) await tempMediaBox.put(k, mediaData);
+      }
+
+      // 3. Mevcut kasayı tamamen Yok Et (Reset). Biyometrik vs. de sıfırlanır.
+      await resetSecureKasa();
+
+      // 4. Yeni PIN ile kasayı baştan yarat (Kutular otomatik yeni şifreyle açılır)
+      await setSecurePin(newPin);
+
+      // 5. Verileri eski sistemden / geçici sistemden yeni kasaya aktar
+      await _secureIndexBox!.putAll(allIndex);
+      for (var entry in allData.entries) {
+        await _secureLazyDataBox!.put(entry.key, entry.value);
+      }
+      for (var k in allMediaKeys) {
+        final mediaData = await tempMediaBox.get(k);
+        if (mediaData != null) await _secureMediaBox!.put(k, mediaData);
+      }
+
+      // 6. Geçici kutuyu sil
+      await tempMediaBox.close();
+      await Hive.deleteBoxFromDisk('temp_secure_media');
+
+      return true;
+    } catch (e) {
+      debugPrint('PIN Migration failed: $e');
+      return false;
+    }
+  }
+
+  // ─── Auto-Unlock (Şifre Sorma) ────────────────────────────────────────────
+
+  Future<bool> get isAutoUnlockEnabled async {
+    final pin = await _secureStorage.read(key: 'auto_unlock_pin');
+    return pin != null && pin.isNotEmpty;
+  }
+
+  Future<void> enableAutoUnlock(String currentPin) async {
+    if (!hasSecurePin) throw StateError('Secure PIN is not set.');
+    await _secureStorage.write(key: 'auto_unlock_pin', value: currentPin);
+  }
+
+  Future<void> disableAutoUnlock() async {
+    await _secureStorage.delete(key: 'auto_unlock_pin');
+  }
+
+  Future<bool> unlockWithAuto() async {
+    final pin = await _secureStorage.read(key: 'auto_unlock_pin');
+    if (pin != null) {
+      return await unlockSecureNotes(pin);
+    }
+    return false;
   }
 
   // ─── Biometrics ───────────────────────────────────────────────────────────

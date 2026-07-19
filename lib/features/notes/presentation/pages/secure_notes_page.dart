@@ -16,7 +16,8 @@ class SecureNotesPage extends StatefulWidget {
   State<SecureNotesPage> createState() => _SecureNotesPageState();
 }
 
-class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingObserver {
+class _SecureNotesPageState extends State<SecureNotesPage>
+    with WidgetsBindingObserver {
   final NoteRepository _repository = getIt<NoteRepository>();
   bool _isUnlocked = false;
   bool _isCreatingPin = false;
@@ -30,6 +31,7 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
   StreamSubscription<BoxEvent>? _subscription;
 
   bool _isBiometricEnabled = false;
+  bool _isAutoUnlock = false;
   bool _canUseBiometrics = false;
 
   @override
@@ -42,14 +44,40 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
 
   Future<void> _checkBiometricStatus() async {
     final canUse = await _repository.canUseBiometrics();
-    final isEnabled = await _repository.isBiometricEnabled;
+    final isBiometric = await _repository.isBiometricEnabled;
+    final isAuto = await _repository.isAutoUnlockEnabled;
+
     if (mounted) {
       setState(() {
         _canUseBiometrics = canUse;
-        _isBiometricEnabled = isEnabled;
+        _isBiometricEnabled = isBiometric;
+        _isAutoUnlock = isAuto;
       });
-      if (!_isCreatingPin && _isBiometricEnabled && !_isUnlocked) {
-        _authenticateWithBiometric();
+
+      if (!_isCreatingPin && !_isUnlocked) {
+        if (_isAutoUnlock) {
+          _authenticateWithAuto();
+        } else if (_isBiometricEnabled) {
+          _authenticateWithBiometric();
+        }
+      }
+    }
+  }
+
+  Future<void> _authenticateWithAuto() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+    final success = await _repository.unlockWithAuto();
+    if (mounted) {
+      if (success) {
+        setState(() {
+          _isUnlocked = true;
+          _isLoading = false;
+          _pin = '';
+        });
+        _startWatchingSecureNotes();
+      } else {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -57,7 +85,9 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
   Future<void> _authenticateWithBiometric() async {
     if (_isLoading) return;
     setState(() => _isLoading = true);
-    final success = await _repository.unlockWithBiometric('Gizli kasanızın kilidini açın');
+    final success = await _repository.unlockWithBiometric(
+      'Gizli kasanızın kilidini açın',
+    );
     if (mounted) {
       if (success) {
         setState(() {
@@ -82,9 +112,12 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
-      if (_repository.isMediaPicking) return; // EC-EDGE: Kamera/Galeri açıksa kilitleme
-      
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      if (_repository.isMediaPicking) {
+        return; // EC-EDGE: Kamera/Galeri açıksa kilitleme
+      }
+
       // Lock on app pause / background
       _subscription?.cancel();
       _subscription = null;
@@ -137,7 +170,10 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
           _isConfirmingPin = false;
           _isLoading = false;
         });
-        AppSnackBar.success(context, 'Kasa sıfırlandı. Lütfen yeni bir PIN oluşturun.');
+        AppSnackBar.success(
+          context,
+          'Kasa sıfırlandı. Lütfen yeni bir PIN oluşturun.',
+        );
       }
     }
   }
@@ -176,14 +212,16 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
       } else {
         if (_pin == _firstPin) {
           await _repository.setSecurePin(_pin);
-          
+
           if (mounted && _canUseBiometrics) {
             final wantBiometric = await showDialog<bool>(
               context: context,
               barrierDismissible: false,
               builder: (ctx) => AlertDialog(
                 title: const Text('Biyometrik Giriş'),
-                content: const Text('Gizli kasanıza daha hızlı erişmek için yüz tanıma veya parmak izi kullanmak ister misiniz?'),
+                content: const Text(
+                  'Gizli kasanıza daha hızlı erişmek için yüz tanıma veya parmak izi kullanmak ister misiniz?',
+                ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(ctx).pop(false),
@@ -210,7 +248,10 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
               _pin = '';
             });
             _startWatchingSecureNotes();
-            AppSnackBar.success(context, 'Güvenlik PIN\'i başarıyla oluşturuldu.');
+            AppSnackBar.success(
+              context,
+              'Güvenlik PIN\'i başarıyla oluşturuldu.',
+            );
           }
         } else {
           HapticFeedback.heavyImpact();
@@ -220,7 +261,10 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
             _isLoading = false;
           });
           if (mounted) {
-            AppSnackBar.error(context, 'PIN kodları eşleşmedi. Tekrar deneyin.');
+            AppSnackBar.error(
+              context,
+              'PIN kodları eşleşmedi. Tekrar deneyin.',
+            );
           }
         }
       }
@@ -300,7 +344,9 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Kalıcı Olarak Sil'),
-        content: Text('$count adet güvenli not kalıcı olarak silinecektir. Bu işlem geri alınamaz.'),
+        content: Text(
+          '$count adet güvenli not kalıcı olarak silinecektir. Bu işlem geri alınamaz.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -359,15 +405,21 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
                         : colorScheme.primaryContainer.withValues(alpha: 0.2),
                   ),
                   child: Icon(
-                    _isPinError ? Icons.lock_open_rounded : Icons.lock_outline_rounded,
-                    color: _isPinError ? colorScheme.error : colorScheme.primary,
+                    _isPinError
+                        ? Icons.lock_open_rounded
+                        : Icons.lock_outline_rounded,
+                    color: _isPinError
+                        ? colorScheme.error
+                        : colorScheme.primary,
                     size: 36,
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   _isCreatingPin
-                      ? (_isConfirmingPin ? 'PIN Kodunu Doğrula' : 'Yeni PIN Kodu Belirle')
+                      ? (_isConfirmingPin
+                            ? 'PIN Kodunu Doğrula'
+                            : 'Yeni PIN Kodu Belirle')
                       : 'Gizli Bölge',
                   style: TextStyle(
                     fontSize: 22,
@@ -381,12 +433,14 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
                   _isPinError
                       ? 'Hatalı PIN. Tekrar deneyin.'
                       : (_isCreatingPin && !_isConfirmingPin
-                          ? 'Gizli notlarınızı şifrelemek için 4 haneli kod belirleyin'
-                          : 'Güvenli notlarınıza erişmek için PIN kodunuzu girin'),
+                            ? 'Gizli notlarınızı şifrelemek için 4 haneli kod belirleyin'
+                            : 'Güvenli notlarınıza erişmek için PIN kodunuzu girin'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
-                    color: _isPinError ? colorScheme.error : colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: _isPinError
+                        ? colorScheme.error
+                        : colorScheme.onSurface.withValues(alpha: 0.5),
                     fontFamily: 'Inter',
                   ),
                 ),
@@ -405,11 +459,17 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
                         shape: BoxShape.circle,
                         color: _isPinError
                             ? (hasChar ? colorScheme.error : Colors.transparent)
-                            : (hasChar ? colorScheme.primary : Colors.transparent),
+                            : (hasChar
+                                  ? colorScheme.primary
+                                  : Colors.transparent),
                         border: Border.all(
                           color: _isPinError
                               ? colorScheme.error
-                              : (hasChar ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.2)),
+                              : (hasChar
+                                    ? colorScheme.primary
+                                    : colorScheme.onSurface.withValues(
+                                        alpha: 0.2,
+                                      )),
                           width: 2,
                         ),
                       ),
@@ -529,23 +589,11 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (_canUseBiometrics)
-                  IconButton(
-                    icon: Icon(_isBiometricEnabled ? Icons.fingerprint_rounded : Icons.fingerprint),
-                    color: _isBiometricEnabled ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.5),
-                    tooltip: 'Biyometrik Giriş',
-                    onPressed: () async {
-                      if (_isBiometricEnabled) {
-                        await _repository.disableBiometric();
-                        if (!context.mounted) return;
-                        setState(() => _isBiometricEnabled = false);
-                        AppSnackBar.success(context, 'Biyometrik giriş kapatıldı.');
-                      } else {
-                        if (!context.mounted) return;
-                        AppSnackBar.error(context, 'Açmak için kasayı sıfırlayıp yeniden kurmalısınız.');
-                      }
-                    },
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.settings_rounded),
+                  tooltip: 'Kasa Ayarları',
+                  onPressed: _showSettingsBottomSheet,
+                ),
                 IconButton(
                   icon: const Icon(Icons.lock_rounded),
                   onPressed: () {
@@ -596,9 +644,10 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
           : Padding(
               padding: const EdgeInsets.all(16),
               child: MasonryGridView.builder(
-                gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                ),
+                gridDelegate:
+                    const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                    ),
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
                 itemCount: secureNotes.length,
@@ -701,6 +750,21 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
     );
   }
 
+  void _showSettingsBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _SettingsBottomSheet(
+        repository: _repository,
+        canUseBiometrics: _canUseBiometrics,
+        isBiometricEnabled: _isBiometricEnabled,
+        isAutoUnlock: _isAutoUnlock,
+        onSettingsChanged: _checkBiometricStatus,
+      ),
+    );
+  }
+
   Widget _buildKey(String val, {bool isIcon = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -727,7 +791,9 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
           child: Center(
             child: isIcon
                 ? Icon(
-                    val == 'biometric' ? Icons.fingerprint_rounded : Icons.backspace_outlined,
+                    val == 'biometric'
+                        ? Icons.fingerprint_rounded
+                        : Icons.backspace_outlined,
                     color: Theme.of(context).colorScheme.onSurface,
                     size: val == 'biometric' ? 28 : 20,
                   )
@@ -741,6 +807,346 @@ class _SecureNotesPageState extends State<SecureNotesPage> with WidgetsBindingOb
                     ),
                   ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsBottomSheet extends StatefulWidget {
+  final NoteRepository repository;
+  final bool canUseBiometrics;
+  final bool isBiometricEnabled;
+  final bool isAutoUnlock;
+  final VoidCallback onSettingsChanged;
+
+  const _SettingsBottomSheet({
+    required this.repository,
+    required this.canUseBiometrics,
+    required this.isBiometricEnabled,
+    required this.isAutoUnlock,
+    required this.onSettingsChanged,
+  });
+
+  @override
+  State<_SettingsBottomSheet> createState() => _SettingsBottomSheetState();
+}
+
+class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
+  late bool _biometric;
+  late bool _autoUnlock;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _biometric = widget.isBiometricEnabled;
+    _autoUnlock = widget.isAutoUnlock;
+  }
+
+  Future<void> _toggleBiometric(bool val) async {
+    if (val) {
+      final pin = await _askForPin('Biyometrik Girişi Aç');
+      if (pin != null) {
+        await widget.repository.enableBiometric(pin);
+        setState(() => _biometric = true);
+        widget.onSettingsChanged();
+      }
+    } else {
+      await widget.repository.disableBiometric();
+      setState(() => _biometric = false);
+      widget.onSettingsChanged();
+    }
+  }
+
+  Future<void> _toggleAutoUnlock(bool val) async {
+    if (val) {
+      final pin = await _askForPin('Şifresiz Girişi Aç');
+      if (pin != null) {
+        await widget.repository.enableAutoUnlock(pin);
+        setState(() => _autoUnlock = true);
+        widget.onSettingsChanged();
+      }
+    } else {
+      await widget.repository.disableAutoUnlock();
+      setState(() => _autoUnlock = false);
+      widget.onSettingsChanged();
+    }
+  }
+
+  Future<String?> _askForPin(String title) async {
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => _PinInputDialog(title: title),
+    );
+  }
+
+  Future<void> _changePin() async {
+    final currentPin = await _askForPin('Mevcut Şifrenizi Girin');
+    if (currentPin == null) return;
+
+    final success = await widget.repository.unlockSecureNotes(currentPin);
+    if (!success) {
+      if (mounted) AppSnackBar.error(context, 'Hatalı şifre girdiniz.');
+      return;
+    }
+
+    if (!mounted) return;
+    final newPin1 = await _askForPin('Yeni Şifre Belirleyin');
+    if (newPin1 == null || newPin1.length != 4) return;
+
+    if (!mounted) return;
+    final newPin2 = await _askForPin('Yeni Şifreyi Tekrar Girin');
+    if (newPin2 == null || newPin2 != newPin1) {
+      if (mounted) AppSnackBar.error(context, 'Şifreler eşleşmedi.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final migrated = await widget.repository.changeSecurePin(
+      currentPin,
+      newPin1,
+    );
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+      if (migrated) {
+        AppSnackBar.success(context, 'Kasa şifreniz başarıyla değiştirildi.');
+        widget.onSettingsChanged();
+        Navigator.of(context).pop();
+      } else {
+        AppSnackBar.error(context, 'Şifre değiştirilirken bir hata oluştu.');
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Kasa Ayarları',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: colorScheme.onSurface,
+                fontFamily: 'Inter',
+              ),
+            ),
+            const SizedBox(height: 24),
+            if (_isLoading) ...[
+              const Center(child: CircularProgressIndicator()),
+              const SizedBox(height: 16),
+              const Center(
+                child: Text(
+                  'Veriler yeni şifreye aktarılıyor, lütfen bekleyin...',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ] else ...[
+              if (widget.canUseBiometrics)
+                SwitchListTile(
+                  title: const Text(
+                    'Biyometrik Giriş',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'Kasanıza yüzünüz veya parmak izinizle erişin',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  value: _biometric,
+                  activeTrackColor: colorScheme.primary.withValues(alpha: 0.5),
+                  activeThumbColor: colorScheme.primary,
+                  onChanged: _toggleBiometric,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              SwitchListTile(
+                title: const Text(
+                  'Şifre Sorma (Otomatik Giriş)',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: const Text(
+                  'Kasaya girerken şifre girmeden direkt açılır',
+                  style: TextStyle(fontSize: 12),
+                ),
+                value: _autoUnlock,
+                activeTrackColor: colorScheme.primary.withValues(alpha: 0.5),
+                activeThumbColor: colorScheme.primary,
+                onChanged: _toggleAutoUnlock,
+                contentPadding: EdgeInsets.zero,
+              ),
+              const Divider(),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.password_rounded),
+                title: const Text(
+                  'Şifreyi Değiştir',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: const Text(
+                  'Kasa PIN kodunuzu yenileyin',
+                  style: TextStyle(fontSize: 12),
+                ),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: _changePin,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PinInputDialog extends StatefulWidget {
+  final String title;
+  const _PinInputDialog({required this.title});
+
+  @override
+  State<_PinInputDialog> createState() => _PinInputDialogState();
+}
+
+class _PinInputDialogState extends State<_PinInputDialog> {
+  String _pin = '';
+
+  void _onKeyPress(String key) {
+    setState(() {
+      if (key == 'back') {
+        if (_pin.isNotEmpty) _pin = _pin.substring(0, _pin.length - 1);
+      } else {
+        if (_pin.length < 4) _pin += key;
+      }
+    });
+
+    if (_pin.length == 4) {
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (mounted) Navigator.of(context).pop(_pin);
+      });
+    }
+  }
+
+  Widget _buildKey(String val, {bool isIcon = false}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _onKeyPress(val),
+        borderRadius: BorderRadius.circular(32),
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.05)
+                : Colors.black.withValues(alpha: 0.03),
+          ),
+          child: Center(
+            child: isIcon
+                ? Icon(
+                    Icons.backspace_outlined,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  )
+                : Text(
+                    val,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              widget.title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Inter',
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(4, (index) {
+                final hasChar = index < _pin.length;
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: hasChar
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 2,
+                    ),
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [_buildKey('1'), _buildKey('2'), _buildKey('3')],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [_buildKey('4'), _buildKey('5'), _buildKey('6')],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [_buildKey('7'), _buildKey('8'), _buildKey('9')],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const SizedBox(width: 56, height: 56),
+                _buildKey('0'),
+                _buildKey('back', isIcon: true),
+              ],
+            ),
+          ],
         ),
       ),
     );
