@@ -665,6 +665,39 @@ class NoteRepository {
     }
   }
 
+  /// GÜVENLİK (EDGE CASE): Gizli bir not düzenlenirken içindeki resim silinirse
+  /// resim veritabanından silinmiyordu. Bu metot kasa her açıldığında
+  /// kullanılmayan şifreli resimleri temizleyerek veritabanının şişmesini önler.
+  Future<void> cleanOrphanSecureMedia() async {
+    if (!isSecureNotesUnlocked) return;
+    try {
+      final activeMediaIds = <String>{};
+      for (final key in _secureLazyDataBox!.keys) {
+        final deltaStr = await _secureLazyDataBox!.get(key) as String?;
+        if (deltaStr == null) continue;
+        final ops = jsonDecode(deltaStr) as List<dynamic>;
+        for (final op in ops) {
+          if (op is! Map) continue;
+          final insert = op['insert'];
+          if (insert is! Map) continue;
+          final mediaPath = insert['image'] ?? insert['video'];
+          if (mediaPath is String && mediaPath.startsWith('secure-media://')) {
+            final mediaId = mediaPath.replaceFirst('secure-media://', '');
+            activeMediaIds.add(mediaId);
+          }
+        }
+      }
+
+      final allKeys = _secureMediaBox!.keys.toList();
+      for (final key in allKeys) {
+        if (!activeMediaIds.contains(key)) {
+          await _secureMediaBox!.delete(key);
+          debugPrint('EC-26: Orphan şifreli medya temizlendi → $key');
+        }
+      }
+    } catch (_) {}
+  }
+
   // ─── İstatistik ──────────────────────────────────────────────────────────
 
   int get noteCount {
@@ -726,6 +759,11 @@ class NoteRepository {
           return false;
         }
       }
+      
+      // EC-26: Kasa başarıyla açıldığında, arka planda (kullanıcıyı bekletmeden)
+      // yetim/çöp şifreli medyaları temizle.
+      cleanOrphanSecureMedia();
+      
       return true;
     } catch (e) {
       debugPrint('Unlock secure notes error: $e');
