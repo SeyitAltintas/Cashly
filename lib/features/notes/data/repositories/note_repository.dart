@@ -76,6 +76,10 @@ class NoteRepository {
   LazyBox? _secureLazyDataBox;
   LazyBox? _secureMediaBox;
 
+  // 🎭 SAHTE KASA (DECOY VAULT) FLAG
+  bool _isDecoyVaultActive = false;
+  bool get isDecoyVaultActive => _isDecoyVaultActive;
+
   final LocalAuthentication _auth = LocalAuthentication();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
@@ -669,6 +673,11 @@ class NoteRepository {
     await Hive.deleteBoxFromDisk('secure_notes_data');
     await Hive.deleteBoxFromDisk('secure_media_box');
 
+    // EC-27: Decoy (Sahte Kasa) orphan veri sızıntısını engelle
+    await Hive.deleteBoxFromDisk('sys_cache_index');
+    await Hive.deleteBoxFromDisk('sys_cache_data');
+    await Hive.deleteBoxFromDisk('sys_cache_media');
+
     try {
       final docsDir = await getApplicationDocumentsDirectory();
       final noteImgDir = Directory('${docsDir.path}/note_images');
@@ -799,6 +808,20 @@ class NoteRepository {
   bool get hasSecurePin =>
       _requireIndexBox.get('has_secure_pin', defaultValue: false) as bool;
 
+  // 🎭 Sahte Kasa PIN var mı?
+  bool get hasDecoyPin =>
+      _requireIndexBox.get('has_decoy_pin', defaultValue: false) as bool;
+
+  // Ana PIN'i test etme (UI katmanı için)
+  Future<bool> verifyMainPin(String pin) async {
+    final salt = _requireIndexBox.get('secure_pin_salt') as String?;
+    if (salt == null) return false;
+    final key = await compute(_deriveKeySync, {'pin': pin, 'salt': salt});
+    final computedHash = sha256.convert(key).toString();
+    final storedHash = _requireIndexBox.get('secure_pin_hash') as String?;
+    return computedHash == storedHash;
+  }
+
   Future<void> setSecurePin(String pin) async {
     // Generate salt asynchronously on a background isolate
     final salt = await compute(_generateSaltSync, null);
@@ -814,77 +837,131 @@ class NoteRepository {
     }
   }
 
+  // 🎭 Sahte Kasa PIN Ayarlama
+  Future<void> setDecoyPin(String pin) async {
+    final salt = await compute(_generateSaltSync, null);
+    await _requireIndexBox.put('decoy_pin_salt', salt);
+
+    final key = await compute(_deriveKeySync, {'pin': pin, 'salt': salt});
+    final verifyHash = sha256.convert(key).toString();
+    await _requireIndexBox.put('decoy_pin_hash', verifyHash);
+
+    await _requireIndexBox.put('has_decoy_pin', true);
+  }
+
+  // 🎭 Sahte Kasa İptali
+  Future<void> removeDecoyPin() async {
+    await _requireIndexBox.delete('has_decoy_pin');
+    await _requireIndexBox.delete('decoy_pin_salt');
+    await _requireIndexBox.delete('decoy_pin_hash');
+    // EC-27: Sahte kasa dosyalarının adında 'decoy' geçmemesi için sys_cache kullanıldı
+    await Hive.deleteBoxFromDisk('sys_cache_index');
+    await Hive.deleteBoxFromDisk('sys_cache_data');
+    await Hive.deleteBoxFromDisk('sys_cache_media');
+  }
+
   Future<bool> unlockSecureNotes(String pin) async {
     try {
       final salt = _requireIndexBox.get('secure_pin_salt') as String?;
-      List<int> key;
+      List<int>? key;
 
+      bool isDecoyMatched = false;
+
+      // 1. Önce Ana Kasa PIN'ini kontrol et
       if (salt != null) {
-        // PBKDF2/Bcrypt key stretching
         key = await compute(_deriveKeySync, {'pin': pin, 'salt': salt});
       } else {
-        // Fallback for existing PINs created before the security update
         key = sha256.convert(utf8.encode(pin)).bytes;
       }
       
-      // PRE-FLIGHT KEY VERIFICATION (Saves data from Hive truncation)
       final storedHash = _requireIndexBox.get('secure_pin_hash') as String?;
-      if (storedHash != null) {
+      bool isMainMatched = false;
+      if (storedHash != null && key != null) {
         final computedHash = sha256.convert(key).toString();
-        if (computedHash != storedHash) return false; // Yanlış şifre, Hive'a dokunma!
+        if (computedHash == storedHash) {
+          isMainMatched = true;
+        }
       }
+
+      // 2. Eğer Ana Kasa EŞLEŞMEDİYSE ve Sahte Kasa varsa, Sahte Kasa PIN'ini kontrol et
+      if (!isMainMatched && hasDecoyPin) {
+        final decoySalt = _requireIndexBox.get('decoy_pin_salt') as String?;
+        if (decoySalt != null) {
+          final decoyKey = await compute(_deriveKeySync, {'pin': pin, 'salt': decoySalt});
+          final storedDecoyHash = _requireIndexBox.get('decoy_pin_hash') as String?;
+          if (storedDecoyHash != null) {
+            final computedDecoyHash = sha256.convert(decoyKey).toString();
+            if (computedDecoyHash == storedDecoyHash) {
+              isDecoyMatched = true;
+              key = decoyKey; // Şifreleme anahtarı olarak decoy anahtarını kullan!
+            }
+          }
+        }
+      }
+
+      // 3. İkisi de eşleşmediyse reddet
+      if (!isMainMatched && !isDecoyMatched) return false;
+
+      // 4. Eşleşme durumuna göre Flag'i ayarla
+      _isDecoyVaultActive = isDecoyMatched;
+      
+      // 5. Kutu isimlerini Flag'e göre belirle (EC-27: Kamufle edilmiş dosya isimleri)
+      final indexName = isDecoyMatched ? 'sys_cache_index' : 'secure_notes_index';
+      final dataName = isDecoyMatched ? 'sys_cache_data' : 'secure_notes_data';
+      final mediaName = isDecoyMatched ? 'sys_cache_media' : 'secure_media_box';
 
       if (_secureIndexBox?.isOpen == true) await _secureIndexBox!.close();
       if (_secureLazyDataBox?.isOpen == true) await _secureLazyDataBox!.close();
-
       if (_secureMediaBox?.isOpen == true) await _secureMediaBox!.close();
 
       _secureIndexBox = await Hive.openBox(
-        'secure_notes_index',
-        encryptionCipher: HiveAesCipher(key),
+        indexName,
+        encryptionCipher: HiveAesCipher(key!),
         crashRecovery: false,
       );
       _secureLazyDataBox = await Hive.openLazyBox(
-        'secure_notes_data',
+        dataName,
         encryptionCipher: HiveAesCipher(key),
         crashRecovery: false,
       );
       _secureMediaBox = await Hive.openLazyBox(
-        'secure_media_box',
+        mediaName,
         encryptionCipher: HiveAesCipher(key),
         crashRecovery: false,
       );
 
-      // --- ATOMIC MIGRATION RECOVERY ---
-      final isPendingMigration = _requireIndexBox.get('pending_migration', defaultValue: false) as bool;
-      if (isPendingMigration) {
-        final tempIndexBox = await Hive.openBox('temp_new_index', encryptionCipher: HiveAesCipher(key));
-        final tempLazyBox = await Hive.openLazyBox('temp_new_data', encryptionCipher: HiveAesCipher(key));
-        final tempMediaBox = await Hive.openLazyBox('temp_new_media', encryptionCipher: HiveAesCipher(key));
-        
-        await _secureIndexBox!.putAll(tempIndexBox.toMap());
-        for (var k in tempLazyBox.keys) {
-          final val = await tempLazyBox.get(k);
-          if (val != null) await _secureLazyDataBox!.put(k, val);
+      // --- ATOMIC MIGRATION RECOVERY --- (Sadece ana kasa için geçerli)
+      if (!isDecoyMatched) {
+        final isPendingMigration = _requireIndexBox.get('pending_migration', defaultValue: false) as bool;
+        if (isPendingMigration) {
+          final tempIndexBox = await Hive.openBox('temp_new_index', encryptionCipher: HiveAesCipher(key));
+          final tempLazyBox = await Hive.openLazyBox('temp_new_data', encryptionCipher: HiveAesCipher(key));
+          final tempMediaBox = await Hive.openLazyBox('temp_new_media', encryptionCipher: HiveAesCipher(key));
+          
+          await _secureIndexBox!.putAll(tempIndexBox.toMap());
+          for (var k in tempLazyBox.keys) {
+            final val = await tempLazyBox.get(k);
+            if (val != null) await _secureLazyDataBox!.put(k, val);
+          }
+          for (var k in tempMediaBox.keys) {
+            final val = await tempMediaBox.get(k);
+            if (val != null) await _secureMediaBox!.put(k, val);
+          }
+          
+          await tempIndexBox.close();
+          await tempLazyBox.close();
+          await tempMediaBox.close();
+          
+          await Hive.deleteBoxFromDisk('temp_new_index');
+          await Hive.deleteBoxFromDisk('temp_new_data');
+          await Hive.deleteBoxFromDisk('temp_new_media');
+          
+          await _requireIndexBox.put('pending_migration', false);
         }
-        for (var k in tempMediaBox.keys) {
-          final val = await tempMediaBox.get(k);
-          if (val != null) await _secureMediaBox!.put(k, val);
-        }
-        
-        await tempIndexBox.close();
-        await tempLazyBox.close();
-        await tempMediaBox.close();
-        
-        await Hive.deleteBoxFromDisk('temp_new_index');
-        await Hive.deleteBoxFromDisk('temp_new_data');
-        await Hive.deleteBoxFromDisk('temp_new_media');
-        
-        await _requireIndexBox.put('pending_migration', false);
       }
       // ----------------------------------
 
-      if (storedHash == null) {
+      if (!isDecoyMatched && storedHash == null) {
         await _requireIndexBox.put('secure_pin_hash', sha256.convert(key).toString());
       }
 
@@ -919,6 +996,9 @@ class NoteRepository {
     if (_secureMediaBox?.isOpen == true) await _secureMediaBox!.close();
     _secureMediaBox = null;
 
+    _isDecoyVaultActive = false; // Flag'i resetle
+
+
     // Pano Sızıntısını Önle: Gizli Kasa kapandığında telefonun panosunu tamamen imha et (Native Android Wipe)
     try {
       const platform = MethodChannel('com.seyitaltintas.cashly/security');
@@ -935,6 +1015,9 @@ class NoteRepository {
     await Hive.deleteBoxFromDisk('secure_notes_index');
     await Hive.deleteBoxFromDisk('secure_notes_data');
     await Hive.deleteBoxFromDisk('secure_media_box');
+
+    // Sahte kasa dosyalarını da sil
+    await removeDecoyPin();
 
     await _requireIndexBox.delete('has_secure_pin');
     await _requireIndexBox.delete('secure_pin_salt');

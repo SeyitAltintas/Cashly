@@ -123,7 +123,7 @@ class _SecureNotesPageState extends State<SecureNotesPage>
     try {
       platform.invokeMethod('secureScreenOff');
     } catch (_) {}
-    
+
     _subscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _repository.closeSecureNotes();
@@ -968,9 +968,93 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
     }
   }
 
+  Future<void> _toggleDecoyVault() async {
+    if (widget.repository.hasDecoyPin) {
+      // İptal Et
+      final mainPin = await _askForPin('Sahte Kasayı İptal Et (Ana PIN)');
+      if (mainPin == null) return;
+
+      // Sadece ana PIN ile iptal edilebilir
+      final isValid = await widget.repository.verifyMainPin(mainPin);
+
+      if (!isValid) {
+        if (mounted) AppSnackBar.error(context, 'Hatalı ana şifre.');
+        return;
+      }
+
+      if (!mounted) return;
+
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Sahte Kasayı İptal Et'),
+          content: const Text(
+            'Sahte kasa ve içindeki tüm veriler kalıcı olarak silinecek. Onaylıyor musunuz?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Hayır'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Sil'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirm == true) {
+        setState(() => _isLoading = true);
+        await widget.repository.removeDecoyPin();
+        if (mounted) {
+          setState(() => _isLoading = false);
+          AppSnackBar.success(
+            context,
+            'Sahte kasa başarıyla iptal edildi ve silindi.',
+          );
+          widget.onSettingsChanged();
+          Navigator.of(context).pop();
+        }
+      }
+    } else {
+      // Kurulum
+      final decoyPin1 = await _askForPin('Sahte Kasa PIN Belirle');
+      if (decoyPin1 == null || decoyPin1.length != 4) return;
+
+      // Ana PIN ile aynı olamaz
+      final isMain = await widget.repository.verifyMainPin(decoyPin1);
+      if (isMain) {
+        if (mounted)
+          AppSnackBar.error(context, 'Sahte PIN, Ana PIN ile aynı olamaz!');
+        return;
+      }
+
+      final decoyPin2 = await _askForPin('Sahte PIN Tekrar');
+      if (decoyPin2 == null || decoyPin1 != decoyPin2) {
+        if (mounted) AppSnackBar.error(context, 'Şifreler eşleşmedi.');
+        return;
+      }
+
+      setState(() => _isLoading = true);
+      await widget.repository.setDecoyPin(decoyPin1);
+      if (mounted) {
+        setState(() => _isLoading = false);
+        AppSnackBar.success(
+          context,
+          'Sahte kasa oluşturuldu! Çıkış yapıp bu PIN ile girdiğinizde sahte kasa açılır.',
+        );
+        widget.onSettingsChanged();
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDecoy = widget.repository.isDecoyVaultActive;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -998,12 +1082,12 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
               const SizedBox(height: 16),
               const Center(
                 child: Text(
-                  'Veriler yeni şifreye aktarılıyor, lütfen bekleyin...',
+                  'İşlem yapılıyor, lütfen bekleyin...',
                   textAlign: TextAlign.center,
                 ),
               ),
             ] else ...[
-              if (widget.canUseBiometrics)
+              if (widget.canUseBiometrics && !isDecoy)
                 SwitchListTile(
                   title: const Text(
                     'Biyometrik Giriş',
@@ -1022,42 +1106,103 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
                   onChanged: _toggleBiometric,
                   contentPadding: EdgeInsets.zero,
                 ),
-              SwitchListTile(
-                title: const Text(
-                  'Şifre Sorma (Otomatik Giriş)',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w600,
+              if (!isDecoy)
+                SwitchListTile(
+                  title: const Text(
+                    'Şifre Sorma (Otomatik Giriş)',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                subtitle: const Text(
-                  'Kasaya girerken şifre girmeden direkt açılır',
-                  style: TextStyle(fontSize: 12),
-                ),
-                value: _autoUnlock,
-                activeTrackColor: colorScheme.primary.withValues(alpha: 0.5),
-                activeThumbColor: colorScheme.primary,
-                onChanged: _toggleAutoUnlock,
-                contentPadding: EdgeInsets.zero,
-              ),
-              const Divider(),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.password_rounded),
-                title: const Text(
-                  'Şifreyi Değiştir',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w600,
+                  subtitle: const Text(
+                    'Kasaya girerken şifre girmeden direkt açılır',
+                    style: TextStyle(fontSize: 12),
                   ),
+                  value: _autoUnlock,
+                  activeTrackColor: colorScheme.primary.withValues(alpha: 0.5),
+                  activeThumbColor: colorScheme.primary,
+                  onChanged: _toggleAutoUnlock,
+                  contentPadding: EdgeInsets.zero,
                 ),
-                subtitle: const Text(
-                  'Kasa PIN kodunuzu yenileyin',
-                  style: TextStyle(fontSize: 12),
+              if (!isDecoy) ...[
+                const Divider(),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.password_rounded),
+                  title: const Text(
+                    'Ana Şifreyi Değiştir',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'Kasa PIN kodunuzu yenileyin',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: _changePin,
                 ),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: _changePin,
-              ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    Icons.theater_comedy_rounded,
+                    color: widget.repository.hasDecoyPin
+                        ? colorScheme.error
+                        : null,
+                  ),
+                  title: Text(
+                    widget.repository.hasDecoyPin
+                        ? 'Sahte Kasayı İptal Et'
+                        : 'Sahte Kasa Kur',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      color: widget.repository.hasDecoyPin
+                          ? colorScheme.error
+                          : null,
+                    ),
+                  ),
+                  subtitle: Text(
+                    widget.repository.hasDecoyPin
+                        ? 'Sahte kasayı ve verilerini siler'
+                        : 'Farklı bir PIN ile içi boş sahte kasa açılır',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: widget.repository.hasDecoyPin
+                          ? colorScheme.error.withValues(alpha: 0.8)
+                          : null,
+                    ),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: _toggleDecoyVault,
+                ),
+              ] else ...[
+                // Kamuflaj: Sahte kasa içindeyken sadece dummy ayarlar gösterilir
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.password_rounded),
+                  title: const Text(
+                    'Şifreyi Değiştir',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'Kasa PIN kodunuzu yenileyin',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () {
+                    AppSnackBar.error(
+                      context,
+                      'Güvenlik nedeniyle şifre değiştirme şu an kullanılamıyor.',
+                    );
+                  },
+                ),
+              ],
             ],
           ],
         ),
