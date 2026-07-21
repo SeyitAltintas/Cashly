@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:cashly/features/notes/utils/note_media_helper.dart';
 
 import 'package:cashly/features/notes/presentation/widgets/note_editor_styles.dart';
@@ -55,8 +54,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   VoiceDictationManager? _voiceDictationManager;
   NoteModel? _note;
   int? _selectedColor;
-
-  static const platform = MethodChannel('com.seyitaltintas.cashly/security');
 
   Timer? _autoSaveTimer;
   final TextEditingController _titleController = TextEditingController();

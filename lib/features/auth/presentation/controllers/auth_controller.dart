@@ -8,6 +8,7 @@ import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/notification_scheduler.dart';
+import 'package:cashly/features/notes/data/repositories/note_repository.dart';
 
 class AuthController extends ChangeNotifier with SafeNotifierMixin {
   final AuthRepository _authRepository;
@@ -139,6 +140,10 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
     // Kullanıcı çıkış yaptığında, işletim sistemindeki tüm kişisel bildirimleri temizle
     if (getIt.isRegistered<NotificationService>()) {
       await getIt<NotificationService>().cancelAllNotifications();
+    }
+    // Kasa sızıntısını önlemek için tüm gizli kutuları ve bellek şifrelerini kapat
+    if (getIt.isRegistered<NoteRepository>()) {
+      await getIt<NoteRepository>().closeSecureNotes(force: true);
     }
     await _authRepository.logout();
     _currentUser = null;

@@ -15,6 +15,7 @@ import '../../../../core/services/database_helper.dart';
 import '../../../../core/services/network_service.dart';
 import '../../../../core/services/secure_storage_service.dart';
 import '../../../../core/services/error_logger_service.dart';
+import '../../../../features/notes/data/repositories/note_repository.dart';
 import 'package:bcrypt/bcrypt.dart';
 
 class AuthRepositoryFirestore implements AuthRepository {
@@ -582,6 +583,13 @@ class AuthRepositoryFirestore implements AuthRepository {
     await SecureStorageService.deleteBiometricPin(userId);
     await DatabaseHelper.deleteUserData(userId);
     await _localHiveRepo.deleteUser(userId);
+
+    // GÜVENLİK YAMASI: Hesap silindiğinde cihazdaki tüm gizli/açık notları ve medyaları imha et
+    try {
+      await NoteRepository().clearAll();
+    } catch (e) {
+      debugPrint('NoteRepository clearAll error on deleteUser: $e');
+    }
   }
 
   @override
