@@ -12,6 +12,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get appTitle => 'Cashly';
 
   @override
+  String noteReadingTimeIndicator(int words, int minutes) {
+    return '$words kelime • $minutes dk okuma';
+  }
+
+  @override
   String transferOutTitle(String accountName) {
     return '$accountName hesabına giden transfer';
   }

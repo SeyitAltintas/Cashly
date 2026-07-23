@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'Cashly'**
   String get appTitle;
 
+  /// No description provided for @noteReadingTimeIndicator.
+  ///
+  /// In tr, this message translates to:
+  /// **'{words} kelime • {minutes} dk okuma'**
+  String noteReadingTimeIndicator(int words, int minutes);
+
   /// No description provided for @transferOutTitle.
   ///
   /// In tr, this message translates to:

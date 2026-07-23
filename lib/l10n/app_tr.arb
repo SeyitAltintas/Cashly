@@ -1,6 +1,17 @@
 {
   "@@locale": "tr",
   "appTitle": "Cashly",
+  "noteReadingTimeIndicator": "{words} kelime • {minutes} dk okuma",
+  "@noteReadingTimeIndicator": {
+    "placeholders": {
+      "words": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "transferOutTitle": "{accountName} hesabına giden transfer",
   "@transferOutTitle": {
     "placeholders": {

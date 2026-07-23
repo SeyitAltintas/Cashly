@@ -12,6 +12,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Cashly';
 
   @override
+  String noteReadingTimeIndicator(int words, int minutes) {
+    return '$words words • $minutes min read';
+  }
+
+  @override
   String transferOutTitle(String accountName) {
     return 'Transfer to $accountName account';
   }

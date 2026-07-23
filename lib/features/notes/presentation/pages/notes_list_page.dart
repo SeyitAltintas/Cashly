@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
@@ -145,7 +146,10 @@ class _NotesListViewState extends State<_NotesListView> {
       // Only change trigger state if the user is actively dragging
       if (notification is ScrollUpdateNotification && notification.dragDetails != null) {
         if (currentOverscroll >= 100.0) {
-          _hasTriggered = true;
+          if (!_hasTriggered) {
+            HapticFeedback.heavyImpact();
+            _hasTriggered = true;
+          }
         } else if (currentOverscroll < 30.0) {
           _hasTriggered = false;
         }

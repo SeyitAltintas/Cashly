@@ -1026,8 +1026,9 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
       // Ana PIN ile aynı olamaz
       final isMain = await widget.repository.verifyMainPin(decoyPin1);
       if (isMain) {
-        if (mounted)
+        if (mounted) {
           AppSnackBar.error(context, 'Sahte PIN, Ana PIN ile aynı olamaz!');
+        }
         return;
       }
 

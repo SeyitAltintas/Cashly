@@ -85,9 +85,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Güvenlik Kalkanı (FLAG_SECURE) SecureNotesPage tarafından açıldığı için 
+    // Güvenlik Kalkanı (FLAG_SECURE) SecureNotesPage tarafından açıldığı için
     // burada tekrar açıp kapatmaya gerek yok. Çakışmayı önlemek için kaldırıldı.
-    
+
     _repository = getIt<NoteRepository>();
     _categoryRepository = getIt<NoteCategoryRepository>();
     _editorFocusNode.addListener(_onFocusChange);
@@ -149,11 +149,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       if (_hasUnsavedChanges) {
         _saveNote();
       }
-      
+
       // EDGE CASE: Gizli kasa kilitleneceği için acil tahliye (Sayfadan zorla çıkar)
       // Eğer medya seçilmiyorsa veya PIN taşınmıyorsa kesin kilitlenecektir.
-      if (widget.isSecure && 
-          !_repository.isMediaPicking && 
+      if (widget.isSecure &&
+          !_repository.isMediaPicking &&
           !_repository.isMigratingPin) {
         if (mounted) {
           Navigator.of(context).pop();
@@ -172,7 +172,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     NoteModel note;
     String deltaJson = '[]';
     if (widget.noteId != null) {
-      note = _repository.getSecureNoteById(widget.noteId!) ??
+      note =
+          _repository.getSecureNoteById(widget.noteId!) ??
           _repository.getNoteById(widget.noteId!) ??
           NoteModel(
             id: widget.noteId!,
@@ -181,7 +182,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             updatedAt: DateTime.now(),
           );
 
-      if (_repository.isSecureNotesUnlocked && _repository.getSecureNoteById(widget.noteId!) != null) {
+      if (_repository.isSecureNotesUnlocked &&
+          _repository.getSecureNoteById(widget.noteId!) != null) {
         deltaJson = await _repository.getSecureNoteDeltaJson(widget.noteId!);
       } else {
         deltaJson = await _repository.getNoteDeltaJson(widget.noteId!);
@@ -485,6 +487,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           child: _buildEditor(colorScheme, controller),
                         ),
                       ),
+                      _buildWordCountIndicator(colorScheme, controller),
                     ],
                   ),
                   // Toolbar: dinleme aktifken gizle
@@ -594,6 +597,43 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           : Colors.black87;
     }
     return colorScheme.onSurface;
+  }
+
+  Widget _buildWordCountIndicator(
+    ColorScheme colorScheme,
+    QuillController controller,
+  ) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        final text = controller.document.toPlainText().trim();
+        if (text.isEmpty) return const SizedBox.shrink();
+
+        final wordCount = text
+            .split(RegExp(r'\s+'))
+            .where((s) => s.isNotEmpty)
+            .length;
+        if (wordCount == 0) return const SizedBox.shrink();
+
+        final readTimeMins = (wordCount / 200).ceil();
+
+        return Padding(
+          padding: const EdgeInsets.only(right: 16.0, bottom: 84.0),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              context.l10n.noteReadingTimeIndicator(wordCount, readTimeMins),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: _getTextColor(colorScheme).withValues(alpha: 0.4),
+                fontFamily: 'Inter',
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildTitleField(ColorScheme colorScheme) {

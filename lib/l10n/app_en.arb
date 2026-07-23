@@ -1,6 +1,17 @@
 {
   "@@locale": "en",
   "appTitle": "Cashly",
+  "noteReadingTimeIndicator": "{words} words • {minutes} min read",
+  "@noteReadingTimeIndicator": {
+    "placeholders": {
+      "words": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "transferOutTitle": "Transfer to {accountName} account",
   "@transferOutTitle": {
     "placeholders": {
