@@ -337,38 +337,44 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
         ),
         const SizedBox(height: 24),
 
-        Opacity(
-          opacity: _textAnimation.value,
-          child: Transform.translate(
-            offset: Offset(0, 20 * (1 - _textAnimation.value)),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '$streak',
+        AnimatedBuilder(
+          animation: _textAnimation,
+          builder: (context, child) {
+            return Opacity(
+              opacity: _textAnimation.value,
+              child: Transform.translate(
+                offset: Offset(0, 20 * (1 - _textAnimation.value)),
+                child: child,
+              ),
+            );
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '$streak',
+                style: const TextStyle(
+                  fontSize: 72,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFFFF6B35),
+                  height: 1,
+                  shadows: [Shadow(color: Color(0x80FF6B35), blurRadius: 20)],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  AppLocalizations.of(context)!.streakDayWord,
                   style: const TextStyle(
-                    fontSize: 72,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFFFF6B35),
-                    height: 1,
-                    shadows: [Shadow(color: Color(0x80FF6B35), blurRadius: 20)],
+                    fontSize: 28,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white70,
                   ),
                 ),
-                const SizedBox(width: 8),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    AppLocalizations.of(context)!.streakDayWord,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white70,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 16),

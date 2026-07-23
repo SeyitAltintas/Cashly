@@ -150,7 +150,7 @@ class _NotesListViewState extends State<_NotesListView> {
             HapticFeedback.heavyImpact();
             _hasTriggered = true;
           }
-        } else if (currentOverscroll < 30.0) {
+        } else if (currentOverscroll < 90.0) {
           _hasTriggered = false;
         }
       }

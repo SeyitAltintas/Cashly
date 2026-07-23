@@ -594,6 +594,8 @@ class _SecureNotesPageState extends State<SecureNotesPage>
         title: Text(
           isSelectionMode
               ? '${_selectedNoteIds.length} Seçildi'
+              : _repository.isDecoyVaultActive
+              ? 'Özel Kasa'
               : 'Gizli Notlar',
           style: TextStyle(
             fontSize: 18,
@@ -971,7 +973,7 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
   Future<void> _toggleDecoyVault() async {
     if (widget.repository.hasDecoyPin) {
       // İptal Et
-      final mainPin = await _askForPin('Sahte Kasayı İptal Et (Ana PIN)');
+      final mainPin = await _askForPin('Özel Kasayı İptal Et (Ana PIN)');
       if (mainPin == null) return;
 
       // Sadece ana PIN ile iptal edilebilir
@@ -987,9 +989,9 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
       final confirm = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Sahte Kasayı İptal Et'),
+          title: const Text('Özel Kasayı İptal Et'),
           content: const Text(
-            'Sahte kasa ve içindeki tüm veriler kalıcı olarak silinecek. Onaylıyor musunuz?',
+            'Özel kasa ve içindeki tüm veriler kalıcı olarak silinecek. Onaylıyor musunuz?',
           ),
           actions: [
             TextButton(
@@ -1012,7 +1014,7 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
           setState(() => _isLoading = false);
           AppSnackBar.success(
             context,
-            'Sahte kasa başarıyla iptal edildi ve silindi.',
+            'Özel kasa başarıyla iptal edildi ve silindi.',
           );
           widget.onSettingsChanged();
           Navigator.of(context).pop();
@@ -1020,19 +1022,19 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
       }
     } else {
       // Kurulum
-      final decoyPin1 = await _askForPin('Sahte Kasa PIN Belirle');
+      final decoyPin1 = await _askForPin('Özel Kasa PIN Belirle');
       if (decoyPin1 == null || decoyPin1.length != 4) return;
 
       // Ana PIN ile aynı olamaz
       final isMain = await widget.repository.verifyMainPin(decoyPin1);
       if (isMain) {
         if (mounted) {
-          AppSnackBar.error(context, 'Sahte PIN, Ana PIN ile aynı olamaz!');
+          AppSnackBar.error(context, 'Özel PIN, Ana PIN ile aynı olamaz!');
         }
         return;
       }
 
-      final decoyPin2 = await _askForPin('Sahte PIN Tekrar');
+      final decoyPin2 = await _askForPin('Özel PIN Tekrar');
       if (decoyPin2 == null || decoyPin1 != decoyPin2) {
         if (mounted) AppSnackBar.error(context, 'Şifreler eşleşmedi.');
         return;
@@ -1044,7 +1046,7 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
         setState(() => _isLoading = false);
         AppSnackBar.success(
           context,
-          'Sahte kasa oluşturuldu! Çıkış yapıp bu PIN ile girdiğinizde sahte kasa açılır.',
+          'Özel kasa oluşturuldu! Çıkış yapıp bu PIN ile girdiğinizde özel kasa açılır.',
         );
         widget.onSettingsChanged();
         Navigator.of(context).pop();
@@ -1155,8 +1157,8 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
                   ),
                   title: Text(
                     widget.repository.hasDecoyPin
-                        ? 'Sahte Kasayı İptal Et'
-                        : 'Sahte Kasa Kur',
+                        ? 'Özel Kasayı İptal Et'
+                        : 'Özel Kasa Kur',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
@@ -1167,8 +1169,8 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
                   ),
                   subtitle: Text(
                     widget.repository.hasDecoyPin
-                        ? 'Sahte kasayı ve verilerini siler'
-                        : 'Farklı bir PIN ile içi boş sahte kasa açılır',
+                        ? 'Özel kasayı ve verilerini siler'
+                        : 'Farklı bir PIN ile içi boş özel kasa açılır',
                     style: TextStyle(
                       fontSize: 12,
                       color: widget.repository.hasDecoyPin
@@ -1180,7 +1182,7 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
                   onTap: _toggleDecoyVault,
                 ),
               ] else ...[
-                // Kamuflaj: Sahte kasa içindeyken sadece dummy ayarlar gösterilir
+                // Kamuflaj: Özel kasa içindeyken sadece dummy ayarlar gösterilir
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.password_rounded),

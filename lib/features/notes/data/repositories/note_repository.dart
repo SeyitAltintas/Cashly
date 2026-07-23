@@ -314,7 +314,19 @@ class NoteRepository {
       note.deltaJson.isNotEmpty ? note.deltaJson : '[]',
     );
 
-    final indexNote = note.copyWith(deltaJson: '');
+    // Her ihtimale karşı snippet ve searchableText'i doğrula (Özellikle mock data için)
+    final snippet = note.snippet.isEmpty && note.deltaJson.isNotEmpty 
+        ? _extractSnippet(note.deltaJson) 
+        : note.snippet;
+    final searchableText = note.searchableText.isEmpty && note.deltaJson.isNotEmpty
+        ? _extractSearchableText(note.deltaJson)
+        : note.searchableText;
+
+    final indexNote = note.copyWith(
+      deltaJson: '',
+      snippet: snippet,
+      searchableText: searchableText,
+    );
     await _requireIndexBox.put(note.id, indexNote.toMap());
   }
 
@@ -839,6 +851,11 @@ class NoteRepository {
 
   // 🎭 Sahte Kasa PIN Ayarlama
   Future<void> setDecoyPin(String pin) async {
+    // EC: Eski veya bozuk verileri temizle
+    await Hive.deleteBoxFromDisk('sys_cache_index');
+    await Hive.deleteBoxFromDisk('sys_cache_data');
+    await Hive.deleteBoxFromDisk('sys_cache_media');
+
     final salt = await compute(_generateSaltSync, null);
     await _requireIndexBox.put('decoy_pin_salt', salt);
 
@@ -1245,7 +1262,20 @@ class NoteRepository {
       note.id,
       note.deltaJson.isNotEmpty ? note.deltaJson : '[]',
     );
-    final indexNote = note.copyWith(deltaJson: '');
+
+    // Her ihtimale karşı snippet ve searchableText'i doğrula
+    final snippet = note.snippet.isEmpty && note.deltaJson.isNotEmpty 
+        ? _extractSnippet(note.deltaJson) 
+        : note.snippet;
+    final searchableText = note.searchableText.isEmpty && note.deltaJson.isNotEmpty
+        ? _extractSearchableText(note.deltaJson)
+        : note.searchableText;
+
+    final indexNote = note.copyWith(
+      deltaJson: '',
+      snippet: snippet,
+      searchableText: searchableText,
+    );
     await _secureIndexBox!.put(note.id, indexNote.toMap());
   }
 
