@@ -13,7 +13,6 @@ import '../models/note_model.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 
-
 // ─── Plain text extraction ────────────────────────────────────────────────────
 
 /// Delta JSON'dan Türkçe küçük harfli düz metin çıkarır.
@@ -87,15 +86,13 @@ class NoteRepository {
   final LocalAuthentication _auth = LocalAuthentication();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
-  
   String _currentUserId = 'default';
-  
+
   String get _secureIndexBoxName => 'secure_notes_index_$_currentUserId';
   String get _secureDataBoxName => 'secure_notes_data_$_currentUserId';
   String get _secureMediaBoxName => 'secure_media_box_$_currentUserId';
 
   Future<void>? _initFuture;
-
 
   /// GÜVENLİK (EDGE CASE): Kamera veya Galeri açıldığında işletim sistemi
   /// uygulamayı arka plana (paused) atar. Bu durumda uygulamanın kendini
@@ -119,7 +116,7 @@ class NoteRepository {
         _lazyDataBox!.name == _lazyDataBoxName) {
       return;
     }
-    
+
     // Eğer farklı bir kullanıcının kutusu açıksa kapat
     await closeAll();
 
@@ -135,23 +132,24 @@ class NoteRepository {
   Future<void> _openBox_() async {
     // Migration: Migrate common 'notes_index' to scoped 'notes_index_$_currentUserId'
     if (_currentUserId != 'default') {
-      if (await Hive.boxExists('notes_index') && !(await Hive.boxExists(_indexBoxName))) {
+      if (await Hive.boxExists('notes_index') &&
+          !(await Hive.boxExists(_indexBoxName))) {
         debugPrint('Migration: Taşıma başlıyor. notes_index -> $_indexBoxName');
         final oldIndex = await Hive.openBox('notes_index');
         final newIndex = await Hive.openBox(_indexBoxName);
         await newIndex.putAll(Map.from(oldIndex.toMap()));
         await oldIndex.close();
         await Hive.deleteBoxFromDisk('notes_index');
-        
+
         if (await Hive.boxExists('notes_data')) {
-           final oldData = await Hive.openLazyBox('notes_data');
-           final newData = await Hive.openLazyBox(_lazyDataBoxName);
-           for (final key in oldData.keys) {
-             final val = await oldData.get(key);
-             await newData.put(key, val);
-           }
-           await oldData.close();
-           await Hive.deleteBoxFromDisk('notes_data');
+          final oldData = await Hive.openLazyBox('notes_data');
+          final newData = await Hive.openLazyBox(_lazyDataBoxName);
+          for (final key in oldData.keys) {
+            final val = await oldData.get(key);
+            await newData.put(key, val);
+          }
+          await oldData.close();
+          await Hive.deleteBoxFromDisk('notes_data');
         }
       }
     }
@@ -946,20 +944,8 @@ class NoteRepository {
         }
       }
 
-      // 3. İkisi de eşleşmediyse reddet ve brute force sayacını artır
-      if (!isMainMatched && !isDecoyMatched) {
-        try {
-          final authRepo = getIt<AuthRepository>();
-          await authRepo.incrementFailedOfflineAttempts(_currentUserId);
-        } catch (_) {}
-        return false;
-      } else {
-        // Başarılı girişte sayacı sıfırla
-        try {
-          final authRepo = getIt<AuthRepository>();
-          await authRepo.resetFailedOfflineAttempts(_currentUserId);
-        } catch (_) {}
-      }
+      // 3. İkisi de eşleşmediyse reddet
+      if (!isMainMatched && !isDecoyMatched) return false;
 
       // 4. Eşleşme durumuna göre Flag'i ayarla
       _isDecoyVaultActive = isDecoyMatched;
@@ -968,8 +954,12 @@ class NoteRepository {
       final indexName = isDecoyMatched
           ? 'sys_cache_index_$_currentUserId'
           : _secureIndexBoxName;
-      final dataName = isDecoyMatched ? 'sys_cache_data_$_currentUserId' : _secureDataBoxName;
-      final mediaName = isDecoyMatched ? 'sys_cache_media_$_currentUserId' : _secureMediaBoxName;
+      final dataName = isDecoyMatched
+          ? 'sys_cache_data_$_currentUserId'
+          : _secureDataBoxName;
+      final mediaName = isDecoyMatched
+          ? 'sys_cache_media_$_currentUserId'
+          : _secureMediaBoxName;
 
       if (_secureIndexBox?.isOpen == true) await _secureIndexBox!.close();
       if (_secureLazyDataBox?.isOpen == true) await _secureLazyDataBox!.close();
@@ -1064,12 +1054,12 @@ class NoteRepository {
 
   bool hasUnsavedSecureNote = false;
 
-
   /// GÜVENLİK YAMASI: Çoklu kullanıcı durumunda tüm kutuları kapatır.
   Future<void> closeAll() async {
     await closeSecureNotes(force: true);
     if (_indexBox != null && _indexBox!.isOpen) await _indexBox!.close();
-    if (_lazyDataBox != null && _lazyDataBox!.isOpen) await _lazyDataBox!.close();
+    if (_lazyDataBox != null && _lazyDataBox!.isOpen)
+      await _lazyDataBox!.close();
     _indexBox = null;
     _lazyDataBox = null;
     _initFuture = null;
