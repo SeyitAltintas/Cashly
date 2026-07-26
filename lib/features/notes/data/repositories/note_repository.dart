@@ -8,6 +8,7 @@ import 'package:bcrypt/bcrypt.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/painting.dart';
 import '../models/note_model.dart';
 
 // ─── Plain text extraction ────────────────────────────────────────────────────
@@ -1020,6 +1021,12 @@ class NoteRepository {
     try {
       const platform = MethodChannel('com.seyitaltintas.cashly/security');
       await platform.invokeMethod('clearClipboard');
+    } catch (_) {}
+
+    // RAM Sızıntısını Önle: Flutter ImageCache içindeki önbelleğe alınmış şifresi çözülmüş resimleri sil
+    try {
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
     } catch (_) {}
   }
 
