@@ -104,6 +104,15 @@ class AuthRepositoryImpl implements AuthRepository {
     if (userData != null) {
       final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
 
+      // Lockout kontrolü
+      final lockoutTime = await getOfflineLockoutUntil(id);
+      if (lockoutTime != null && DateTime.now().isBefore(lockoutTime)) {
+        final waitMinutes = lockoutTime.difference(DateTime.now()).inMinutes;
+        throw Exception(
+          'Çok fazla hatalı giriş yaptınız. Güvenlik nedeniyle lütfen ${waitMinutes > 0 ? waitMinutes : 1} dakika bekleyip tekrar deneyin.',
+        );
+      }
+
       bool isMatch = false;
       bool needsMigration = false;
 
@@ -122,6 +131,9 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       if (isMatch) {
+        // Reset failed attempts
+        await resetFailedOfflineAttempts(id);
+
         // Update lastLoginAt while preserving all user data
         final updatedUser = UserModel(
           id: user.id,
@@ -136,6 +148,17 @@ class AuthRepositoryImpl implements AuthRepository {
         await box.put(id, updatedUser.toMap());
         await setCurrentUser(user.id);
         return updatedUser;
+      } else {
+        await incrementFailedOfflineAttempts(id);
+        final attempts = await getFailedOfflineAttempts(id);
+        final remaining = 5 - attempts;
+        if (remaining <= 0) {
+          throw Exception(
+            'Çok fazla hatalı giriş yaptınız. Güvenlik nedeniyle uygulamanız 5 dakika süreyle kilitlenmiştir.',
+          );
+        } else {
+          throw Exception('Hatalı PIN. Kalan deneme hakkınız: $remaining');
+        }
       }
     }
     return null;

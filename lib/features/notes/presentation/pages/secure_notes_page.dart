@@ -960,7 +960,10 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
       final isDecoy = await widget.repository.verifyDecoyPin(newPin1);
       if (isDecoy) {
         if (mounted) {
-          AppSnackBar.error(context, 'Yeni ana şifre, özel kasa şifreniz ile aynı olamaz!');
+          AppSnackBar.error(
+            context,
+            'Yeni ana şifre, özel kasa şifreniz ile aynı olamaz!',
+          );
         }
         return;
       }

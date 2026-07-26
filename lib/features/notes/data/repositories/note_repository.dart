@@ -10,6 +10,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/painting.dart';
 import '../models/note_model.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../auth/domain/repositories/auth_repository.dart';
+
 
 // ─── Plain text extraction ────────────────────────────────────────────────────
 
@@ -63,8 +66,8 @@ String _extractSnippet(String deltaJson) {
 /// Box yapısı: `'notes_index'` adlı normal box, her kayıt `noteId` key'i ile tutulur.
 /// Ağır deltaJson verisi ise `'notes_data'` adlı LazyBox içinde tutulur.
 class NoteRepository {
-  static const String _indexBoxName = 'notes_index';
-  static const String _lazyDataBoxName = 'notes_data';
+  String get _indexBoxName => 'notes_index_$_currentUserId';
+  String get _lazyDataBoxName => 'notes_data_$_currentUserId';
 
   static final NoteRepository _instance = NoteRepository._internal();
   factory NoteRepository() => _instance;
@@ -84,24 +87,75 @@ class NoteRepository {
   final LocalAuthentication _auth = LocalAuthentication();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
+  
+  String _currentUserId = 'default';
+  
+  String get _secureIndexBoxName => 'secure_notes_index_$_currentUserId';
+  String get _secureDataBoxName => 'secure_notes_data_$_currentUserId';
+  String get _secureMediaBoxName => 'secure_media_box_$_currentUserId';
+
   Future<void>? _initFuture;
+
 
   /// GÜVENLİK (EDGE CASE): Kamera veya Galeri açıldığında işletim sistemi
   /// uygulamayı arka plana (paused) atar. Bu durumda uygulamanın kendini
   /// otomatik kilitlemesini engellemek için bu flag kullanılır.
   bool isMediaPicking = false;
 
-  Future<void> init() {
+  Future<void> init() async {
+    try {
+      final authRepo = getIt<AuthRepository>();
+      final user = await authRepo.getCurrentUser();
+      _currentUserId = user?.id ?? 'default';
+    } catch (_) {
+      // getIt not initialized yet or AuthRepository not registered yet (e.g. tests)
+    }
+
     if (_indexBox != null &&
         _indexBox!.isOpen &&
+        _indexBox!.name == _indexBoxName &&
         _lazyDataBox != null &&
-        _lazyDataBox!.isOpen) {
-      return Future.value();
+        _lazyDataBox!.isOpen &&
+        _lazyDataBox!.name == _lazyDataBoxName) {
+      return;
     }
-    return _initFuture ??= _openBox_().whenComplete(() => _initFuture = null);
+    
+    // Eğer farklı bir kullanıcının kutusu açıksa kapat
+    await closeAll();
+
+    if (_initFuture == null) {
+      _initFuture = _openBox_();
+      await _initFuture;
+      _initFuture = null;
+    } else {
+      await _initFuture;
+    }
   }
 
   Future<void> _openBox_() async {
+    // Migration: Migrate common 'notes_index' to scoped 'notes_index_$_currentUserId'
+    if (_currentUserId != 'default') {
+      if (await Hive.boxExists('notes_index') && !(await Hive.boxExists(_indexBoxName))) {
+        debugPrint('Migration: Taşıma başlıyor. notes_index -> $_indexBoxName');
+        final oldIndex = await Hive.openBox('notes_index');
+        final newIndex = await Hive.openBox(_indexBoxName);
+        await newIndex.putAll(Map.from(oldIndex.toMap()));
+        await oldIndex.close();
+        await Hive.deleteBoxFromDisk('notes_index');
+        
+        if (await Hive.boxExists('notes_data')) {
+           final oldData = await Hive.openLazyBox('notes_data');
+           final newData = await Hive.openLazyBox(_lazyDataBoxName);
+           for (final key in oldData.keys) {
+             final val = await oldData.get(key);
+             await newData.put(key, val);
+           }
+           await oldData.close();
+           await Hive.deleteBoxFromDisk('notes_data');
+        }
+      }
+    }
+
     _indexBox = await Hive.openBox(_indexBoxName);
     _lazyDataBox = await Hive.openLazyBox(_lazyDataBoxName);
 
@@ -638,14 +692,14 @@ class NoteRepository {
 
     // Close and securely delete encrypted secure boxes from disk
     await closeSecureNotes();
-    await Hive.deleteBoxFromDisk('secure_notes_index');
-    await Hive.deleteBoxFromDisk('secure_notes_data');
-    await Hive.deleteBoxFromDisk('secure_media_box');
+    await Hive.deleteBoxFromDisk(_secureIndexBoxName);
+    await Hive.deleteBoxFromDisk(_secureDataBoxName);
+    await Hive.deleteBoxFromDisk(_secureMediaBoxName);
 
     // EC-27: Decoy (Sahte Kasa) orphan veri sızıntısını engelle
-    await Hive.deleteBoxFromDisk('sys_cache_index');
-    await Hive.deleteBoxFromDisk('sys_cache_data');
-    await Hive.deleteBoxFromDisk('sys_cache_media');
+    await Hive.deleteBoxFromDisk('sys_cache_index_$_currentUserId');
+    await Hive.deleteBoxFromDisk('sys_cache_data_$_currentUserId');
+    await Hive.deleteBoxFromDisk('sys_cache_media_$_currentUserId');
 
     try {
       final docsDir = await getApplicationDocumentsDirectory();
@@ -823,9 +877,9 @@ class NoteRepository {
   // 🎭 Sahte Kasa PIN Ayarlama
   Future<void> setDecoyPin(String pin) async {
     // EC: Eski veya bozuk verileri temizle
-    await Hive.deleteBoxFromDisk('sys_cache_index');
-    await Hive.deleteBoxFromDisk('sys_cache_data');
-    await Hive.deleteBoxFromDisk('sys_cache_media');
+    await Hive.deleteBoxFromDisk('sys_cache_index_$_currentUserId');
+    await Hive.deleteBoxFromDisk('sys_cache_data_$_currentUserId');
+    await Hive.deleteBoxFromDisk('sys_cache_media_$_currentUserId');
 
     final salt = await compute(_generateSaltSync, null);
     await _requireIndexBox.put('decoy_pin_salt', salt);
@@ -843,9 +897,9 @@ class NoteRepository {
     await _requireIndexBox.delete('decoy_pin_salt');
     await _requireIndexBox.delete('decoy_pin_hash');
     // EC-27: Sahte kasa dosyalarının adında 'decoy' geçmemesi için sys_cache kullanıldı
-    await Hive.deleteBoxFromDisk('sys_cache_index');
-    await Hive.deleteBoxFromDisk('sys_cache_data');
-    await Hive.deleteBoxFromDisk('sys_cache_media');
+    await Hive.deleteBoxFromDisk('sys_cache_index_$_currentUserId');
+    await Hive.deleteBoxFromDisk('sys_cache_data_$_currentUserId');
+    await Hive.deleteBoxFromDisk('sys_cache_media_$_currentUserId');
   }
 
   Future<bool> unlockSecureNotes(String pin) async {
@@ -900,10 +954,10 @@ class NoteRepository {
 
       // 5. Kutu isimlerini Flag'e göre belirle (EC-27: Kamufle edilmiş dosya isimleri)
       final indexName = isDecoyMatched
-          ? 'sys_cache_index'
-          : 'secure_notes_index';
-      final dataName = isDecoyMatched ? 'sys_cache_data' : 'secure_notes_data';
-      final mediaName = isDecoyMatched ? 'sys_cache_media' : 'secure_media_box';
+          ? 'sys_cache_index_$_currentUserId'
+          : _secureIndexBoxName;
+      final dataName = isDecoyMatched ? 'sys_cache_data_$_currentUserId' : _secureDataBoxName;
+      final mediaName = isDecoyMatched ? 'sys_cache_media_$_currentUserId' : _secureMediaBoxName;
 
       if (_secureIndexBox?.isOpen == true) await _secureIndexBox!.close();
       if (_secureLazyDataBox?.isOpen == true) await _secureLazyDataBox!.close();
@@ -932,15 +986,15 @@ class NoteRepository {
                 as bool;
         if (isPendingMigration) {
           final tempIndexBox = await Hive.openBox(
-            'temp_new_index',
+            'temp_new_index_$_currentUserId',
             encryptionCipher: HiveAesCipher(key),
           );
           final tempLazyBox = await Hive.openLazyBox(
-            'temp_new_data',
+            'temp_new_data_$_currentUserId',
             encryptionCipher: HiveAesCipher(key),
           );
           final tempMediaBox = await Hive.openLazyBox(
-            'temp_new_media',
+            'temp_new_media_$_currentUserId',
             encryptionCipher: HiveAesCipher(key),
           );
 
@@ -958,9 +1012,9 @@ class NoteRepository {
           await tempLazyBox.close();
           await tempMediaBox.close();
 
-          await Hive.deleteBoxFromDisk('temp_new_index');
-          await Hive.deleteBoxFromDisk('temp_new_data');
-          await Hive.deleteBoxFromDisk('temp_new_media');
+          await Hive.deleteBoxFromDisk('temp_new_index_$_currentUserId');
+          await Hive.deleteBoxFromDisk('temp_new_data_$_currentUserId');
+          await Hive.deleteBoxFromDisk('temp_new_media_$_currentUserId');
 
           await _requireIndexBox.put('pending_migration', false);
         }
@@ -997,6 +1051,17 @@ class NoteRepository {
   }
 
   bool hasUnsavedSecureNote = false;
+
+
+  /// GÜVENLİK YAMASI: Çoklu kullanıcı durumunda tüm kutuları kapatır.
+  Future<void> closeAll() async {
+    await closeSecureNotes(force: true);
+    if (_indexBox != null && _indexBox!.isOpen) await _indexBox!.close();
+    if (_lazyDataBox != null && _lazyDataBox!.isOpen) await _lazyDataBox!.close();
+    _indexBox = null;
+    _lazyDataBox = null;
+    _initFuture = null;
+  }
 
   Future<void> closeSecureNotes({bool force = false}) async {
     if (_isMigratingPin && !force) return;
@@ -1037,9 +1102,9 @@ class NoteRepository {
   Future<void> resetSecureKasa() async {
     await closeSecureNotes(force: true);
 
-    await Hive.deleteBoxFromDisk('secure_notes_index');
-    await Hive.deleteBoxFromDisk('secure_notes_data');
-    await Hive.deleteBoxFromDisk('secure_media_box');
+    await Hive.deleteBoxFromDisk(_secureIndexBoxName);
+    await Hive.deleteBoxFromDisk(_secureDataBoxName);
+    await Hive.deleteBoxFromDisk(_secureMediaBoxName);
 
     // Sahte kasa dosyalarını da sil
     await removeDecoyPin();
@@ -1076,15 +1141,15 @@ class NoteRepository {
 
       // 2. Yeni şifreli geçici kutuları (Backup) aç
       final tempIndexBox = await Hive.openBox(
-        'temp_new_index',
+        'temp_new_index_$_currentUserId',
         encryptionCipher: HiveAesCipher(newKey),
       );
       final tempLazyBox = await Hive.openLazyBox(
-        'temp_new_data',
+        'temp_new_data_$_currentUserId',
         encryptionCipher: HiveAesCipher(newKey),
       );
       final tempMediaBox = await Hive.openLazyBox(
-        'temp_new_media',
+        'temp_new_media_$_currentUserId',
         encryptionCipher: HiveAesCipher(newKey),
       );
 
@@ -1116,9 +1181,9 @@ class NoteRepository {
 
       // 6. Eski ana kasayı Yok Et (Ancak sahte kasayı silme!)
       await closeSecureNotes(force: true);
-      await Hive.deleteBoxFromDisk('secure_notes_index');
-      await Hive.deleteBoxFromDisk('secure_notes_data');
-      await Hive.deleteBoxFromDisk('secure_media_box');
+      await Hive.deleteBoxFromDisk(_secureIndexBoxName);
+      await Hive.deleteBoxFromDisk(_secureDataBoxName);
+      await Hive.deleteBoxFromDisk(_secureMediaBoxName);
       await disableBiometric(); // Biyometrik eski PIN'i tuttuğu için sıfırlanmalı
       await disableAutoUnlock();
 
@@ -1136,9 +1201,9 @@ class NoteRepository {
       if (!isPending) {
         // Eski kasa hala duruyor, geçici çöpleri güvenle silebiliriz
         try {
-          await Hive.deleteBoxFromDisk('temp_new_index');
-          await Hive.deleteBoxFromDisk('temp_new_data');
-          await Hive.deleteBoxFromDisk('temp_new_media');
+          await Hive.deleteBoxFromDisk('temp_new_index_$_currentUserId');
+          await Hive.deleteBoxFromDisk('temp_new_data_$_currentUserId');
+          await Hive.deleteBoxFromDisk('temp_new_media_$_currentUserId');
         } catch (_) {}
       }
       return false;

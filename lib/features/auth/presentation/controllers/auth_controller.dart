@@ -9,6 +9,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/notification_scheduler.dart';
 import 'package:cashly/features/notes/data/repositories/note_repository.dart';
+import 'package:cashly/features/notes/data/repositories/note_category_repository.dart';
 
 class AuthController extends ChangeNotifier with SafeNotifierMixin {
   final AuthRepository _authRepository;
@@ -141,9 +142,12 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
     if (getIt.isRegistered<NotificationService>()) {
       await getIt<NotificationService>().cancelAllNotifications();
     }
-    // Kasa sızıntısını önlemek için tüm gizli kutuları ve bellek şifrelerini kapat
+    // Kasa sızıntısını ve Multi-Tenant Data Leak'i önlemek için tüm kutuları kapat
     if (getIt.isRegistered<NoteRepository>()) {
-      await getIt<NoteRepository>().closeSecureNotes(force: true);
+      await getIt<NoteRepository>().closeAll();
+    }
+    if (getIt.isRegistered<NoteCategoryRepository>()) {
+      await getIt<NoteCategoryRepository>().closeAll();
     }
     await _authRepository.logout();
     _currentUser = null;

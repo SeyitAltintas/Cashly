@@ -1,9 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/note_category_model.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../auth/domain/repositories/auth_repository.dart';
+
 
 class NoteCategoryRepository {
-  static const String _boxName = 'note_categories';
+  String _currentUserId = 'default';
+  String get _boxName => 'note_categories_$_currentUserId';
 
   static final NoteCategoryRepository _instance = NoteCategoryRepository._internal();
   factory NoteCategoryRepository() => _instance;
@@ -13,11 +17,41 @@ class NoteCategoryRepository {
   Future<void>? _initFuture;
 
   Future<void> init() {
-    if (_box != null && _box!.isOpen) return Future.value();
+    try {
+      final authRepo = getIt<AuthRepository>();
+      authRepo.getCurrentUser().then((user) {
+        _currentUserId = user?.id ?? 'default';
+      });
+    } catch (_) {}
+
+    if (_box != null && _box!.isOpen && _box!.name == _boxName) return Future.value();
+    
+    closeAll();
+
     return _initFuture ??= _openBox_().whenComplete(() => _initFuture = null);
   }
 
+  Future<void> closeAll() async {
+    if (_box != null && _box!.isOpen) {
+      await _box!.close();
+    }
+    _box = null;
+    _initFuture = null;
+  }
+
   Future<void> _openBox_() async {
+    // Migration: Migrate common 'note_categories' to scoped 'note_categories_$_currentUserId'
+    if (_currentUserId != 'default') {
+      if (await Hive.boxExists('note_categories') && !(await Hive.boxExists(_boxName))) {
+        debugPrint('Migration: Taşıma başlıyor. note_categories -> $_boxName');
+        final oldBox = await Hive.openBox('note_categories');
+        final newBox = await Hive.openBox(_boxName);
+        await newBox.putAll(Map.from(oldBox.toMap()));
+        await oldBox.close();
+        await Hive.deleteBoxFromDisk('note_categories');
+      }
+    }
+
     _box = await Hive.openBox(_boxName);
     
     // EC-ZOMBIE: Eğer kategoriler daha önce tohumlandıysa (seeded), tekrar oluşturma.
