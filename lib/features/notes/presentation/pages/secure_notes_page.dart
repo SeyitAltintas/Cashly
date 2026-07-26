@@ -62,7 +62,11 @@ class _SecureNotesPageState extends State<SecureNotesPage>
       });
 
       if (!_isCreatingPin && !_isUnlocked) {
-        if (_isAutoUnlock) {
+        if (_repository.hasDecoyPin) {
+          // Eğer sahte kasa (Özel Kasa) aktifse otomatik girişleri devreden çıkarıyoruz.
+          // Çünkü saldırgan zorla yüz/parmak okutursa ana kasa açılır, sahte kasa işlevsiz kalır.
+          setState(() => _isInitializing = false);
+        } else if (_isAutoUnlock) {
           _authenticateWithAuto();
         } else if (_isBiometricEnabled) {
           setState(() => _isInitializing = false);
@@ -1199,6 +1203,7 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
                   ),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () {
+                    Navigator.pop(context);
                     AppSnackBar.error(
                       context,
                       'Güvenlik nedeniyle şifre değiştirme şu an kullanılamıyor.',

@@ -306,11 +306,9 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
                 Text(
                   rank.description,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                    color: Colors.white70,
                   ),
                 ),
               ],
@@ -384,10 +382,10 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
           child: Text(
             _streakMessage(context, streak),
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w400,
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Colors.white,
             ),
           ),
         ),
