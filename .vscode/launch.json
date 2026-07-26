@@ -1,6 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
+    
         {
             "name": "Redmi Note 10 Pro",
             "request": "launch",
@@ -19,6 +20,14 @@
         },
         {
             "name": "(Emulator)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "emulator-5554",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Pixel 9 Pro",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",

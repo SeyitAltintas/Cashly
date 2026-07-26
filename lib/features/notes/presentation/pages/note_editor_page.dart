@@ -122,6 +122,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   @override
   void dispose() {
+    if (widget.isSecure) {
+      _repository.hasUnsavedSecureNote = false;
+    }
     WidgetsBinding.instance.removeObserver(this);
     _autoSaveTimer?.cancel();
 
@@ -250,6 +253,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   void _markUnsaved() {
     if (!_hasUnsavedChanges && mounted) {
       setState(() => _hasUnsavedChanges = true);
+      if (widget.isSecure) {
+        _repository.hasUnsavedSecureNote = true;
+      }
     }
   }
 
@@ -283,6 +289,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     if (plainText.isEmpty && title.isEmpty && !hasEmbed) {
       if (mounted) {
         setState(() => _hasUnsavedChanges = false);
+        if (widget.isSecure) _repository.hasUnsavedSecureNote = false;
+      } else {
+        _hasUnsavedChanges = false;
+        if (widget.isSecure) _repository.hasUnsavedSecureNote = false;
       }
 
       // UX Edge Case: Yeni not (widget.noteId == null) olsa dahi auto-save
@@ -324,8 +334,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         setState(() {
           _note = updatedNote;
           _hasUnsavedChanges = false;
+          if (widget.isSecure) _repository.hasUnsavedSecureNote = false;
         });
         // Sessiz otomatik kayıt (seamless save)
+      } else {
+        _hasUnsavedChanges = false;
+        if (widget.isSecure) _repository.hasUnsavedSecureNote = false;
       }
     } catch (_) {
       // EC-SAVE-ERR: Kayıt başarısız. Hata gösterilir ve canPop=true yapılır
@@ -333,6 +347,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       if (mounted) {
         AppSnackBar.error(context, context.l10n.saveFailed);
         setState(() => _hasUnsavedChanges = false);
+        if (widget.isSecure) _repository.hasUnsavedSecureNote = false;
+      } else {
+        _hasUnsavedChanges = false;
+        if (widget.isSecure) _repository.hasUnsavedSecureNote = false;
       }
     } finally {
       if (mounted) {

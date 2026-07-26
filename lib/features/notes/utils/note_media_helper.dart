@@ -26,14 +26,15 @@ class NoteMediaHelper {
 
       final parts = picked.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'mp4';
+      final originalFile = File(picked.path);
 
       if (isSecure) {
-        final originalFile = File(picked.path);
         final bytes = await originalFile.readAsBytes();
         final secureUrl = await repo.saveSecureMedia(bytes, ext);
         
-        // Remove the original unencrypted camera cache file
-        if (fromCamera && await originalFile.exists()) {
+        // EC-DATA-LEAK: Daima image_picker'ın cache dosyasını temizle,
+        // yoksa galeriden seçilen şifreli medyaların düz kopyaları önbellekte kalır.
+        if (await originalFile.exists()) {
           await originalFile.delete();
         }
         return secureUrl;
@@ -46,7 +47,12 @@ class NoteMediaHelper {
       }
       final fileName = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesVidDir.path}/$fileName');
-      await File(picked.path).copy(dest.path);
+      await originalFile.copy(dest.path);
+      
+      // Storage Bloat'u engellemek için geçici dosyayı temizle
+      if (await originalFile.exists()) {
+        await originalFile.delete();
+      }
       return dest.path;
     } catch (e) {
       if (context.mounted) {
@@ -69,8 +75,9 @@ class NoteMediaHelper {
       );
       if (picked == null) return null;
 
+      final originalFile = File(picked.path);
       final File compressed = await ImageCompressionService.compress(
-        File(picked.path),
+        originalFile,
         maxWidth: _kImageMaxWidth,
         quality: _kImageQuality,
       );
@@ -82,14 +89,13 @@ class NoteMediaHelper {
         final bytes = await compressed.readAsBytes();
         final secureUrl = await repo.saveSecureMedia(bytes, ext);
         
-        // Remove temporary compressed file to leave no trace
+        // EC-DATA-LEAK: Remove temporary compressed file to leave no trace
         if (await compressed.exists()) {
           await compressed.delete();
         }
         
-        // Remove the original unencrypted camera cache file
-        final originalFile = File(picked.path);
-        if (fromCamera && await originalFile.exists()) {
+        // Remove the original unencrypted image_picker cache file
+        if (await originalFile.exists()) {
           await originalFile.delete();
         }
         return secureUrl;
@@ -102,6 +108,14 @@ class NoteMediaHelper {
       final fileName = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesImgDir.path}/$fileName');
       await compressed.copy(dest.path);
+      
+      // Cleanup to prevent storage bloat
+      if (await compressed.exists()) {
+        await compressed.delete();
+      }
+      if (await originalFile.exists()) {
+        await originalFile.delete();
+      }
       
       // Delay slightly to ensure the file is completely flushed to disk
       // and available for FileImage to read, preventing the 'image load error' warning.

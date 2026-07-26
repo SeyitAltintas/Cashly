@@ -316,10 +316,11 @@ class NoteRepository {
     );
 
     // Her ihtimale karşı snippet ve searchableText'i doğrula (Özellikle mock data için)
-    final snippet = note.snippet.isEmpty && note.deltaJson.isNotEmpty 
-        ? _extractSnippet(note.deltaJson) 
+    final snippet = note.snippet.isEmpty && note.deltaJson.isNotEmpty
+        ? _extractSnippet(note.deltaJson)
         : note.snippet;
-    final searchableText = note.searchableText.isEmpty && note.deltaJson.isNotEmpty
+    final searchableText =
+        note.searchableText.isEmpty && note.deltaJson.isNotEmpty
         ? _extractSearchableText(note.deltaJson)
         : note.searchableText;
 
@@ -569,19 +570,13 @@ class NoteRepository {
 
     if (isSecure) {
       if (!isSecureNotesUnlocked) return;
-      final deltaStr = await _secureLazyDataBox?.get(id) as String? ?? '';
       await _secureIndexBox?.delete(id);
       await _secureLazyDataBox?.delete(id);
-      if (deltaStr.isNotEmpty && deltaStr != '[]') {
-        await _deleteSecureMediaFromDelta(deltaStr);
-      }
+      await cleanOrphanSecureMedia();
     } else {
-      final deltaStr = await getNoteDeltaJson(id); // Genel DB'den okur
       await _requireIndexBox.delete(id);
       await _lazyDataBox!.delete(id);
-      if (deltaStr.isNotEmpty && deltaStr != '[]') {
-        await _deleteLocalImages(deltaStr);
-      }
+      await cleanOrphanImages();
     }
   }
 
@@ -594,31 +589,13 @@ class NoteRepository {
 
     if (isSecure) {
       if (!isSecureNotesUnlocked) return;
-      final deltaJsons = <String>[];
-      for (final id in ids) {
-        final deltaStr = await _secureLazyDataBox?.get(id) as String? ?? '';
-        deltaJsons.add(deltaStr);
-      }
       await _secureIndexBox?.deleteAll(ids);
       await _secureLazyDataBox?.deleteAll(ids);
-      for (final deltaStr in deltaJsons) {
-        if (deltaStr.isNotEmpty && deltaStr != '[]') {
-          await _deleteSecureMediaFromDelta(deltaStr);
-        }
-      }
+      await cleanOrphanSecureMedia();
     } else {
-      final deltaJsons = <String>[];
-      for (final id in ids) {
-        final deltaStr = await getNoteDeltaJson(id);
-        deltaJsons.add(deltaStr);
-      }
       await _requireIndexBox.deleteAll(ids);
       await _lazyDataBox!.deleteAll(ids);
-      for (final deltaStr in deltaJsons) {
-        if (deltaStr.isNotEmpty && deltaStr != '[]') {
-          await _deleteLocalImages(deltaStr);
-        }
-      }
+      await cleanOrphanImages();
     }
   }
 
@@ -651,27 +628,6 @@ class NoteRepository {
       debugPrint(
         'EC-TRASH: $days günden eski ${idsToDelete.length} not kalıcı olarak silindi.',
       );
-    }
-  }
-
-  static Future<void> _deleteLocalImages(String deltaJson) async {
-    try {
-      final ops = jsonDecode(deltaJson) as List<dynamic>;
-      for (final op in ops) {
-        if (op is! Map) continue;
-        final insert = op['insert'];
-        if (insert is! Map) continue;
-        final mediaPath = insert['image'] ?? insert['video'];
-        if (mediaPath is! String) continue;
-        if (mediaPath.startsWith('http')) continue;
-        final file = File(mediaPath);
-        if (await file.exists()) {
-          await file.delete();
-          debugPrint('EC-18: Orphan medya silindi → $mediaPath');
-        }
-      }
-    } catch (e) {
-      debugPrint('EC-18: Medya temizleme hatası: $e');
     }
   }
 
@@ -794,7 +750,11 @@ class NoteRepository {
         if (!activeMediaIds.contains(key)) {
           // GÜVENLİK (EDGE CASE): Yeni oluşturulan şifreli medyaların not kaydedilmeden
           // silinmesini önlemek için 5 dakikalık (Grace Period) tolerans süresi tanınır.
-          final timestampStr = key.toString().replaceFirst('secure_media_', '').split('.').first;
+          final timestampStr = key
+              .toString()
+              .replaceFirst('secure_media_', '')
+              .split('.')
+              .first;
           final timestamp = int.tryParse(timestampStr);
           if (timestamp != null) {
             final now = DateTime.now().microsecondsSinceEpoch;
@@ -802,7 +762,7 @@ class NoteRepository {
               continue; // 5 dakikadan yeniyse SİLME, atla.
             }
           }
-          
+
           await _secureMediaBox!.delete(key);
           debugPrint('EC-26: Orphan şifreli medya temizlendi → $key');
         }
@@ -901,7 +861,7 @@ class NoteRepository {
       } else {
         key = sha256.convert(utf8.encode(pin)).bytes;
       }
-      
+
       final storedHash = _requireIndexBox.get('secure_pin_hash') as String?;
       bool isMainMatched = false;
       if (storedHash != null && key != null) {
@@ -915,13 +875,18 @@ class NoteRepository {
       if (!isMainMatched && hasDecoyPin) {
         final decoySalt = _requireIndexBox.get('decoy_pin_salt') as String?;
         if (decoySalt != null) {
-          final decoyKey = await compute(_deriveKeySync, {'pin': pin, 'salt': decoySalt});
-          final storedDecoyHash = _requireIndexBox.get('decoy_pin_hash') as String?;
+          final decoyKey = await compute(_deriveKeySync, {
+            'pin': pin,
+            'salt': decoySalt,
+          });
+          final storedDecoyHash =
+              _requireIndexBox.get('decoy_pin_hash') as String?;
           if (storedDecoyHash != null) {
             final computedDecoyHash = sha256.convert(decoyKey).toString();
             if (computedDecoyHash == storedDecoyHash) {
               isDecoyMatched = true;
-              key = decoyKey; // Şifreleme anahtarı olarak decoy anahtarını kullan!
+              key =
+                  decoyKey; // Şifreleme anahtarı olarak decoy anahtarını kullan!
             }
           }
         }
@@ -932,9 +897,11 @@ class NoteRepository {
 
       // 4. Eşleşme durumuna göre Flag'i ayarla
       _isDecoyVaultActive = isDecoyMatched;
-      
+
       // 5. Kutu isimlerini Flag'e göre belirle (EC-27: Kamufle edilmiş dosya isimleri)
-      final indexName = isDecoyMatched ? 'sys_cache_index' : 'secure_notes_index';
+      final indexName = isDecoyMatched
+          ? 'sys_cache_index'
+          : 'secure_notes_index';
       final dataName = isDecoyMatched ? 'sys_cache_data' : 'secure_notes_data';
       final mediaName = isDecoyMatched ? 'sys_cache_media' : 'secure_media_box';
 
@@ -960,12 +927,23 @@ class NoteRepository {
 
       // --- ATOMIC MIGRATION RECOVERY --- (Sadece ana kasa için geçerli)
       if (!isDecoyMatched) {
-        final isPendingMigration = _requireIndexBox.get('pending_migration', defaultValue: false) as bool;
+        final isPendingMigration =
+            _requireIndexBox.get('pending_migration', defaultValue: false)
+                as bool;
         if (isPendingMigration) {
-          final tempIndexBox = await Hive.openBox('temp_new_index', encryptionCipher: HiveAesCipher(key));
-          final tempLazyBox = await Hive.openLazyBox('temp_new_data', encryptionCipher: HiveAesCipher(key));
-          final tempMediaBox = await Hive.openLazyBox('temp_new_media', encryptionCipher: HiveAesCipher(key));
-          
+          final tempIndexBox = await Hive.openBox(
+            'temp_new_index',
+            encryptionCipher: HiveAesCipher(key),
+          );
+          final tempLazyBox = await Hive.openLazyBox(
+            'temp_new_data',
+            encryptionCipher: HiveAesCipher(key),
+          );
+          final tempMediaBox = await Hive.openLazyBox(
+            'temp_new_media',
+            encryptionCipher: HiveAesCipher(key),
+          );
+
           await _secureIndexBox!.putAll(tempIndexBox.toMap());
           for (var k in tempLazyBox.keys) {
             final val = await tempLazyBox.get(k);
@@ -975,22 +953,25 @@ class NoteRepository {
             final val = await tempMediaBox.get(k);
             if (val != null) await _secureMediaBox!.put(k, val);
           }
-          
+
           await tempIndexBox.close();
           await tempLazyBox.close();
           await tempMediaBox.close();
-          
+
           await Hive.deleteBoxFromDisk('temp_new_index');
           await Hive.deleteBoxFromDisk('temp_new_data');
           await Hive.deleteBoxFromDisk('temp_new_media');
-          
+
           await _requireIndexBox.put('pending_migration', false);
         }
       }
       // ----------------------------------
 
       if (!isDecoyMatched && storedHash == null) {
-        await _requireIndexBox.put('secure_pin_hash', sha256.convert(key).toString());
+        await _requireIndexBox.put(
+          'secure_pin_hash',
+          sha256.convert(key).toString(),
+        );
       }
 
       if (_secureIndexBox!.isEmpty) {
@@ -1015,8 +996,19 @@ class NoteRepository {
     }
   }
 
+  bool hasUnsavedSecureNote = false;
+
   Future<void> closeSecureNotes({bool force = false}) async {
     if (_isMigratingPin && !force) return;
+
+    // EC-RACE: Arka plana atıldığında eğer NoteEditorPage henüz kaydedemeden
+    // SecureNotesPage kilitlerse veri kaybı olur. Bunu önlemek için kaydı bekle.
+    int waitCount = 0;
+    while (hasUnsavedSecureNote && waitCount < 40) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      waitCount++;
+    }
+
     if (_secureIndexBox?.isOpen == true) await _secureIndexBox!.close();
     _secureIndexBox = null;
     if (_secureLazyDataBox?.isOpen == true) await _secureLazyDataBox!.close();
@@ -1025,7 +1017,6 @@ class NoteRepository {
     _secureMediaBox = null;
 
     _isDecoyVaultActive = false; // Flag'i resetle
-
 
     // Pano Sızıntısını Önle: Gizli Kasa kapandığında telefonun panosunu tamamen imha et (Native Android Wipe)
     try {
@@ -1067,6 +1058,12 @@ class NoteRepository {
 
   Future<bool> changeSecurePin(String currentPin, String newPin) async {
     if (!isSecureNotesUnlocked) return false;
+
+    // GÜVENLİK (EDGE CASE): Sahte kasa içindeyken şifre değiştirilemez.
+    // Aksi halde ana kasa verileri ezilir/silinir.
+    if (_isDecoyVaultActive) {
+      throw Exception('Sahte kasa modundayken şifre değiştirilemez.');
+    }
 
     _isMigratingPin = true;
     try {
@@ -1117,8 +1114,13 @@ class NoteRepository {
       await _requireIndexBox.put('secure_pin_hash', newHash);
       await _requireIndexBox.put('pending_migration', true);
 
-      // 6. Eski kasayı tamamen Yok Et (Biyometrik vs dahil)
-      await resetSecureKasa();
+      // 6. Eski ana kasayı Yok Et (Ancak sahte kasayı silme!)
+      await closeSecureNotes(force: true);
+      await Hive.deleteBoxFromDisk('secure_notes_index');
+      await Hive.deleteBoxFromDisk('secure_notes_data');
+      await Hive.deleteBoxFromDisk('secure_media_box');
+      await disableBiometric(); // Biyometrik eski PIN'i tuttuğu için sıfırlanmalı
+      await disableAutoUnlock();
 
       // 7. Yeni PIN'i sisteme kaydet (Bu, yeni kutuları açar ve pending_migration'ı görüp verileri aktarır)
       final success = await unlockSecureNotes(newPin);
@@ -1128,7 +1130,9 @@ class NoteRepository {
       return true;
     } catch (e) {
       debugPrint('PIN Migration failed: $e');
-      final isPending = _requireIndexBox.get('pending_migration', defaultValue: false) as bool;
+      final isPending =
+          _requireIndexBox.get('pending_migration', defaultValue: false)
+              as bool;
       if (!isPending) {
         // Eski kasa hala duruyor, geçici çöpleri güvenle silebiliriz
         try {
@@ -1281,10 +1285,11 @@ class NoteRepository {
     );
 
     // Her ihtimale karşı snippet ve searchableText'i doğrula
-    final snippet = note.snippet.isEmpty && note.deltaJson.isNotEmpty 
-        ? _extractSnippet(note.deltaJson) 
+    final snippet = note.snippet.isEmpty && note.deltaJson.isNotEmpty
+        ? _extractSnippet(note.deltaJson)
         : note.snippet;
-    final searchableText = note.searchableText.isEmpty && note.deltaJson.isNotEmpty
+    final searchableText =
+        note.searchableText.isEmpty && note.deltaJson.isNotEmpty
         ? _extractSearchableText(note.deltaJson)
         : note.searchableText;
 
@@ -1302,8 +1307,7 @@ class NoteRepository {
       final note = getNoteById(id);
       if (note != null) {
         var deltaJson = await getNoteDeltaJson(id);
-        final filesToDelete = <File>[];
-        deltaJson = await _migrateMediaToSecure(deltaJson, filesToDelete);
+        deltaJson = await _migrateMediaToSecure(deltaJson);
 
         final secureNote = note.copyWith(isSecure: true, deltaJson: deltaJson);
         // 1. Veritabanını güvenle güncelle
@@ -1317,15 +1321,9 @@ class NoteRepository {
         );
         await _requireIndexBox.delete(id);
         await _lazyDataBox!.delete(id);
-
-        // 2. Veritabanı başarıyla güncellendikten SONRA orijinal medyaları sil (Atomic Transaction)
-        for (final file in filesToDelete) {
-          if (await file.exists()) {
-            await file.delete();
-          }
-        }
       }
     }
+    await cleanOrphanImages();
   }
 
   Future<void> unsecureNotes(List<String> ids) async {
@@ -1334,8 +1332,7 @@ class NoteRepository {
       final note = getSecureNoteById(id);
       if (note != null) {
         var deltaJson = await getSecureNoteDeltaJson(id);
-        final secureIdsToDelete = <String>[];
-        deltaJson = await _migrateMediaToPublic(deltaJson, secureIdsToDelete);
+        deltaJson = await _migrateMediaToPublic(deltaJson);
 
         final publicNote = note.copyWith(isSecure: false, deltaJson: deltaJson);
         // 1. Veritabanını güvenle güncelle
@@ -1349,13 +1346,9 @@ class NoteRepository {
         );
         await _secureIndexBox!.delete(id);
         await _secureLazyDataBox!.delete(id);
-
-        // 2. Veritabanı başarıyla güncellendikten SONRA şifreli medyaları sil (Atomic Transaction)
-        for (final mediaId in secureIdsToDelete) {
-          await _secureMediaBox!.delete(mediaId);
-        }
       }
     }
+    await cleanOrphanSecureMedia();
   }
 
   Future<void> deleteSecureNotes(List<String> ids) async {
@@ -1365,105 +1358,97 @@ class NoteRepository {
 
   Future<void> permanentlyDeleteSecureNotes(List<String> ids) async {
     if (!isSecureNotesUnlocked) return;
-    final deltaJsons = <String>[];
-    for (final id in ids) {
-      final deltaStr = await getSecureNoteDeltaJson(id);
-      deltaJsons.add(deltaStr);
-    }
     await _secureIndexBox!.deleteAll(ids);
     await _secureLazyDataBox!.deleteAll(ids);
-    for (final deltaStr in deltaJsons) {
-      if (deltaStr.isNotEmpty && deltaStr != '[]') {
-        await _deleteSecureMediaFromDelta(deltaStr);
-        await _deleteLocalImages(deltaStr);
-      }
-    }
+    await cleanOrphanSecureMedia();
   }
 
-  Future<void> _deleteSecureMediaFromDelta(String deltaJson) async {
-    if (!isSecureNotesUnlocked) return;
-    try {
-      final ops = jsonDecode(deltaJson) as List<dynamic>;
-      for (final op in ops) {
-        if (op is! Map) continue;
-        final insert = op['insert'];
-        if (insert is! Map) continue;
-        final mediaPath = insert['image'] ?? insert['video'];
-        if (mediaPath is String && mediaPath.startsWith('secure-media://')) {
-          final mediaId = mediaPath.replaceFirst('secure-media://', '');
-          await _secureMediaBox!.delete(mediaId);
-          debugPrint('EC-18: Secure medya silindi → $mediaId');
-        }
-      }
-    } catch (e) {
-      debugPrint('EC-18: Secure medya silinirken hata: $e');
-    }
-  }
-
-  Future<String> _migrateMediaToSecure(
-    String deltaJson,
-    List<File> filesToDelete,
-  ) async {
+  Future<String> _migrateMediaToSecure(String deltaJson) async {
     if (deltaJson.isEmpty || deltaJson == '[]') return deltaJson;
-    String newJson = deltaJson;
     try {
       final ops = jsonDecode(deltaJson) as List<dynamic>;
+      bool changed = false;
       for (final op in ops) {
         if (op is! Map) continue;
         final insert = op['insert'];
         if (insert is! Map) continue;
-        final mediaPath = insert['image'] ?? insert['video'];
-        if (mediaPath is String &&
-            !mediaPath.startsWith('http') &&
-            !mediaPath.startsWith('secure-media://')) {
-          final file = File(mediaPath);
-          if (await file.exists()) {
-            final bytes = await file.readAsBytes();
-            final ext = mediaPath.split('.').last;
-            final secureUrl = await saveSecureMedia(bytes, ext);
-            newJson = newJson.replaceAll('"$mediaPath"', '"$secureUrl"');
-            filesToDelete.add(file); // Silmek yerine listeye ekle
+
+        final isImage = insert.containsKey('image');
+        final isVideo = insert.containsKey('video');
+
+        if (isImage || isVideo) {
+          final mediaPath = isImage ? insert['image'] : insert['video'];
+          if (mediaPath is String &&
+              !mediaPath.startsWith('http') &&
+              !mediaPath.startsWith('secure-media://')) {
+            final file = File(mediaPath);
+            if (await file.exists()) {
+              final bytes = await file.readAsBytes();
+              final ext = mediaPath.split('.').last;
+              final secureUrl = await saveSecureMedia(bytes, ext);
+
+              if (isImage) {
+                insert['image'] = secureUrl;
+              } else {
+                insert['video'] = secureUrl;
+              }
+              changed = true;
+            }
           }
         }
       }
+      if (changed) {
+        return jsonEncode(ops);
+      }
     } catch (_) {}
-    return newJson;
+    return deltaJson;
   }
 
-  Future<String> _migrateMediaToPublic(
-    String deltaJson,
-    List<String> secureIdsToDelete,
-  ) async {
+  Future<String> _migrateMediaToPublic(String deltaJson) async {
     if (deltaJson.isEmpty || deltaJson == '[]') return deltaJson;
-    String newJson = deltaJson;
     try {
       final ops = jsonDecode(deltaJson) as List<dynamic>;
+      bool changed = false;
       for (final op in ops) {
         if (op is! Map) continue;
         final insert = op['insert'];
         if (insert is! Map) continue;
-        final mediaPath = insert['image'] ?? insert['video'];
-        if (mediaPath is String && mediaPath.startsWith('secure-media://')) {
-          final mediaId = mediaPath.replaceFirst('secure-media://', '');
-          final bytes = await getSecureMedia(mediaId);
-          if (bytes != null) {
-            final docsDir = await getApplicationDocumentsDirectory();
-            final ext = mediaId.split('.').last;
-            final isVideo = ext == 'mp4';
-            final folderName = isVideo ? 'note_videos' : 'note_images';
-            final dir = Directory('${docsDir.path}/$folderName');
-            if (!await dir.exists()) await dir.create(recursive: true);
 
-            final publicPath =
-                '${dir.path}/${DateTime.now().microsecondsSinceEpoch}.$ext';
-            await File(publicPath).writeAsBytes(bytes);
-            newJson = newJson.replaceAll('"$mediaPath"', '"$publicPath"');
-            secureIdsToDelete.add(mediaId); // Silmek yerine listeye ekle
+        final isImage = insert.containsKey('image');
+        final isVideo = insert.containsKey('video');
+
+        if (isImage || isVideo) {
+          final mediaPath = isImage ? insert['image'] : insert['video'];
+          if (mediaPath is String && mediaPath.startsWith('secure-media://')) {
+            final mediaId = mediaPath.replaceFirst('secure-media://', '');
+            final bytes = await getSecureMedia(mediaId);
+            if (bytes != null) {
+              final docsDir = await getApplicationDocumentsDirectory();
+              final ext = mediaId.split('.').last;
+              final isVid = ext == 'mp4';
+              final folderName = isVid ? 'note_videos' : 'note_images';
+              final dir = Directory('${docsDir.path}/$folderName');
+              if (!await dir.exists()) await dir.create(recursive: true);
+
+              final publicPath =
+                  '${dir.path}/${DateTime.now().microsecondsSinceEpoch}.$ext';
+              await File(publicPath).writeAsBytes(bytes);
+
+              if (isImage) {
+                insert['image'] = publicPath;
+              } else {
+                insert['video'] = publicPath;
+              }
+              changed = true;
+            }
           }
         }
       }
+      if (changed) {
+        return jsonEncode(ops);
+      }
     } catch (_) {}
-    return newJson;
+    return deltaJson;
   }
 }
 

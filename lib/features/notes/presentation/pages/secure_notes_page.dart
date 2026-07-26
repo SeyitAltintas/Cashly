@@ -928,6 +928,7 @@ class _SettingsBottomSheetState extends State<_SettingsBottomSheet> {
   }
 
   Future<String?> _askForPin(String title) async {
+    if (!mounted) return null;
     return showDialog<String>(
       context: context,
       builder: (ctx) => _PinInputDialog(title: title),
@@ -1239,8 +1240,11 @@ class _PinInputDialog extends StatefulWidget {
 
 class _PinInputDialogState extends State<_PinInputDialog> {
   String _pin = '';
+  bool _isCompleting = false;
 
   void _onKeyPress(String key) {
+    if (_isCompleting) return;
+
     setState(() {
       if (key == 'back') {
         if (_pin.isNotEmpty) _pin = _pin.substring(0, _pin.length - 1);
@@ -1249,7 +1253,8 @@ class _PinInputDialogState extends State<_PinInputDialog> {
       }
     });
 
-    if (_pin.length == 4) {
+    if (_pin.length == 4 && !_isCompleting) {
+      _isCompleting = true;
       Future.delayed(const Duration(milliseconds: 200), () {
         if (mounted) Navigator.of(context).pop(_pin);
       });

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
@@ -312,7 +313,11 @@ class ExportService {
       );
 
       // Dosyayı kaydet
-      final directory = await getApplicationDocumentsDirectory();
+      final directory = await getTemporaryDirectory();
+      
+      // Temizlik: Eski oluşturulmuş raporları temizle (Storage Leak önleme)
+      _cleanupOldPdfs(directory);
+      
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final file = File('${directory.path}/cashly_rapor_$timestamp.pdf');
       await file.writeAsBytes(await pdf.save());
@@ -390,5 +395,24 @@ class ExportService {
             !normalizedDate.isAfter(normalizedEnd);
       }).toList()
       ..sort((a, b) => (b['date'] as String).compareTo(a['date'] as String));
+  }
+
+  /// Uygulama geçici dizininde birikmiş eski PDF raporlarını temizler
+  static void _cleanupOldPdfs(Directory dir) {
+    try {
+      final files = dir.listSync();
+      final now = DateTime.now();
+      for (var entity in files) {
+        if (entity is File && entity.path.endsWith('.pdf') && entity.path.contains('cashly_rapor_')) {
+          final stat = entity.statSync();
+          if (now.difference(stat.modified).inHours > 24) {
+            entity.deleteSync();
+          }
+        }
+      }
+    } catch (e) {
+      // Temizlik sırasındaki hataları yoksay
+      debugPrint('PDF temizlik hatası: $e');
+    }
   }
 }

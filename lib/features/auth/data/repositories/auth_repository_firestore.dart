@@ -836,6 +836,12 @@ class AuthRepositoryFirestore implements AuthRepository {
     // diğer cihazlarda hatalara ve bypass senaryolarına yol açabilir.
     // Bu yüzden SADECE cihazın yerel veritabanında tutuyoruz.
     await _localHiveRepo.updateBiometricPreference(userId, enabled);
+    
+    // GÜVENLİK YAMASI (Data Leak): Eğer biyometrik devre dışı bırakılırsa, 
+    // secure storage'daki PIN verisini de silmeliyiz.
+    if (!enabled) {
+      await SecureStorageService.deleteBiometricPin(userId);
+    }
   }
 
   @override
@@ -920,7 +926,13 @@ class AuthRepositoryFirestore implements AuthRepository {
 
       // 2. Lokal Hive güncelle
       await _localHiveRepo.updateUserPin(userId, currentPin, newPin);
-      await SecureStorageService.saveBiometricPin(userId, newPin);
+      
+      // GÜVENLİK YAMASI: Sadece biyometrik aktifse PIN'i secure storage'a kaydet.
+      if (verifiedUser.biometricEnabled) {
+        await SecureStorageService.saveBiometricPin(userId, newPin);
+      } else {
+        await SecureStorageService.deleteBiometricPin(userId);
+      }
     } catch (e) {
       throw Exception("PIN güncellenemedi: ${e.toString()}");
     }

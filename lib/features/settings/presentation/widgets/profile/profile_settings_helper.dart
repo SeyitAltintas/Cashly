@@ -142,6 +142,12 @@ class ProfileSettingsHelper {
 
     if (image != null) {
       await _processAndSaveImage(image.path);
+      
+      // Cache temizliği
+      final file = File(image.path);
+      if (await file.exists()) {
+        await file.delete();
+      }
     }
   }
 
@@ -151,6 +157,12 @@ class ProfileSettingsHelper {
 
     if (image != null) {
       await _processAndSaveImage(image.path);
+      
+      // Cache temizliği
+      final file = File(image.path);
+      if (await file.exists()) {
+        await file.delete();
+      }
     }
   }
 
