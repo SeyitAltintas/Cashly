@@ -835,6 +835,16 @@ class NoteRepository {
     return computedHash == storedHash;
   }
 
+  // Sahte PIN'i test etme (UI katmanı için)
+  Future<bool> verifyDecoyPin(String pin) async {
+    final salt = _requireIndexBox.get('decoy_pin_salt') as String?;
+    if (salt == null) return false;
+    final key = await compute(_deriveKeySync, {'pin': pin, 'salt': salt});
+    final computedHash = sha256.convert(key).toString();
+    final storedHash = _requireIndexBox.get('decoy_pin_hash') as String?;
+    return computedHash == storedHash;
+  }
+
   Future<void> setSecurePin(String pin) async {
     // Generate salt asynchronously on a background isolate
     final salt = await compute(_generateSaltSync, null);
