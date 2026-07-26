@@ -21,4 +21,8 @@ abstract class AuthRepository {
   Future<UserEntity?> getUserByEmail(String email);
   Future<void> sendPinResetOtp(String email);
   Future<void> updateUserPin(String userId, String currentPin, String newPin);
+
+  // Offline Brute Force Koruması
+  Future<void> incrementFailedOfflineAttempts(String userId);
+  Future<void> resetFailedOfflineAttempts(String userId);
 }

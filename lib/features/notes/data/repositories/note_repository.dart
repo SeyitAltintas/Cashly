@@ -946,8 +946,20 @@ class NoteRepository {
         }
       }
 
-      // 3. İkisi de eşleşmediyse reddet
-      if (!isMainMatched && !isDecoyMatched) return false;
+      // 3. İkisi de eşleşmediyse reddet ve brute force sayacını artır
+      if (!isMainMatched && !isDecoyMatched) {
+        try {
+          final authRepo = getIt<AuthRepository>();
+          await authRepo.incrementFailedOfflineAttempts(_currentUserId);
+        } catch (_) {}
+        return false;
+      } else {
+        // Başarılı girişte sayacı sıfırla
+        try {
+          final authRepo = getIt<AuthRepository>();
+          await authRepo.resetFailedOfflineAttempts(_currentUserId);
+        } catch (_) {}
+      }
 
       // 4. Eşleşme durumuna göre Flag'i ayarla
       _isDecoyVaultActive = isDecoyMatched;
