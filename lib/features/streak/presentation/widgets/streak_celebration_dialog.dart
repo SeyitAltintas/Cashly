@@ -202,55 +202,19 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Arka plan ışığı (Glow)
-                Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: rank.glowColor.withValues(alpha: 0.6),
-                        blurRadius: 80,
-                        spreadRadius: 20,
-                      ),
-                    ],
-                  ),
-                ),
                 Lottie.asset(
                   rank.lottieAsset,
                   fit: BoxFit.contain,
                   repeat: false,
                 ),
                 if (profileImage != null && profileImage.isNotEmpty)
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: rank.glowColor.withValues(alpha: 0.8),
-                        width: 2.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.5),
-                          blurRadius: 8,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: ClipOval(
-                      child: CircleAvatar(
-                        radius: getAvatarRadius(rank.level),
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest,
-                        backgroundImage: ImageUtils.getProfileImageProvider(
-                          profileImage,
-                        ),
-                      ),
+                  CircleAvatar(
+                    radius: getAvatarRadius(rank.level),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                    backgroundImage: ImageUtils.getProfileImageProvider(
+                      profileImage,
                     ),
                   ),
               ],
@@ -271,17 +235,11 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
               children: [
                 Text(
                   AppLocalizations.of(context)!.rankUpTitle,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: rank.primaryColor,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
                     letterSpacing: 2,
-                    shadows: [
-                      Shadow(
-                        color: rank.glowColor.withValues(alpha: 0.8),
-                        blurRadius: 12,
-                      ),
-                    ],
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -290,25 +248,25 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
                 Text(
                   rank.name,
                   style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 48,
+                    fontWeight: FontWeight.w900,
                     color: rank.primaryColor,
-                    shadows: [
-                      Shadow(
-                        color: rank.glowColor.withValues(alpha: 0.6),
-                        blurRadius: 20,
-                      ),
-                    ],
+                    letterSpacing: 1.2,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
 
-                Text(
-                  rank.description,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white70,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Text(
+                    rank.description,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                      height: 1.4,
+                    ),
                   ),
                 ),
               ],

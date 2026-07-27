@@ -1057,9 +1057,12 @@ class NoteRepository {
   /// GÜVENLİK YAMASI: Çoklu kullanıcı durumunda tüm kutuları kapatır.
   Future<void> closeAll() async {
     await closeSecureNotes(force: true);
-    if (_indexBox != null && _indexBox!.isOpen) await _indexBox!.close();
-    if (_lazyDataBox != null && _lazyDataBox!.isOpen)
+    if (_indexBox != null && _indexBox!.isOpen) {
+      await _indexBox!.close();
+    }
+    if (_lazyDataBox != null && _lazyDataBox!.isOpen) {
       await _lazyDataBox!.close();
+    }
     _indexBox = null;
     _lazyDataBox = null;
     _initFuture = null;
