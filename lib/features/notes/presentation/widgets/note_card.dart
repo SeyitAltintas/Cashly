@@ -152,6 +152,7 @@ class NoteCard extends StatelessWidget {
         : colorScheme.onSurface.withValues(alpha: 0.08);
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Stack(
