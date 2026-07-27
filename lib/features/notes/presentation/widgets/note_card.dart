@@ -124,7 +124,6 @@ class NoteCard extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context, ColorScheme colorScheme) {
-    final title = note.title.isEmpty ? context.l10n.noteUntitled : note.title;
     final dateStr = _formatDate(context, note.updatedAt);
     final snippet = note.snippet;
 
@@ -155,17 +154,16 @@ class NoteCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Stack(
           children: [
-            Expanded(
+            Padding(
+              padding: EdgeInsets.only(right: note.isPinned ? 24.0 : 0.0),
               child: _buildHighlightedText(
-                title,
+                note.title.isNotEmpty ? note.title : context.l10n.noteUntitled,
                 searchQuery,
                 TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.3,
+                  fontWeight: FontWeight.w600,
                   color: textColor,
                   fontFamily: 'Inter',
                 ),
@@ -173,10 +171,12 @@ class NoteCard extends StatelessWidget {
                 maxLines: isGrid ? 2 : 1,
               ),
             ),
-            if (note.isPinned) ...[
-              const SizedBox(width: 8),
-              Icon(Icons.push_pin_rounded, size: 16, color: subtitleColor),
-            ],
+            if (note.isPinned)
+              Positioned(
+                top: 2,
+                right: 0,
+                child: Icon(Icons.push_pin_rounded, size: 16, color: subtitleColor),
+              ),
           ],
         ),
         if (snippet.isNotEmpty) ...[
@@ -190,17 +190,19 @@ class NoteCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          _buildHighlightedText(
-            snippet,
-            searchQuery,
-            TextStyle(
-              fontSize: 14,
-              height: 1.5,
-              color: subtitleColor,
-              fontFamily: 'Inter',
+          Flexible(
+            child: _buildHighlightedText(
+              snippet,
+              searchQuery,
+              TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: subtitleColor,
+                fontFamily: 'Inter',
+              ),
+              colorScheme,
+              maxLines: isGrid ? 8 : 2,
             ),
-            colorScheme,
-            maxLines: isGrid ? 8 : 2,
           ),
         ],
         if (isGrid) const SizedBox(height: 14),

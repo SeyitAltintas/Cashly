@@ -75,17 +75,23 @@ class TrashNotesController extends ChangeNotifier {
     final ids = _selectedNoteIds.toList();
     clearSelection();
     await _repository.restoreNotes(ids);
+    _fetchTrashNotes();
+    notifyListeners();
   }
 
   Future<void> permanentlyDeleteSelected() async {
     final ids = _selectedNoteIds.toList();
     clearSelection();
     await _repository.permanentlyDeleteNotes(ids);
+    _fetchTrashNotes();
+    notifyListeners();
   }
 
   Future<void> emptyTrash() async {
     clearSelection();
     await _repository.emptyTrash();
+    _fetchTrashNotes();
+    notifyListeners();
   }
 
   @override

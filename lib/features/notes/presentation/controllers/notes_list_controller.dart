@@ -76,6 +76,15 @@ class NotesListController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Editörden veya başka bir sayfadan döndükten sonra
+  /// notlar ve kategoriler tamamen yeniden yüklenir.
+  void forceRefresh() {
+    if (!_isReady) return;
+    _allCategories = _categoryRepository.getAllCategories();
+    _fetchAndCacheAllNotes();
+    notifyListeners();
+  }
+
   void setSearchQuery(String query) {
     final lowerQuery = _toTurkishLowerCase(query);
     if (_searchQuery == lowerQuery) return;
@@ -152,6 +161,8 @@ class NotesListController extends ChangeNotifier {
     final ids = _selectedNoteIds.toList();
     clearSelection();
     await _repository.deleteNotes(ids);
+    // Hive event beklemeye gerek yok: listede anında silme garantisi
+    forceRefresh();
   }
 
   bool get hasSecurePin => _repository.hasSecurePin;
@@ -194,30 +205,11 @@ class NotesListController extends ChangeNotifier {
     if (!_isReady) return;
     if (event.key == 'prefs_is_grid_view') return;
     
-    final id = event.key as String;
-    
-    if (event.deleted) {
-      _allNotes.removeWhere((n) => n.id == id);
-      _selectedNoteIds.remove(id);
-    } else {
-      final raw = event.value;
-      if (raw is Map) {
-        try {
-          final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
-          if (note.deletedAt != null) {
-            _allNotes.removeWhere((n) => n.id == id);
-            _selectedNoteIds.remove(id);
-          } else {
-            final index = _allNotes.indexWhere((n) => n.id == id);
-            if (index != -1) {
-              _allNotes[index] = note;
-            } else {
-              _allNotes.add(note);
-            }
-          }
-        } catch (_) {}
-      }
-    }
+    // YENİ KOD: Hive'ın putAll/deleteAll gibi çoklu işlemlerinde
+    // event.key, event.deleted gibi alanlar güvenilmez olabilir.
+    // Bu yüzden kutuda HERHANGİ BİR değişiklik olduğunda listeyi baştan çekiyoruz.
+    _fetchAndCacheAllNotes();
+    notifyListeners();
     
     _allNotes.sort((a, b) {
       if (a.isPinned && !b.isPinned) return -1;

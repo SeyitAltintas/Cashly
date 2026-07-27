@@ -68,7 +68,8 @@ class _NotesListViewState extends State<_NotesListView> {
       ),
     );
     if (mounted) {
-      controller.refreshCategories();
+      // Editörde not silinmiş/değiştirilmiş olabilir, listeyi zorla yenile
+      controller.forceRefresh();
     }
   }
 
@@ -77,10 +78,8 @@ class _NotesListViewState extends State<_NotesListView> {
     await Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (_) => const TrashNotesPage()));
-    // Çöp kutusundan not geri yüklenmiş veya silinmiş olabilir
     if (mounted) {
-      // _fetchAndCacheAllNotes() already called via _boxListener but let's notify listeners if needed
-      controller.refreshCategories();
+      controller.forceRefresh();
     }
   }
 
@@ -92,7 +91,7 @@ class _NotesListViewState extends State<_NotesListView> {
       ),
     );
     if (mounted) {
-      controller.refreshCategories();
+      controller.forceRefresh();
     }
   }
 
@@ -367,6 +366,7 @@ class _NotesListViewState extends State<_NotesListView> {
         '$count adet not çöp kutusuna taşındı',
         onUndo: () async {
           await controller.repository.restoreNotes(selectedIds);
+          controller.forceRefresh();
           AppSnackBar.successWithMessenger(messenger, 'Geri alındı');
         },
       );
