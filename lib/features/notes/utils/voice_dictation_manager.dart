@@ -67,6 +67,14 @@ class VoiceDictationManager {
 
   Future<void> resumeListeningSession() async {
     if (!isListening || _isRestarting) return;
+
+    // Arka plan çökme koruması: Uygulama ön planda değilse dikteyi zorla durdur
+    final appState = WidgetsBinding.instance.lifecycleState;
+    if (appState == AppLifecycleState.paused || appState == AppLifecycleState.inactive) {
+      stopVoiceDictation();
+      return;
+    }
+
     onStateChanged();
 
     await _speechService.startListening(
@@ -119,9 +127,13 @@ class VoiceDictationManager {
             _isRestarting = true;
             Future.delayed(const Duration(milliseconds: 250), () async {
               _isRestarting = false;
-              if (isListening && context.mounted) {
-                await resumeListeningSession();
+              if (!isListening) return; // Arka plana atılma koruması
+              final currentAppState = WidgetsBinding.instance.lifecycleState;
+              if (currentAppState == AppLifecycleState.paused || currentAppState == AppLifecycleState.inactive) {
+                stopVoiceDictation();
+                return;
               }
+              await resumeListeningSession();
             });
           }
         }

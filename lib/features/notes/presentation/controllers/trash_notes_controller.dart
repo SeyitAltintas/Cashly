@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:cashly/features/notes/data/models/note_model.dart';
@@ -15,6 +16,7 @@ class TrashNotesController extends ChangeNotifier {
 
   late final VoidCallback _boxListener;
   ValueListenable<Box>? _boxListenable;
+  Timer? _debounceTimer;
 
   List<NoteModel> get trashNotes => _trashNotes;
   Set<String> get selectedNoteIds => Set.of(_selectedNoteIds);
@@ -35,8 +37,12 @@ class TrashNotesController extends ChangeNotifier {
     _fetchTrashNotes();
 
     _boxListener = () {
-      _fetchTrashNotes();
-      notifyListeners();
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(milliseconds: 150), () {
+        if (_isDisposed) return;
+        _fetchTrashNotes();
+        notifyListeners();
+      });
     };
     _boxListenable = _repository.listenable();
     _boxListenable!.addListener(_boxListener);
@@ -119,6 +125,7 @@ class TrashNotesController extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
+    _debounceTimer?.cancel();
     _boxListenable?.removeListener(_boxListener);
     super.dispose();
   }

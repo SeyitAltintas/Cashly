@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:cashly/features/notes/data/models/note_model.dart';
@@ -214,11 +214,13 @@ class NotesListController extends ChangeNotifier {
     if (!_isReady) return;
     if (event.key == 'prefs_is_grid_view') return;
 
-    // BUG 9 FIX: ├ûnceki kodda ├ğift notifyListeners() ve ├ğift sort vard─▒.
-    // _fetchAndCacheAllNotes() i├ğinde zaten s─▒ralama ve _updateVisibleNotes()
-    // ├ğa─ş─▒r─▒l─▒yor; bu UI flicker'a ve gereksiz re-render'a yol a├ğ─▒yordu.
-    _fetchAndCacheAllNotes();
-    notifyListeners();
+    // Hive Gecikmesi (Debounce): Çoklu veri değişimlerinde UI'ın sürekli tetiklenmesini önle
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 150), () {
+      if (_isDisposed) return;
+      _fetchAndCacheAllNotes();
+      notifyListeners();
+    });
   }
 
   void _fetchAndCacheAllNotes() {
