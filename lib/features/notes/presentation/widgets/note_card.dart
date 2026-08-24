@@ -290,13 +290,15 @@ class NoteCard extends StatelessWidget {
       if (index > start) {
         spans.add(TextSpan(text: text.substring(start, index), style: style));
       }
+      // BUG 31 FIX: query.length değil lowerQuery.length kullanılmalı.
+      final matchLength = lowerQuery.length;
       spans.add(
         TextSpan(
-          text: text.substring(index, index + query.length),
+          text: text.substring(index, index + matchLength),
           style: highlightStyle,
         ),
       );
-      start = index + query.length;
+      start = index + matchLength;
     }
 
     if (start < text.length) {

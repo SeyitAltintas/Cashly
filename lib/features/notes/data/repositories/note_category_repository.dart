@@ -64,7 +64,8 @@ class NoteCategoryRepository {
     
     Future<void> addIfNotExists(String name) async {
       if (!existingNames.contains(name)) {
-        await saveCategory(NoteCategoryModel.create(name: name));
+        final category = NoteCategoryModel.create(name: name);
+        await _box!.put(category.id, category.toMap());
       }
     }
 

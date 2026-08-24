@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:cashly/features/notes/data/models/note_model.dart';
@@ -32,8 +32,8 @@ class NotesListController extends ChangeNotifier {
 
   // Getters
   String get searchQuery => _searchQuery;
-  // Her çağrıda yeni kopya döndür: Selector referans eşitliğine baktığı için
-  // aynı Set mutate edilirse değişimi yakalayamaz.
+  // Her ├ğa─şr─▒da yeni kopya d├Ând├╝r: Selector referans e┼şitli─şine bakt─▒─ş─▒ i├ğin
+  // ayn─▒ Set mutate edilirse de─şi┼şimi yakalayamaz.
   Set<String> get selectedNoteIds => Set.of(_selectedNoteIds);
   bool get isReady => _isReady;
   String? get selectedFilterId => _selectedFilterId;
@@ -45,7 +45,7 @@ class NotesListController extends ChangeNotifier {
   NoteCategoryRepository get categoryRepository => _categoryRepository;
 
   Future<void> init() async {
-    if (_isReady) return; // Çift tetiklenme koruması (Double-init prevention)
+    if (_isReady) return; // ├çift tetiklenme korumas─▒ (Double-init prevention)
     
     try {
       await _repository.init();
@@ -56,14 +56,14 @@ class NotesListController extends ChangeNotifier {
       _fetchAndCacheAllNotes();
       notifyListeners();
       
-      // Çöp kutusundaki 30 günden eski notları arka planda temizle
+      // ├ç├Âp kutusundaki 30 g├╝nden eski notlar─▒ arka planda temizle
       _repository.cleanOldTrashNotes(30).catchError((e) {
         debugPrint('cleanOldTrashNotes error: $e');
       });
 
       _boxSubscription = _repository.watch().listen(_onBoxEvent);
     } catch (e) {
-      // DB yüklenirken hata çıkarsa ekranda sonsuz loading dönmesini engelle
+      // DB y├╝klenirken hata ├ğ─▒karsa ekranda sonsuz loading d├Ânmesini engelle
       debugPrint('NotesListController init error: $e');
       _isReady = true;
       notifyListeners();
@@ -76,8 +76,8 @@ class NotesListController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Editörden veya başka bir sayfadan döndükten sonra
-  /// notlar ve kategoriler tamamen yeniden yüklenir.
+  /// Edit├Ârden veya ba┼şka bir sayfadan d├Ând├╝kten sonra
+  /// notlar ve kategoriler tamamen yeniden y├╝klenir.
   void forceRefresh() {
     if (!_isReady) return;
     _allCategories = _categoryRepository.getAllCategories();
@@ -91,19 +91,19 @@ class NotesListController extends ChangeNotifier {
     
     _searchQuery = lowerQuery;
     
-    // EC-GHOST: Arama değiştiğinde eski seçimleri temizle (Görünmez not silme koruması)
+    // EC-GHOST: Arama de─şi┼şti─şinde eski se├ğimleri temizle (G├Âr├╝nmez not silme korumas─▒)
     _selectedNoteIds.clear();
 
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
 
-    // Arama tamamen temizlendiyse listeyi anında getir (bekleme)
+    // Arama tamamen temizlendiyse listeyi an─▒nda getir (bekleme)
     if (lowerQuery.isEmpty) {
       _updateVisibleNotes();
       notifyListeners();
       return;
     }
 
-    // 300ms Debounce: UI hemen tepki versin diye notifyListeners çağrılır ama filtreleme gecikir
+    // 300ms Debounce: UI hemen tepki versin diye notifyListeners ├ğa─şr─▒l─▒r ama filtreleme gecikir
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       _updateVisibleNotes();
       notifyListeners();
@@ -115,7 +115,7 @@ class NotesListController extends ChangeNotifier {
   void setFilter(String? filterId) {
     _selectedFilterId = filterId;
     
-    // EC-GHOST: Filtre (Kategori) değiştiğinde eski seçimleri temizle
+    // EC-GHOST: Filtre (Kategori) de─şi┼şti─şinde eski se├ğimleri temizle
     _selectedNoteIds.clear();
     
     _updateVisibleNotes();
@@ -161,7 +161,7 @@ class NotesListController extends ChangeNotifier {
     final ids = _selectedNoteIds.toList();
     clearSelection();
     await _repository.deleteNotes(ids);
-    // Hive event beklemeye gerek yok: listede anında silme garantisi
+    // Hive event beklemeye gerek yok: listede an─▒nda silme garantisi
     forceRefresh();
   }
 
@@ -171,20 +171,29 @@ class NotesListController extends ChangeNotifier {
     final ids = _selectedNoteIds.toList();
     final unlocked = await _repository.unlockSecureNotes(pin);
     if (!unlocked) return false;
-    
-    await _repository.secureNotes(ids);
-    clearSelection();
-    await _repository.closeSecureNotes();
+
+    // BUG 15 FIX: secureNotes() exception f─▒rlatsa dahi kasa her ko┼şulda
+    // kapat─▒lmal─▒. try/finally ile g├╝venlik garantileniyor.
+    try {
+      await _repository.secureNotes(ids);
+      clearSelection();
+    } finally {
+      await _repository.closeSecureNotes();
+    }
     notifyListeners();
     return true;
   }
 
   Future<void> createSecurePinAndSecureSelected(String pin) async {
-    await _repository.setSecurePin(pin);
     final ids = _selectedNoteIds.toList();
-    await _repository.secureNotes(ids);
-    clearSelection();
-    await _repository.closeSecureNotes();
+    await _repository.setSecurePin(pin);
+    // BUG 15 FIX: Ayn─▒ g├╝venlik garantisi burada da uygulan─▒yor.
+    try {
+      await _repository.secureNotes(ids);
+      clearSelection();
+    } finally {
+      await _repository.closeSecureNotes();
+    }
     notifyListeners();
   }
 
@@ -204,20 +213,11 @@ class NotesListController extends ChangeNotifier {
   void _onBoxEvent(BoxEvent event) {
     if (!_isReady) return;
     if (event.key == 'prefs_is_grid_view') return;
-    
-    // YENİ KOD: Hive'ın putAll/deleteAll gibi çoklu işlemlerinde
-    // event.key, event.deleted gibi alanlar güvenilmez olabilir.
-    // Bu yüzden kutuda HERHANGİ BİR değişiklik olduğunda listeyi baştan çekiyoruz.
-    _fetchAndCacheAllNotes();
-    notifyListeners();
-    
-    _allNotes.sort((a, b) {
-      if (a.isPinned && !b.isPinned) return -1;
-      if (!a.isPinned && b.isPinned) return 1;
-      return b.updatedAt.compareTo(a.updatedAt);
-    });
 
-    _updateVisibleNotes();
+    // BUG 9 FIX: ├ûnceki kodda ├ğift notifyListeners() ve ├ğift sort vard─▒.
+    // _fetchAndCacheAllNotes() i├ğinde zaten s─▒ralama ve _updateVisibleNotes()
+    // ├ğa─ş─▒r─▒l─▒yor; bu UI flicker'a ve gereksiz re-render'a yol a├ğ─▒yordu.
+    _fetchAndCacheAllNotes();
     notifyListeners();
   }
 
@@ -225,7 +225,7 @@ class NotesListController extends ChangeNotifier {
     if (!_isReady) return;
     _allNotes = _repository.getAllNotes();
 
-    // Ghost Selection Koruması: Seçili not silinmişse seçimden düşür.
+    // Ghost Selection Korumas─▒: Se├ğili not silinmi┼şse se├ğimden d├╝┼ş├╝r.
     if (_selectedNoteIds.isNotEmpty) {
       final allNoteIds = _allNotes.map((n) => n.id).toSet();
       _selectedNoteIds.removeWhere((id) => !allNoteIds.contains(id));
@@ -243,7 +243,7 @@ class NotesListController extends ChangeNotifier {
 
     if (_searchQuery.isNotEmpty) {
       notes = notes.where((note) {
-        // searchableText kayıt sırasında repository tarafından hesaplanır;
+        // searchableText kay─▒t s─▒ras─▒nda repository taraf─▒ndan hesaplan─▒r;
         // runtime'da JSON parse gerekmez (O(1) string.contains).
         final titleMatch = _toTurkishLowerCase(note.title).contains(_searchQuery);
         final contentMatch = note.searchableText.contains(_searchQuery);
@@ -259,7 +259,7 @@ class NotesListController extends ChangeNotifier {
   }
 
   String _toTurkishLowerCase(String text) {
-    return text.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase();
+    return text.replaceAll('I', '─▒').replaceAll('─░', 'i').toLowerCase();
   }
 
   @override

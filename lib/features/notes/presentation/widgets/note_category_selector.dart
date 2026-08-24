@@ -398,9 +398,19 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
                   if (name.isNotEmpty) {
                     setState(() => _isLoading = true);
                     final newCat = NoteCategoryModel.create(name: name);
-                    await widget.onCategoryCreated(newCat);
-                    if (!mounted) return;
-                    Navigator.pop(this.context);
+                    try {
+                      await widget.onCategoryCreated(newCat);
+                      if (!mounted) return;
+                      // ignore: use_build_context_synchronously
+                      Navigator.pop(context);
+                    } catch (_) {
+                      // BUG 32 FIX: onCategoryCreated exception fırlatırsa
+                      // _isLoading = true kalır ve buton sonsuz loading'e girer.
+                      // finally bloğu ile her koşulda reset garanti edilir.
+                      if (mounted) {
+                        setState(() => _isLoading = false);
+                      }
+                    }
                   }
                 },
           style: FilledButton.styleFrom(

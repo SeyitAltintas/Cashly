@@ -28,6 +28,16 @@ class _TrashNotesView extends StatefulWidget {
 
 class _TrashNotesViewState extends State<_TrashNotesView> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<TrashNotesController>().refresh();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final controller = context.watch<TrashNotesController>();

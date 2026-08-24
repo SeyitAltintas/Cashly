@@ -22,12 +22,18 @@ class TrashNotesController extends ChangeNotifier {
 
   bool _isInitialized = false;
 
-  void init() {
-    if (_isInitialized) return; // Çift init koruması
+  // BUG 10 FIX: init() senkrondu; repository initÔÇÖi bitmeden
+  // getTrashNotes() ├ğa─ş─▒r─▒l─▒yordu ÔÇö _indexBox null iken bo┼ş liste d├Ân├╝yordu.
+  // listenable() ├ğa─ş─▒r─▒s─▒ da requireIndexBox assert f─▒rlatabiliyordu.
+  Future<void> init() async {
+    if (_isInitialized) return; // ├çift init korumas─▒
     _isInitialized = true;
 
+    // Repository kutular─▒ a├ğ─▒k de─şilse ├Ânce ba┼şlat.
+    await _repository.init();
+
     _fetchTrashNotes();
-    
+
     _boxListener = () {
       _fetchTrashNotes();
       notifyListeners();
@@ -43,6 +49,15 @@ class TrashNotesController extends ChangeNotifier {
       final allNoteIds = _trashNotes.map((n) => n.id).toSet();
       _selectedNoteIds.removeWhere((id) => !allNoteIds.contains(id));
     }
+  }
+
+  /// BUG 36 FIX: TrashNotesController singleton olduğu için
+  /// sayfa tekrar açıldığında init() skip edilir ve eski veriler gösterilir.
+  /// refresh() her sayfa açılışında çağrılır ve cache'i zorla günceller.
+  void refresh() {
+    if (!_isInitialized) return;
+    _fetchTrashNotes();
+    notifyListeners();
   }
 
   void toggleSelection(String id) {

@@ -441,7 +441,11 @@ class _NotesListViewState extends State<_NotesListView> {
         repository: controller.repository,
         commonCategoryId: commonCategoryId,
         hasAnyTagAssigned: hasAnyTagAssigned,
-        onDone: controller.clearSelection,
+        onDone: () {
+          controller.clearSelection();
+          // BUG 35 FIX: UI senkronizasyonu için forceRefresh
+          controller.forceRefresh();
+        },
       ),
     );
   }

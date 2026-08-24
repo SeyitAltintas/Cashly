@@ -301,7 +301,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         if (note.isSecure) {
           await _repository.deleteSecureNotes([note.id]);
         } else {
-          await _repository.deleteNotes([note.id]);
+          // BUG 11 FIX: deleteNotes() soft delete yapıyordu — boş notlar çöp
+          // kutusuna düşüyordu. Boş notun hiçbir izi kalmamalı.
+          await _repository.permanentlyDeleteNotes([note.id]);
         }
       }
 
@@ -341,7 +343,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         _hasUnsavedChanges = false;
         if (widget.isSecure) _repository.hasUnsavedSecureNote = false;
       }
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('SAVE ERROR: $e');
+      debugPrint(st.toString());
       // EC-SAVE-ERR: Kayıt başarısız. Hata gösterilir ve canPop=true yapılır
       // böylece kullanıcı editorde sıkışmaz.
       if (mounted) {
@@ -441,12 +445,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           }
         }
       },
-      // Hero yeniden eklendi: Scaffold hatasını aşmak için ConditionalHero ile sarmalanmıştır.
-      child: ConditionalHero(
-        tag: widget.noteId != null ? 'note_hero_${widget.noteId}' : null,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
           color: bgColor,
           child: Scaffold(
             backgroundColor: Colors.transparent,
@@ -603,8 +604,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Color _getTextColor(ColorScheme colorScheme) {
@@ -818,6 +818,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               FocusScope.of(context).unfocus();
               if (_hasUnsavedChanges) {
                 await _saveNote();
+              }
+              // BUG 12 FIX: _saveNote() _isSaving iken çağrılırsa _saveQueued=true yapıp
+              // anında döner. Kuyruklanmış kaydetme bitmeden pop yapılırsa
+              // son değişiklik kayboluyordu.
+              while (_isSaving || _saveQueued) {
+                await Future.delayed(const Duration(milliseconds: 50));
               }
               if (mounted) {
                 Navigator.of(context).pop();
